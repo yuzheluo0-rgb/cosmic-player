@@ -18,6 +18,7 @@
     "NeteaseCloudMusicApi": "^4.16.0",
     "qq-music-api": "^1.1.2",
     "qrcode": "^1.5.4",
+    "session-file-store": "^1.5.0",
     "sherpa-onnx": "^1.13.2",
     "whisper-node": "^1.1.1"
   }

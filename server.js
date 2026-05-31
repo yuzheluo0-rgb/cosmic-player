@@ -32,7 +32,9 @@ const QQ_REDIRECT = process.env.QQ_REDIRECT || `http://localhost:${PORT}/oauth/q
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+const FileStore = require("session-file-store")(session);
 app.use(session({
+  store: new FileStore({ path: path.join(__dirname, "data/sessions"), ttl: 7 * 24 * 3600 }),
   secret: "cosmic-player-singer-space-2025",
   resave: false,
   saveUninitialized: false,
