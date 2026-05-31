@@ -33,7 +33,7 @@ const QQ_REDIRECT = process.env.QQ_REDIRECT || `http://localhost:${PORT}/oauth/q
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(session({
-  secret: "cosmic-player-secret-" + Date.now(),
+  secret: "cosmic-player-singer-space-2025",
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 7 * 24 * 3600 * 1000 },
@@ -244,21 +244,19 @@ app.get("/api/netease/playlists", async (req, res) => {
     const api = await getCloudApi();
     const cookie = getUserCookie(req);
     if (!cookie) return res.status(401).json({ error: "请先登录网易云" });
-    // If no uid stored, get user account first
     let uid = req.session.uid || req.session.user?.userId;
+    // Fallback: extract uid from cookie MUSIC_U field
     if (!uid) {
-      try {
-        const acct = await api.user_account({ cookie });
-        uid = acct.body?.account?.id || acct.body?.profile?.userId;
-      } catch {}
-      if (!uid) {
-        try {
-          const detail = await api.user_detail({ cookie });
-          uid = (detail.body?.profile || detail.body)?.userId;
-        } catch {}
-      }
-      if (uid) req.session.uid = uid;
+      const uidMatch = cookie.match(/MUSIC_U=(\d+)/);
+      if (uidMatch) { uid = uidMatch[1]; req.session.uid = uid; }
     }
+    if (!uid) {
+      try { const acct = await api.user_account({ cookie }); uid = acct.body?.account?.id || acct.body?.profile?.userId; } catch {}
+    }
+    if (!uid) {
+      try { const detail = await api.user_detail({ cookie }); uid = (detail.body?.profile || detail.body)?.userId; } catch {}
+    }
+    if (uid) req.session.uid = uid;
     if (!uid) return res.status(401).json({ error: "请先登录网易云" });
     const result = await api.user_playlist({ uid: String(uid), cookie });
     res.json(result.body);
@@ -283,9 +281,13 @@ app.get("/api/netease/likelist", async (req, res) => {
     if (!cookie) return res.status(401).json({ error: "请先登录网易云" });
     let uid = req.session.uid || req.session.user?.userId;
     if (!uid) {
-      try { const acct = await api.user_account({ cookie }); uid = acct.body?.account?.id || acct.body?.profile?.userId; } catch {}
-      if (uid) req.session.uid = uid;
+      const uidMatch = cookie.match(/MUSIC_U=(\d+)/);
+      if (uidMatch) { uid = uidMatch[1]; req.session.uid = uid; }
     }
+    if (!uid) {
+      try { const acct = await api.user_account({ cookie }); uid = acct.body?.account?.id || acct.body?.profile?.userId; } catch {}
+    }
+    if (uid) req.session.uid = uid;
     if (!uid) return res.json({ ids: [] });
     const result = await api.likelist({ uid, cookie });
     res.json(result.body);
@@ -299,9 +301,13 @@ app.get("/api/netease/likelist/songs", async (req, res) => {
     if (!cookie) return res.status(401).json({ error: "请先登录网易云" });
     let uid = req.session.uid || req.session.user?.userId;
     if (!uid) {
-      try { const acct = await api.user_account({ cookie }); uid = acct.body?.account?.id || acct.body?.profile?.userId; } catch {}
-      if (uid) req.session.uid = uid;
+      const uidMatch = cookie.match(/MUSIC_U=(\d+)/);
+      if (uidMatch) { uid = uidMatch[1]; req.session.uid = uid; }
     }
+    if (!uid) {
+      try { const acct = await api.user_account({ cookie }); uid = acct.body?.account?.id || acct.body?.profile?.userId; } catch {}
+    }
+    if (uid) req.session.uid = uid;
     if (!uid) return res.json({ songs: [] });
     const { offset = 0, limit = 200 } = req.query;
     const songs = [];
