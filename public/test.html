@@ -1,0 +1,21 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Test</title></head>
+<body style="background:#000;color:#fff;font-family:sans-serif;padding:20px">
+<h1>基础测试</h1>
+<button onclick="t3d()" style="padding:10px">测试Three.js</button>
+<button onclick="ts()" style="padding:10px">测试搜索API</button>
+<button onclick="tp()" style="padding:10px">测试播放API</button>
+<div id="o" style="margin-top:16px;color:#0f0"></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+document.getElementById('o').textContent='模块加载OK';
+window.t3d=()=>{
+  const s=new THREE.Scene(),c=new THREE.PerspectiveCamera(75,1,0.1,10);
+  const r=new THREE.WebGLRenderer({antialias:true});r.setSize(300,300);
+  s.add(new THREE.Mesh(new THREE.BoxGeometry(),new THREE.MeshBasicMaterial({color:0x00ff00})));
+  c.position.z=3;r.render(s,c);document.body.appendChild(r.domElement);
+  document.getElementById('o').textContent='Three.js渲染OK';
+};
+window.ts=async()=>{const r=await fetch('/api/music/cloudsearch?keywords=test&limit=1');const d=await r.json();document.getElementById('o').textContent='搜索:'+(d.code===200?'OK':'FAIL')};
+window.tp=async()=>{const r=await fetch('/api/stream/5257138');document.getElementById('o').textContent='播放:'+(r.status===200?'OK':'FAIL')};
+</script></body></html>

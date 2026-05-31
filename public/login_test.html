@@ -1,0 +1,66 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Login Test</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;font-family:sans-serif}
+#loginOverlay{display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;align-items:center;justify-content:center}
+#loginBox{background:rgba(5,10,30,0.95);border:1px solid rgba(0,212,255,0.3);border-radius:18px;padding:32px;text-align:center;max-width:360px;width:90%;color:#fff}
+#loginBox h2{font-family:sans-serif;font-size:1.2rem;margin-bottom:18px;color:#00d4ff}
+.login-btn{width:100%;padding:12px;border:none;border-radius:24px;font-size:.92rem;cursor:pointer;font-weight:700;margin-bottom:8px}
+.btn-qq{background:linear-gradient(135deg,#12b7f5,#0d8bcc);color:#fff}
+.btn-ne{background:transparent;color:#f55;border:1px solid rgba(255,50,50,0.3)}
+#neLoginStep{display:none;text-align:center}
+#neQRwrap{width:180px;height:180px;margin:0 auto 12px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center}
+#neQRstatus{color:#889;font-size:.78rem;margin-bottom:10px}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:18px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:#00d4ff;font-size:.78rem;z-index:200;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+</style></head><body>
+<div id="loginOverlay"><div id="loginBox">
+  <h2>Login Test</h2>
+  <div id="loginMain">
+    <button class="login-btn btn-qq" onclick="_qqLogin()">QQ</button>
+    <button class="login-btn btn-ne" onclick="_showNELogin()">NetEase QR</button>
+  </div>
+  <div id="neLoginStep">
+    <div id="neQRwrap"></div>
+    <div id="neQRstatus"></div>
+    <button class="login-btn btn-ne" onclick="_startNELogin()">Refresh</button>
+    <button style="display:block;margin:8px auto;background:none;border:none;color:#556;cursor:pointer" onclick="document.getElementById('loginMain').style.display='';document.getElementById('neLoginStep').style.display='none'">Back</button>
+  </div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast'},2500)}
+
+window._showNELogin=function(){
+  document.getElementById('loginMain').style.display='none';
+  document.getElementById('neLoginStep').style.display='';
+  window._startNELogin();
+};
+
+window._startNELogin=async function(){
+  toast('Starting...');
+  try{
+    var r=await fetch('/api/login/netease/qr/key');
+    var d=await r.json();
+    toast('Key response: '+JSON.stringify(d).slice(0,80));
+    var key=d.data&&d.data.unikey;
+    if(!key){toast('No key in response');return}
+    var url='https://music.163.com/login?codekey='+key;
+    toast('Got key, generating QR...');
+    var qrRes=await fetch('/api/qrcode?url='+encodeURIComponent(url));
+    var qrData=await qrRes.json();
+    toast('QR data length: '+(qrData.dataUrl?qrData.dataUrl.length:0));
+    var wrap=document.getElementById('neQRwrap');
+    var img=document.createElement('img');
+    img.src=qrData.dataUrl;
+    img.style.width='170px';img.style.height='170px';
+    wrap.innerHTML='';wrap.appendChild(img);
+    document.getElementById('neQRstatus').textContent='Scan with NetEase App';
+    toast('QR displayed!');
+  }catch(e){
+    toast('ERROR: '+e.message);
+  }
+};
+
+window._qqLogin=function(){toast('QQ login clicked')};
+</script></body></html>

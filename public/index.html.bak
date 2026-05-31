@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌌 COSMIC PLAYER</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC','Orbitron',sans-serif;background:#000;overflow:hidden;height:100vh;color:#e0f0ff;user-select:none}
+canvas#bg{position:fixed;top:0;left:0;z-index:0}
+#app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;pointer-events:none}
+#app>*{pointer-events:auto}
+#topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:linear-gradient(180deg,rgba(3,8,25,0.9) 0%,rgba(3,8,25,0) 100%)}
+.logo{font-family:'Orbitron';font-size:1.1rem;font-weight:900;background:linear-gradient(135deg,#00d4ff,#7b2fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+#userBtn{cursor:pointer;padding:5px 14px;border:1px solid rgba(0,212,255,0.4);border-radius:18px;font-size:.78rem;color:#00d4ff;background:rgba(0,20,50,0.5);transition:all .3s}
+#userBtn:hover{border-color:#00d4ff;box-shadow:0 0 16px rgba(0,212,255,0.2)}
+#main{flex:1;display:flex;gap:12px;padding:0 12px;overflow:hidden}
+.panel{background:rgba(3,8,25,0.65);backdrop-filter:blur(10px);border:1px solid rgba(0,212,255,0.1);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.panel-header{padding:10px 14px;border-bottom:1px solid rgba(0,212,255,0.08);font-family:'Orbitron';font-size:.72rem;letter-spacing:2px;color:#00d4ff;display:flex;justify-content:space-between;align-items:center}
+#leftPanel{width:300px;flex-shrink:0}
+#leftPanel .panel-header .collapse-btn{cursor:pointer;font-size:.8rem;opacity:.6;transition:opacity .2s}
+#leftPanel .panel-header .collapse-btn:hover{opacity:1}
+#playlist{flex:1;overflow-y:auto;padding:4px}
+#playlist::-webkit-scrollbar{width:3px}
+#playlist::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:2px}
+#searchBox{margin:6px;position:relative}
+#searchBox input{width:100%;padding:9px 36px 9px 12px;background:rgba(3,8,20,0.6);border:1px solid rgba(0,212,255,0.12);border-radius:20px;color:#e0f0ff;font-size:.8rem;outline:none;transition:all .3s}
+#searchBox input:focus{border-color:#00d4ff;box-shadow:0 0 15px rgba(0,212,255,0.12)}
+#searchBox button{position:absolute;right:2px;top:2px;width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#00d4ff,#7b2fff);color:#fff;font-size:.8rem;cursor:pointer}
+#searchResults{position:absolute;top:42px;left:0;right:0;background:rgba(3,8,22,0.97);border:1px solid rgba(0,212,255,0.15);border-radius:10px;max-height:220px;overflow-y:auto;z-index:10;display:none}
+.song-item{padding:8px 10px;margin:1px 0;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;font-size:.76rem}
+.song-item:hover{background:rgba(0,212,255,0.06)}
+.song-item.active{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.15)}
+.song-item .idx{width:16px;text-align:center;color:#446;font-family:'Orbitron';font-size:.6rem;flex-shrink:0}
+.song-item.active .idx{color:#00d4ff}
+.song-item .info{flex:1;min-width:0}
+.song-item .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-item .artist{font-size:.66rem;color:#778}
+.song-item .del-btn{width:18px;height:18px;border-radius:50%;border:none;background:rgba(255,50,50,0.1);color:#f66;cursor:pointer;font-size:.55rem;opacity:0;transition:opacity .2s;flex-shrink:0;line-height:18px;text-align:center;padding:0}
+.song-item:hover .del-btn{opacity:1}
+.song-item .del-btn:hover{background:rgba(255,50,50,0.3)}
+
+#rightPanel{flex:1;display:flex;flex-direction:column;gap:0}
+#planetZone{flex:1;position:relative;min-height:180px}
+#planetZone canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+#albumCard{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:110px;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1.5px solid rgba(0,212,255,0.2);box-shadow:0 0 25px rgba(0,212,255,0.1);z-index:5;background:rgba(3,8,22,0.7);display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+#albumCard img{width:100%;height:100%;object-fit:cover}
+#albumCard .ph{opacity:.25}
+#trackSection{text-align:center;padding:4px 16px 0}
+#trackTitle{font-size:1rem;font-weight:700}
+#trackArtist{color:#778;font-size:.75rem;margin-bottom:2px}
+
+#starTrailWrap{padding:0 20px;position:relative}
+#starTrailCanvas{width:100%;height:30px;border-radius:14px;cursor:pointer}
+#trailTimes{display:flex;justify-content:space-between;padding:1px 22px 0;font-family:'Orbitron';font-size:.6rem;color:#556}
+
+#controls{display:flex;align-items:center;justify-content:center;gap:12px;padding:4px 0 10px}
+.ctrl-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(0,212,255,0.15);background:rgba(3,8,22,0.5);color:#00d4ff;font-size:.85rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.ctrl-btn:hover{border-color:#00d4ff;box-shadow:0 0 14px rgba(0,212,255,0.2)}
+.ctrl-btn.play{width:46px;height:46px;font-size:1.1rem;background:linear-gradient(135deg,#00d4ff,#7b2fff);color:#fff;border:none}
+.ctrl-btn.play:hover{box-shadow:0 0 24px rgba(0,212,255,0.4)}
+.ctrl-btn.sm{width:28px;height:28px;font-size:.65rem}
+#volumeWrap{display:flex;align-items:center;gap:4px}
+#volumeSlider{width:55px;accent-color:#00d4ff}
+
+body.immersive #topbar,body.immersive #leftPanel,body.immersive #controls,body.immersive #trackSection,body.immersive #starTrailWrap,body.immersive #trailTimes,body.immersive #albumCard,body.immersive .panel-header,body.immersive #searchBox,body.immersive #playlist{opacity:0;transition:opacity .6s;pointer-events:none}
+body.immersive #rightPanel{background:transparent!important;border-color:transparent!important;backdrop-filter:none!important}
+body.immersive .panel{background:transparent!important;backdrop-filter:none!important;border-color:transparent!important}
+body.immersive #planetZone canvas{opacity:1}
+body.immersive #themePicker{opacity:.25}
+body.immersive #immerseBtn{opacity:.35}
+body.immersive #userBtn{opacity:0;pointer-events:none}
+body.immersive #trackTitle,body.immersive #trackArtist{opacity:0}
+#immerseBtn{position:fixed;bottom:20px;right:20px;z-index:60;width:44px;height:44px;border-radius:50%;border:2px solid rgba(0,212,255,0.4);background:rgba(0,20,50,0.7);color:#00d4ff;cursor:pointer;font-size:1.1rem;transition:all .3s;backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(0,212,255,0.15)}
+#immerseBtn:hover{border-color:#00d4ff;box-shadow:0 0 28px rgba(0,212,255,0.4);transform:scale(1.08);background:rgba(0,30,70,0.85)}
+#topbar,#leftPanel,#controls,#trackSection,#starTrailWrap,#trailTimes,#albumCard,.panel-header{transition:opacity .4s}
+
+#themePicker{position:fixed;bottom:14px;left:14px;z-index:50;display:flex;gap:6px}
+.theme-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .3s}
+.theme-dot.active{border-color:#fff;box-shadow:0 0 12px currentColor}
+.theme-dot:hover{transform:scale(1.15)}
+
+#loginOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center}
+#loginOverlay.show{display:flex}
+#loginBox{background:rgba(3,8,22,0.95);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.25);border-radius:18px;padding:32px;text-align:center;max-width:340px;width:90%}
+#loginBox h2{font-family:'Orbitron';font-size:1.2rem;margin-bottom:18px;color:#00d4ff}
+#qqLoginBtn{padding:11px 30px;border:none;border-radius:24px;font-size:.95rem;cursor:pointer;background:linear-gradient(135deg,#12b7f5,#0d8bcc);color:#fff;font-weight:700;transition:all .3s;width:100%}
+#qqLoginBtn:hover{box-shadow:0 0 20px rgba(18,183,245,0.4)}
+#skipLogin{display:block;margin-top:12px;color:#445;cursor:pointer;font-size:.75rem;background:none;border:none;width:100%}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);padding:9px 20px;border-radius:18px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18);color:#00d4ff;font-size:.75rem;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+#resizeHandle{position:absolute;right:-2px;top:0;bottom:0;width:5px;cursor:col-resize;z-index:10}
+#resizeHandle:hover{background:rgba(0,212,255,0.25)}
+
+/* Lyrics — cosmic scroll */
+#lyricsOverlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;height:60%;overflow:hidden;pointer-events:none;text-align:center;width:80%;max-width:500px}
+#lyricsStage{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;mask-image:linear-gradient(to bottom,transparent 5%,#fff 30%,#fff 70%,transparent 95%);-webkit-mask-image:linear-gradient(to bottom,transparent 5%,#fff 30%,#fff 70%,transparent 95%)}
+.lyric-line{transition:all .5s cubic-bezier(.23,1,.32,1);font-size:.75rem;color:rgba(255,255,255,0.18);line-height:2.6;white-space:nowrap;position:relative;letter-spacing:1px}
+.lyric-line.active{color:#fff;font-size:1.05rem;font-weight:700;text-shadow:0 0 20px rgba(0,212,255,0.9),0 0 40px rgba(120,40,255,0.5),0 0 80px rgba(0,212,255,0.3);letter-spacing:2px}
+.lyric-line.active::before,.lyric-line.active::after{content:'◆';position:absolute;top:50%;transform:translateY(-50%);font-size:.5rem;color:rgba(0,212,255,0.6);animation:dotPulse 1.5s ease-in-out infinite}
+.lyric-line.active::before{left:-24px;animation-delay:0s}
+.lyric-line.active::after{right:-24px;animation-delay:.75s}
+@keyframes dotPulse{0%,100%{opacity:.3;transform:translateY(-50%) scale(.7)}50%{opacity:1;transform:translateY(-50%) scale(1.3)}}
+body.immersive #lyricsOverlay{width:60%;max-width:700px}
+body.immersive .lyric-line.active{font-size:1.3rem;text-shadow:0 0 30px rgba(0,212,255,1),0 0 60px rgba(120,40,255,0.7),0 0 100px rgba(0,212,255,0.4)}
+.lyrics-toggle{position:absolute;right:14px;bottom:14px;z-index:7;padding:5px 12px;border-radius:14px;border:1px solid rgba(0,212,255,0.2);background:rgba(3,8,22,0.6);color:#00d4ff;cursor:pointer;font-size:.7rem;transition:all .2s}
+.lyrics-toggle:hover{border-color:#00d4ff;box-shadow:0 0 12px rgba(0,212,255,0.2)}
+.lyrics-toggle.hidden-state{opacity:.4}
+@media(max-width:768px){#main{flex-direction:column;padding:0 6px}#leftPanel{width:100%;max-height:220px}#planetZone{min-height:150px}#albumCard{width:70px;right:6px}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app">
+  <div id="topbar">
+    <div class="logo">COSMIC<span style="font-size:.45rem;display:block;letter-spacing:3px;opacity:.6">UNIVERSE PLAYER</span></div>
+    <button id="userBtn" onclick="toggleLogin()">🚀 登录</button>
+  </div>
+  <div id="main">
+    <div class="panel" id="leftPanel">
+      <div class="panel-header">🎵 播放列表 <span id="plCount" style="font-size:.6rem;color:#556">0</span>
+  <span style="display:flex;gap:4px">
+    <span onclick="loadRecommend()" style="cursor:pointer;font-size:.6rem;padding:2px 6px;border-radius:8px;border:1px solid rgba(0,212,255,0.2);color:#00d4ff" title="每日推荐">📅</span>
+    <span onclick="loadPlaylists()" style="cursor:pointer;font-size:.6rem;padding:2px 6px;border-radius:8px;border:1px solid rgba(0,212,255,0.2);color:#00d4ff" title="我的歌单">📋</span>
+    <span onclick="loadLikedSongs()" style="cursor:pointer;font-size:.6rem;padding:2px 6px;border-radius:8px;border:1px solid rgba(0,212,255,0.2);color:#00d4ff" title="我喜欢的">❤️</span>
+  </span>
+  <span class="collapse-btn" onclick="toggleLeftPanel()" id="collapseIcon">◀</span>
+</div>
+      <div id="searchBox">
+        <input type="text" id="searchInput" placeholder="搜索歌曲..." onkeydown="if(event.key==='Enter')doSearch()">
+        <button onclick="doSearch()">▶</button>
+        <div id="searchResults"></div>
+      </div>
+      <div id="playlist"><div style="color:#556;text-align:center;padding:30px 0;font-size:.75rem">搜索歌曲添加</div></div>
+    </div>
+    <div class="panel" id="rightPanel">
+      <div class="panel-header">🌍 深空星域</div>
+      <div id="planetZone">
+        <canvas id="planetCanvas"></canvas>
+        <div id="albumCard"><span class="ph">🌌</span></div>
+        <div id="lyricsOverlay"><div id="lyricsStage"></div></div>
+        <button class="lyrics-toggle" id="lyricsToggle" onclick="window.toggleLyrics()">🎤 歌词</button>
+      </div>
+      <div id="trackSection">
+        <div id="trackTitle" style="color:#556">等待播放</div>
+        <div id="trackArtist">—</div>
+      </div>
+      <div id="starTrailWrap"><canvas id="starTrailCanvas"></canvas></div>
+      <div id="trailTimes"><span id="trailCur">0:00</span><span id="trailDur">0:00</span></div>
+      <div id="controls">
+        <button class="ctrl-btn sm" onclick="toggleMode()" id="modeBtn">🔀</button>
+        <button class="ctrl-btn" onclick="prevSong()">⏮</button>
+        <button class="ctrl-btn play" id="playBtn" onclick="togglePlay()">▶</button>
+        <button class="ctrl-btn" onclick="nextSong()">⏭</button>
+        <div id="volumeWrap"><span style="font-size:.65rem;color:#556">🔊</span><input type="range" id="volumeSlider" min="0" max="100" value="70" oninput="setVol()"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<button id="immerseBtn" onclick="toggleImmersive()" title="沉浸模式 (ESC)">🌌</button>
+<div id="themePicker">
+  <div class="theme-dot active" style="background:#0d1b3e" onclick="switchTheme(0)" title="深空蓝"></div>
+  <div class="theme-dot" style="background:#1a0d28" onclick="switchTheme(1)" title="紫红星云"></div>
+  <div class="theme-dot" style="background:#0d1a18" onclick="switchTheme(2)" title="极光绿"></div>
+  <div class="theme-dot" style="background:#1a0f08" onclick="switchTheme(3)" title="赤红星系"></div>
+</div>
+<div id="loginOverlay"><div id="loginBox">
+  <h2>🌌 登录宇宙播放器</h2>
+  <div id="loginStep1">
+    <button id="qqLoginBtn" onclick="qqLogin()" style="width:100%;padding:12px;border:none;border-radius:24px;font-size:.95rem;cursor:pointer;background:linear-gradient(135deg,#12b7f5,#0d8bcc);color:#fff;font-weight:700;margin-bottom:8px;transition:all .3s">🐧 QQ 账号登录</button>
+    <button onclick="showNeteaseLogin()" style="width:100%;padding:12px;border:1px solid rgba(255,50,50,0.3);border-radius:24px;font-size:.9rem;cursor:pointer;background:transparent;color:#f55;transition:all .3s">🎵 网易云扫码登录</button>
+    <button id="skipLogin" onclick="skipLogin()" style="margin-top:12px;display:block;width:100%;background:none;border:none;color:#556;cursor:pointer;font-size:.75rem">跳过，直接使用</button>
+  </div>
+  <div id="loginStepNE" style="display:none;text-align:center">
+    <div id="neQRwrap" style="width:180px;height:180px;margin:0 auto 12px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center">
+      <canvas id="neQRcanvas" style="width:160px;height:160px"></canvas>
+    </div>
+    <div id="neQRstatus" style="color:#889;font-size:.78rem;margin-bottom:10px">请用网易云音乐App扫码</div>
+    <button onclick="refreshNELogin()" style="padding:8px 20px;border:1px solid rgba(255,50,50,0.25);border-radius:20px;background:transparent;color:#f55;cursor:pointer;font-size:.78rem;margin-bottom:8px">🔄 刷新</button>
+    <button onclick="backToLoginStep1()" style="display:block;margin:0 auto;background:none;border:none;color:#556;cursor:pointer;font-size:.72rem">返回</button>
+  </div>
+</div></div>
+<audio id="audioPlayer" preload="auto"></audio>
+<div class="toast" id="toast"></div>
+
+<meta http-equiv="Cache-Control" content="no-cache"><script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+window._err=function(m){const t=document.getElementById('toast');if(t){t.textContent='ERR: '+m;t.className='toast show'}else{alert('ERR: '+m)}};
+window.addEventListener('error',e=>{window._err(e.message)});
+window.addEventListener('unhandledrejection',e=>{window._err(e.reason?.message||'Promise error')});
+
+// ============ SPACE BG ============
+const bgCanvas=document.getElementById('bg');
+const bgR=new THREE.WebGLRenderer({canvas:bgCanvas,antialias:true,alpha:true});
+bgR.setPixelRatio(Math.min(devicePixelRatio,2));
+bgR.setSize(innerWidth,innerHeight);
+const sS=new THREE.Scene();
+const sC=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,80);
+sC.position.set(0,1.5,8);sC.lookAt(0,0,-3);
+
+// Glow sprite textures
+function glowTex(inner,outer){const c=document.createElement('canvas');c.width=128;c.height=128;const x=c.getContext('2d');const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,inner);g.addColorStop(0.08,inner);g.addColorStop(0.35,outer);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128);const t=new THREE.CanvasTexture(c);t.needsUpdate=true;return t}
+const gTexBlue=glowTex('rgba(160,210,255,1)','rgba(30,60,200,0.4)');
+const gTexWarm=glowTex('rgba(255,200,140,1)','rgba(200,80,20,0.4)');
+
+function starLayer(n,sz,sp,cl,tex){
+  const g=new THREE.BufferGeometry();const p=new Float32Array(n*3);const c=new Float32Array(n*3);
+  for(let i=0;i<n;i++){const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=sp[0]+Math.random()*(sp[1]-sp[0]);p[i*3]=r*Math.sin(ph)*Math.cos(th);p[i*3+1]=r*Math.sin(ph)*Math.sin(th);p[i*3+2]=r*Math.cos(ph);const co=new THREE.Color().setHSL(cl[0]+Math.random()*cl[1],0.55,0.5+Math.random()*cl[2]);c[i*3]=co.r;c[i*3+1]=co.g;c[i*3+2]=co.b}
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  return new THREE.Points(g,new THREE.PointsMaterial({size:sz,map:tex||null,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.85}));
+}
+const sl1=starLayer(5000,0.13,[5,40],[0.56,0.25,0.5],gTexBlue);
+const sl2=starLayer(3000,0.20,[8,30],[0.59,0.18,0.42],gTexBlue);
+const sl3=starLayer(1000,0.30,[10,26],[0.61,0.12,0.35],gTexWarm);
+const sl4=starLayer(250,0.50,[5,22],[0.57,0.22,0.32],gTexBlue);
+sS.add(sl1,sl2,sl3,sl4);
+
+// Nebula — higher quality
+const ng=new THREE.Group();
+for(let i=0;i<8;i++){
+  const g=new THREE.SphereGeometry(2+Math.random()*4,32,32);
+  const m=new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL(0.55+Math.random()*0.3,0.45,0.08+Math.random()*0.18),transparent:true,opacity:0.14,depthWrite:false});
+  const n=new THREE.Mesh(g,m);n.position.set((Math.random()-0.5)*22,(Math.random()-0.5)*14,(Math.random()-0.5)*12-5);ng.add(n);
+}
+sS.add(ng);
+
+// Milky way — more particles
+const mwG=new THREE.BufferGeometry();const mwP=new Float32Array(4000*3);const mwC=new Float32Array(4000*3);
+for(let i=0;i<4000;i++){mwP[i*3]=(Math.random()-0.5)*35;mwP[i*3+1]=(Math.random()-0.5)*2.5;mwP[i*3+2]=(Math.random()-0.5)*7-2;const c=new THREE.Color().setHSL(0.58+Math.random()*0.12,0.3,0.1+Math.random()*0.22);mwC[i*3]=c.r;mwC[i*3+1]=c.g;mwC[i*3+2]=c.b}
+mwG.setAttribute('position',new THREE.BufferAttribute(mwP,3));mwG.setAttribute('color',new THREE.BufferAttribute(mwC,3));
+const mw=new THREE.Points(mwG,new THREE.PointsMaterial({size:0.10,map:gTexBlue,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.6}));
+mw.rotation.x=0.6;mw.rotation.y=0.3;sS.add(mw);
+
+// Earth — 1024x512 high-res texture
+const earthG=new THREE.SphereGeometry(0.55,56,56);
+const ec=document.createElement('canvas');ec.width=1024;ec.height=512;const ex=ec.getContext('2d');
+// Ocean base with depth variation
+const og=ex.createLinearGradient(0,0,0,512);
+og.addColorStop(0,'#152d5e');og.addColorStop(0.15,'#1a4078');og.addColorStop(0.3,'#1e5090');og.addColorStop(0.5,'#2366a8');og.addColorStop(0.7,'#1e5090');og.addColorStop(0.85,'#1a4078');og.addColorStop(1,'#152d5e');
+ex.fillStyle=og;ex.fillRect(0,0,1024,512);
+// Ocean texture noise
+for(let i=0;i<3000;i++){const x=Math.random()*1024,y=Math.random()*512;const v=Math.random()>0.5?40:0;ex.fillStyle=`rgba(${v},${v+20},${v+80},0.03)`;ex.fillRect(x,y,4+Math.random()*12,3+Math.random()*6)}
+// Detailed continents
+ex.fillStyle='#3d8b40';
+const continents=[[200,100,140,90],[480,120,160,110],[750,80,120,80],[130,240,80,100],[380,230,130,90],[650,210,100,85],[820,190,80,95],[280,300,110,85],[500,310,140,80],[720,290,90,70],[160,360,75,80],[400,370,100,75],[600,360,85,60],[850,340,65,70],[320,140,55,65],[550,160,60,55],[700,130,50,60]];
+continents.forEach(([cx,cy,rw,rh])=>{ex.beginPath();ex.ellipse(cx,cy,rw,rh,Math.random()*0.3,0,Math.PI*2);ex.fill()});
+// Inland terrain variation
+ex.fillStyle='#2d7030';
+for(let i=0;i<200;i++){const cx=Math.random()*1024,cy=Math.random()*512;ex.beginPath();ex.arc(cx,cy,8+Math.random()*25,0,Math.PI*2);ex.fill()}
+// Mountain ridges
+ex.fillStyle='#5a7a4a';
+for(let i=0;i<80;i++){const cx=Math.random()*1024,cy=Math.random()*400+20;ex.beginPath();ex.ellipse(cx,cy,15+Math.random()*40,3+Math.random()*8,Math.random()*Math.PI,0,Math.PI*2);ex.fill()}
+// Coastal highlights
+ex.strokeStyle='rgba(180,210,160,0.4)';ex.lineWidth=2;
+continents.forEach(([cx,cy,rw,rh])=>{ex.beginPath();ex.ellipse(cx,cy,rw+3,rh+3,0,0,Math.PI*2);ex.stroke()})
+// Ice caps
+ex.fillStyle='rgba(235,240,248,0.6)';ex.fillRect(0,0,1024,30);ex.fillRect(0,460,1024,52);
+const iceG=ex.createLinearGradient(0,30,0,0);iceG.addColorStop(0,'rgba(235,240,248,0)');iceG.addColorStop(1,'rgba(235,240,248,0.6)');ex.fillStyle=iceG;ex.fillRect(0,30,1024,15);
+// Clouds
+ex.fillStyle='rgba(255,255,255,0.2)';
+for(let i=0;i<150;i++){const cx=Math.random()*1024,cy=Math.random()*512;ex.beginPath();ex.ellipse(cx,cy,20+Math.random()*60,3+Math.random()*10,Math.random()*Math.PI,0,Math.PI*2);ex.fill()}
+const earthTex=new THREE.CanvasTexture(ec);earthTex.colorSpace=THREE.SRGBColorSpace;earthTex.anisotropy=4;
+const earth=new THREE.Mesh(earthG,new THREE.MeshStandardMaterial({map:earthTex,roughness:0.55,metalness:0.03}));
+const aeG=new THREE.SphereGeometry(0.58,48,48);earth.add(new THREE.Mesh(aeG,new THREE.MeshBasicMaterial({color:0x5599dd,transparent:true,opacity:0.08,side:THREE.BackSide})));
+earth.position.set(-5.5,2.5,-7);earth.userData={oa:Math.random()*Math.PI*2,or:7,os:0.07};
+sS.add(earth);
+
+// Distant planets — higher poly + atmosphere
+const dpData=[];
+const dpColors=[0xcc8844,0x88aacc,0xcc6688,0xaacc88];
+dpColors.forEach((cl,i)=>{
+  const g=new THREE.SphereGeometry(0.18+Math.random()*0.25,40,40);
+  const p=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:cl,roughness:0.35,metalness:0.1}));
+  p.position.set((Math.random()-0.5)*14,(Math.random()-0.5)*8,(Math.random()-0.5)*8-4);
+  // Atmosphere
+  const aG=new THREE.SphereGeometry(g.parameters.radius*1.12,24,24);
+  p.add(new THREE.Mesh(aG,new THREE.MeshBasicMaterial({color:cl,transparent:true,opacity:0.06,side:THREE.BackSide})));
+  // Rings
+  if(Math.random()>0.4){const rg=new THREE.TorusGeometry(g.parameters.radius*1.8,0.03,8,48);const R=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.3}));R.rotation.x=Math.PI/2.2+Math.random()*0.3;p.add(R)}
+  dpData.push({m:p,or:4+Math.random()*5,os:0.02+Math.random()*0.05,oa:Math.random()*Math.PI*2});
+  sS.add(p);
+});
+
+// Comets with glow head
+const cometGlowTex=glowTex('rgba(150,220,255,1)','rgba(30,80,255,0.5)');
+const comets=[],meteors=[];
+function newComet(){
+  // Glowing head
+  const hG=new THREE.SphereGeometry(0.06,8,8);
+  const h=new THREE.Mesh(hG,new THREE.MeshBasicMaterial({color:0xaaddff,transparent:true,opacity:0.9,depthWrite:false}));
+  // Trail
+  const g=new THREE.BufferGeometry();const p=new Float32Array(80*3);const c=new Float32Array(80*3);
+  for(let i=0;i<80;i++){p[i*3]=i*0.05;const cl=new THREE.Color().setHSL(0.55+Math.random()*0.12,0.6,0.25+(1-i/80)*0.75);c[i*3]=cl.r;c[i*3+1]=cl.g;c[i*3+2]=cl.b}
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  const trail=new THREE.Line(g,new THREE.LineBasicMaterial({vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+  // Group
+  const grp=new THREE.Group();grp.add(h);grp.add(trail);
+  grp.position.set((Math.random()-0.5)*20,(Math.random()-0.5)*12,(Math.random()-0.5)*8);
+  grp.rotation.set(Math.random()*0.3,Math.random()*Math.PI*2,0);
+  grp.userData={sp:0.1+Math.random()*0.2,life:0,ml:200+Math.random()*300,head:h};
+  sS.add(grp);comets.push(grp);
+  if(comets.length>6){const o=comets.shift();sS.remove(o);o.traverse(c=>{if(c.geometry)c.geometry.dispose();if(c.material)c.material.dispose()})}
+}
+function newMeteor(){
+  const g=new THREE.BufferGeometry();const p=new Float32Array(20*3);const c=new Float32Array(20*3);
+  for(let i=0;i<20;i++){p[i*3]=i*0.04;const cl=new THREE.Color().setHSL(0.1,0.35,(1-i/20)*0.85);c[i*3]=cl.r;c[i*3+1]=cl.g;c[i*3+2]=cl.b}
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  const m=new THREE.Line(g,new THREE.LineBasicMaterial({vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+  m.position.set((Math.random()-0.5)*16,3+Math.random()*8,(Math.random()-0.5)*6);
+  m.rotation.z=Math.PI*0.65+Math.random()*0.25;
+  m.userData={sp:0.2+Math.random()*0.4,life:0,ml:35+Math.random()*70};
+  sS.add(m);meteors.push(m);
+  if(meteors.length>12){const o=meteors.shift();sS.remove(o);o.geometry.dispose();o.material.dispose()}
+}
+sS.add(new THREE.AmbientLight(0x223344,0.5));
+const sunL=new THREE.DirectionalLight(0xffeedd,0.7);sunL.position.set(8,3,5);sS.add(sunL);
+
+// ============ CENTER PLANET WITH ORBITAL PROGRESS ============
+const pc=document.getElementById('planetCanvas');
+const pR=new THREE.WebGLRenderer({canvas:pc,antialias:true,alpha:true});
+pR.setPixelRatio(Math.min(devicePixelRatio,1.5));
+pR.domElement.style.cursor='default';
+const cS=new THREE.Scene();
+const cC=new THREE.PerspectiveCamera(50,1,0.1,20);
+cC.position.set(0,0.15,4.2);
+cS.add(new THREE.AmbientLight(0x334466,0.8));
+const cl1=new THREE.DirectionalLight(0xffffff,1.2);cl1.position.set(3,2,3);cS.add(cl1);
+const cl2=new THREE.DirectionalLight(0x4488ff,0.5);cl2.position.set(-2,-1,-2);cS.add(cl2);
+
+// Detailed planet texture — 1024x512 high-res
+const ptCanvas=document.createElement('canvas');ptCanvas.width=1024;ptCanvas.height=512;
+const ptx=ptCanvas.getContext('2d');
+// Multi-stop base gradient
+const bgGrad=ptx.createLinearGradient(0,0,0,512);
+bgGrad.addColorStop(0,'#e0cdb8');bgGrad.addColorStop(0.1,'#d8c4a8');bgGrad.addColorStop(0.3,'#c8b090');bgGrad.addColorStop(0.5,'#bfa880');bgGrad.addColorStop(0.7,'#8b7050');bgGrad.addColorStop(0.9,'#a08868');bgGrad.addColorStop(1,'#e0cdb8');
+ptx.fillStyle=bgGrad;ptx.fillRect(0,0,1024,512);
+// Fine surface noise
+for(let i=0;i<8000;i++){const x=Math.random()*1024,y=Math.random()*512,s=2+Math.random()*6;const a=0.015+Math.random()*0.05;const v=Math.random()>0.5?255:0;ptx.fillStyle=`rgba(${v},${v},${v},${a})`;ptx.fillRect(x,y,s,s*0.6)}
+// Larger surface patches
+for(let i=0;i<200;i++){const cx=Math.random()*1024,cy=Math.random()*512;const g=ptx.createRadialGradient(cx,cy,0,cx,cy,20+Math.random()*40);const v=Math.random()>0.5?80:200;g.addColorStop(0,`rgba(${v},${v-10},${v-30},0.08)`);g.addColorStop(1,'rgba(0,0,0,0)');ptx.fillStyle=g;ptx.beginPath();ptx.arc(cx,cy,20+Math.random()*40,0,Math.PI*2);ptx.fill()}
+// Craters — more detailed
+for(let i=0;i<80;i++){const cx=Math.random()*1024,cy=Math.random()*512,r=3+Math.random()*20;const g=ptx.createRadialGradient(cx-r*0.25,cy-r*0.25,0,cx,cy,r);g.addColorStop(0,'rgba(200,180,160,0.6)');g.addColorStop(0.1,'rgba(180,160,140,0.4)');g.addColorStop(0.4,'rgba(90,70,50,0.35)');g.addColorStop(0.7,'rgba(140,120,100,0.2)');g.addColorStop(1,'rgba(0,0,0,0)');ptx.fillStyle=g;ptx.beginPath();ptx.arc(cx,cy,r,0,Math.PI*2);ptx.fill()}
+// Ridge/mountain lines
+ptx.strokeStyle='rgba(160,140,120,0.12)';ptx.lineWidth=1;
+for(let i=0;i<25;i++){ptx.beginPath();let x=Math.random()*1024,y=Math.random()*512;ptx.moveTo(x,y);for(let j=0;j<10;j++){x+=(Math.random()-0.5)*50;y+=(Math.random()-0.5)*25;ptx.lineTo(x,y)}ptx.stroke()}
+// Cracked surface fissures
+ptx.strokeStyle='rgba(60,40,20,0.08)';ptx.lineWidth=0.5;
+for(let i=0;i<30;i++){ptx.beginPath();let x=Math.random()*1024,y=Math.random()*512;ptx.moveTo(x,y);for(let j=0;j<6;j++){x+=(Math.random()-0.5)*30;y+=(Math.random()-0.5)*15;ptx.lineTo(x,y)}ptx.stroke()}
+// Polar ice caps
+const poleGrad=ptx.createLinearGradient(0,0,0,35);poleGrad.addColorStop(0,'rgba(240,235,225,0.6)');poleGrad.addColorStop(1,'rgba(240,235,225,0)');ptx.fillStyle=poleGrad;ptx.fillRect(0,0,1024,35);
+const poleGrad2=ptx.createLinearGradient(0,512,0,477);poleGrad2.addColorStop(0,'rgba(240,235,225,0.6)');poleGrad2.addColorStop(1,'rgba(240,235,225,0)');ptx.fillStyle=poleGrad2;ptx.fillRect(0,477,1024,35);
+const planetTex=new THREE.CanvasTexture(ptCanvas);planetTex.colorSpace=THREE.SRGBColorSpace;planetTex.anisotropy=8;
+
+// Main planet
+const cpG=new THREE.SphereGeometry(0.82,64,64);
+const cpM=new THREE.MeshStandardMaterial({map:planetTex,roughness:0.55,metalness:0.05});
+const cp=new THREE.Mesh(cpG,cpM);cS.add(cp);
+
+// Inner atmosphere glow
+const atmoG2=new THREE.SphereGeometry(0.86,48,48);
+cS.add(new THREE.Mesh(atmoG2,new THREE.MeshBasicMaterial({color:0x8899cc,transparent:true,opacity:0.06,side:THREE.BackSide})));
+// Outer atmosphere
+const atmoG=new THREE.SphereGeometry(0.92,40,40);
+cS.add(new THREE.Mesh(atmoG,new THREE.MeshBasicMaterial({color:0x5566aa,transparent:true,opacity:0.04,side:THREE.BackSide})));
+
+// Atmosphere particles — 600 floating dots around planet
+const atmoParticlesG=new THREE.BufferGeometry();
+const apCount=600;const apPos=new Float32Array(apCount*3);const apClr=new Float32Array(apCount*3);
+for(let i=0;i<apCount;i++){
+  const phi=Math.acos(2*Math.random()-1),theta=Math.random()*Math.PI*2;
+  const r=0.88+Math.random()*0.25;
+  apPos[i*3]=r*Math.sin(phi)*Math.cos(theta);apPos[i*3+1]=r*Math.sin(phi)*Math.sin(theta);apPos[i*3+2]=r*Math.cos(phi);
+  const c=new THREE.Color().setHSL(0.56+Math.random()*0.1,0.4,0.5+Math.random()*0.5);
+  apClr[i*3]=c.r;apClr[i*3+1]=c.g;apClr[i*3+2]=c.b;
+}
+atmoParticlesG.setAttribute('position',new THREE.BufferAttribute(apPos,3));
+atmoParticlesG.setAttribute('color',new THREE.BufferAttribute(apClr,3));
+const atmoParticles=new THREE.Points(atmoParticlesG,new THREE.PointsMaterial({size:0.015,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.7}));
+cS.add(atmoParticles);
+
+// Orbital progress ring — key interactive element
+const ringRadius=1.35;
+const ringSegments=240;
+const ringParticlesG=new THREE.BufferGeometry();
+const ringPos=new Float32Array(ringSegments*3);
+const ringClr=new Float32Array(ringSegments*3);
+for(let i=0;i<ringSegments;i++){
+  const angle=(i/ringSegments)*Math.PI*2-Math.PI/2;
+  ringPos[i*3]=Math.cos(angle)*ringRadius;
+  ringPos[i*3+1]=Math.sin(angle)*ringRadius;
+  ringPos[i*3+2]=0;
+  ringClr[i*3]=0.1;ringClr[i*3+1]=0.2;ringClr[i*3+2]=0.3;
+}
+ringParticlesG.setAttribute('position',new THREE.BufferAttribute(ringPos,3));
+ringParticlesG.setAttribute('color',new THREE.BufferAttribute(ringClr,3));
+const ringMat=new THREE.PointsMaterial({size:0.045,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false});
+const ringMesh=new THREE.Points(ringParticlesG,ringMat);
+ringMesh.rotation.x=Math.PI/2.35;
+cS.add(ringMesh);
+
+// Thin second ring (decorative, outer)
+const ring2G=new THREE.TorusGeometry(1.55,0.012,8,160);
+const ring2=new THREE.Mesh(ring2G,new THREE.MeshBasicMaterial({color:0x3366aa,transparent:true,opacity:0.3}));
+ring2.rotation.x=Math.PI/2.5;cS.add(ring2);
+
+// Orbiting moon
+const moonG2=new THREE.SphereGeometry(0.08,14,14);
+const moonM2=new THREE.Mesh(moonG2,new THREE.MeshStandardMaterial({color:0xddddcc,roughness:0.6}));
+moonM2.position.set(1.6,0.15,0);cS.add(moonM2);
+
+// Time labels — positioned as HTML overlays
+const timeStartEl=document.createElement('div');
+timeStartEl.style.cssText='position:absolute;font-family:Orbitron;font-size:10px;color:#889;pointer-events:none;z-index:6';
+document.getElementById('planetZone').appendChild(timeStartEl);
+const timeEndEl=document.createElement('div');
+timeEndEl.style.cssText='position:absolute;font-family:Orbitron;font-size:10px;color:#889;pointer-events:none;z-index:6';
+document.getElementById('planetZone').appendChild(timeEndEl);
+const timeHoverEl=document.createElement('div');
+timeHoverEl.style.cssText='position:absolute;font-family:Orbitron;font-size:9px;color:#00d4ff;pointer-events:none;z-index:6;display:none;text-shadow:0 0 6px rgba(0,212,255,0.6)';
+document.getElementById('planetZone').appendChild(timeHoverEl);
+
+// OrbitControls — 沉浸模式鼠标控制视角
+const orbitControls=new OrbitControls(cC,pR.domElement);
+orbitControls.enableDamping=true;orbitControls.dampingFactor=0.08;
+orbitControls.minDistance=2.2;orbitControls.maxDistance=8;
+orbitControls.target.set(0,0,0);
+orbitControls.enablePan=false;
+orbitControls.enabled=false; // 默认关闭，沉浸模式开启
+
+// Raycaster for ring interaction
+const raycaster=new THREE.Raycaster();
+raycaster.params.Points.threshold=0.15;
+const mouse=new THREE.Vector2();
+let isDraggingRing=false;
+
+function updateRingProgress(prog){
+  const clr=ringParticlesG.attributes.color.array;
+  const active=Math.floor(prog*ringSegments);
+  for(let i=0;i<ringSegments;i++){
+    if(i<active){
+      const hue=0.55+(i/ringSegments)*0.12;
+      const c=new THREE.Color().setHSL(hue,0.9,0.45+Math.sin(i*0.15+performance.now()*0.002)*0.2);
+      clr[i*3]=c.r;clr[i*3+1]=c.g;clr[i*3+2]=c.b;
+    }else if(i===active){
+      clr[i*3]=1;clr[i*3+1]=1;clr[i*3+2]=1; // Bright white leading edge
+    }else{
+      clr[i*3]=0.06;clr[i*3+1]=0.1;clr[i*3+2]=0.16;
+    }
+  }
+  ringParticlesG.attributes.color.needsUpdate=true;
+  // Update time labels
+  updateTimeLabels(prog);
+}
+
+function updateTimeLabels(prog){
+  const zone=document.getElementById('planetZone');
+  const zw=zone.clientWidth,zh=zone.clientHeight;
+  const cx=zw/2,cy=zh/2;
+  const rx=Math.min(zw,zh)*0.32;
+  const sAngle=-Math.PI/2,startX=cx+Math.cos(sAngle)*rx,startY=cy+Math.sin(sAngle)*rx;
+  timeStartEl.style.left=(startX-12)+'px';timeStartEl.style.top=(startY-8)+'px';
+  timeStartEl.textContent=document.getElementById('trailCur').textContent;
+  const eAngle=Math.PI*1.5,endX=cx+Math.cos(eAngle)*rx,endY=cy+Math.sin(eAngle)*rx;
+  timeEndEl.style.left=(endX-12)+'px';timeEndEl.style.top=(endY-8)+'px';
+  timeEndEl.textContent=document.getElementById('trailDur').textContent;
+}
+
+// Ring drag interaction
+function getRingProgressFromMouse(e){
+  const zone=document.getElementById('planetZone');
+  const rect=zone.getBoundingClientRect();
+  const cx=rect.width/2,cy=rect.height/2;
+  const x=e.clientX-rect.left-cx,y=e.clientY-rect.top-cy;
+  let angle=Math.atan2(y,x)+Math.PI/2; // start from top
+  if(angle<0)angle+=Math.PI*2;
+  return angle/(Math.PI*2);
+}
+
+pc.addEventListener('mousedown',e=>{
+  if(!window.audioEl||!window.audioEl.duration)return;
+  mouse.x=((e.clientX-pc.getBoundingClientRect().left)/pc.clientWidth)*2-1;
+  mouse.y=-((e.clientY-pc.getBoundingClientRect().top)/pc.clientHeight)*2+1;
+  raycaster.setFromCamera(mouse,cC);
+  const intersects=raycaster.intersectObject(ringMesh);
+  if(intersects.length>0){isDraggingRing=true;pc.style.cursor='grabbing';e.preventDefault()}
+});
+document.addEventListener('mousemove',e=>{
+  if(!isDraggingRing){
+    // Hover detection
+    if(!window.audioEl||!window.audioEl.duration)return;
+    mouse.x=((e.clientX-pc.getBoundingClientRect().left)/pc.clientWidth)*2-1;
+    mouse.y=-((e.clientY-pc.getBoundingClientRect().top)/pc.clientHeight)*2+1;
+    raycaster.setFromCamera(mouse,cC);
+    const intersects=raycaster.intersectObject(ringMesh);
+    if(intersects.length>0){
+      pc.style.cursor='pointer';
+      const prog=getRingProgressFromMouse(e);
+      timeHoverEl.style.display='block';
+      timeHoverEl.textContent=fTime(prog*window.audioEl.duration*1000);
+      timeHoverEl.style.left=(e.clientX-pc.getBoundingClientRect().left+15)+'px';
+      timeHoverEl.style.top=(e.clientY-pc.getBoundingClientRect().top-20)+'px';
+    }else{
+      pc.style.cursor='default';
+      timeHoverEl.style.display='none';
+    }
+    return;
+  }
+  if(!window.audioEl||!window.audioEl.duration)return;
+  const prog=getRingProgressFromMouse(e);
+  window.audioEl.currentTime=prog*window.audioEl.duration;
+  updateRingProgress(prog);
+});
+document.addEventListener('mouseup',()=>{isDraggingRing=false;pc.style.cursor='default';timeHoverEl.style.display='none'});
+
+// Floating debris orbiting
+const debrisG=new THREE.BufferGeometry();
+const debrisCount=80;const debrisPos=new Float32Array(debrisCount*3);
+for(let i=0;i<debrisCount;i++){
+  const a=Math.random()*Math.PI*2,r=1.0+Math.random()*0.6;
+  debrisPos[i*3]=Math.cos(a)*r;debrisPos[i*3+1]=Math.sin(a)*r;debrisPos[i*3+2]=(Math.random()-0.5)*0.3;
+}
+debrisG.setAttribute('position',new THREE.BufferAttribute(debrisPos,3));
+const debrisMesh=new THREE.Points(debrisG,new THREE.PointsMaterial({size:0.018,color:0x8899bb,blending:THREE.AdditiveBlending,depthWrite:false}));
+debrisMesh.rotation.x=Math.PI/2.35;cS.add(debrisMesh);
+moonM2.position.set(1.7,0.15,0);cS.add(moonM2);
+
+// ============ STAR TRAIL CANVAS (kept minimal for time text) ============
+const tc=document.getElementById('starTrailCanvas');const tctx=tc.getContext('2d');
+function drawTrail(prog){
+  const wrap=document.getElementById('starTrailWrap');
+  const w=wrap.clientWidth,h=22;
+  if(tc.width!==w||tc.height!==h){tc.width=w;tc.height=h}
+  tctx.clearRect(0,0,w,h);
+  const cy=h/2;
+  // Draw subtle glow line just for reference
+  tctx.beginPath();tctx.moveTo(20,cy);tctx.lineTo(w-20,cy);
+  tctx.strokeStyle='rgba(255,255,255,0.03)';tctx.lineWidth=1;tctx.stroke();
+  // Central dot showing position
+  const lx=20+prog*(w-40);
+  tctx.fillStyle='rgba(0,212,255,0.3)';tctx.beginPath();tctx.arc(lx,cy,3,0,Math.PI*2);tctx.fill();
+}
+
+// ============ THEME ============
+const themes=[
+  {n:'深空蓝',h:0.58,pc:0x335577,ac:0x556688},
+  {n:'紫红星云',h:0.78,pc:0x442244,ac:0x664455},
+  {n:'极光绿',h:0.38,pc:0x224433,ac:0x446655},
+  {n:'赤红星系',h:0.08,pc:0x442211,ac:0x664422},
+];
+let ct=0;
+function applyTheme(i){
+  ct=i;
+  const t=themes[i];
+[sl1,sl2,sl3,sl4].forEach((l,li)=>{const cl=l.geometry.attributes.color.array;const b=0.5+li*0.25;for(let j=0;j<cl.length/3;j++){const c=new THREE.Color().setHSL(t.h+(Math.random()-0.5)*0.1,b*0.6,b*0.45+Math.random()*0.55);cl[j*3]=c.r;cl[j*3+1]=c.g;cl[j*3+2]=c.b}l.geometry.attributes.color.needsUpdate=true});
+  ng.children.forEach(n=>{n.material.color.setHSL(t.h+(Math.random()-0.5)*0.08,0.35,0.13)});
+  cpM.color.set(t.pc);document.querySelectorAll('.theme-dot').forEach((d,j)=>d.classList.toggle('active',j===i));
+}
+window.switchTheme=function(i){applyTheme(i);toast('背景: '+themes[i].n);updateRingProgress(window.audioEl&&window.audioEl.duration?window.audioEl.currentTime/window.audioEl.duration:0)};
+applyTheme(0);
+
+function resizeAll(){
+  bgR.setSize(innerWidth,innerHeight);sC.aspect=innerWidth/innerHeight;sC.updateProjectionMatrix();
+  const pd=document.getElementById('planetZone');const pw=pd.clientWidth,ph=pd.clientHeight;
+  if(pw>0&&ph>0){pR.setSize(pw,ph);cC.aspect=pw/ph;cC.updateProjectionMatrix()}
+}
+window.addEventListener('resize',resizeAll);
+
+let t=0,cmt=0,mt=0;
+function animate(){
+  requestAnimationFrame(animate);t+=0.01;cmt++;mt++;
+  sl1.rotation.y+=0.00004;sl2.rotation.y+=0.00008;sl3.rotation.y+=0.00015;sl4.rotation.y+=0.00006;
+  sl1.rotation.x+=0.00002;sl2.rotation.x+=0.00003;sl4.rotation.x+=0.00001;
+  earth.userData.oa+=earth.userData.os*0.005;const a=earth.userData.oa;earth.position.x=Math.cos(a)*earth.userData.or;earth.position.z=Math.sin(a)*earth.userData.or-3;earth.rotation.y+=0.002;
+  dpData.forEach(d=>{d.oa+=d.os*0.005;d.m.position.x=Math.cos(d.oa)*d.or;d.m.position.z=Math.sin(d.oa)*d.or-2});
+  if(cmt>100+Math.random()*250){cmt=0;newComet()}comets.forEach(c=>{c.userData.life++;c.position.x+=c.userData.sp;c.userData.head.material.opacity=0.9-(c.userData.life/c.userData.ml)*0.8;if(c.userData.life>c.userData.ml){sS.remove(c);c.traverse(ch=>{if(ch.geometry)ch.geometry.dispose();if(ch.material)ch.material.dispose()});comets.splice(comets.indexOf(c),1)}});
+  if(mt>20+Math.random()*50){mt=0;newMeteor()}meteors.forEach(m=>{m.userData.life++;m.position.x+=m.userData.sp;m.position.y-=m.userData.sp*0.5;if(m.userData.life>m.userData.ml){sS.remove(m);m.geometry.dispose();m.material.dispose();meteors.splice(meteors.indexOf(m),1)}});
+  // Center planet
+  cp.rotation.y+=0.0025;
+  atmoParticles.rotation.y+=0.0008;atmoParticles.rotation.x+=0.0003;
+  ring2.rotation.z+=0.0008;
+  debrisMesh.rotation.z+=0.0015;
+  moonM2.rotation.y+=0.006;moonM2.position.x=Math.cos(t*0.25)*1.6;moonM2.position.z=Math.sin(t*0.25)*0.5;
+  mw.rotation.y+=0.00003;
+  orbitControls.update();bgR.render(sS,sC);resizeAll();pR.render(cS,cC);
+  if(window.audioEl&&window.audioEl.duration)updateRingProgress(window.audioEl.currentTime/window.audioEl.duration);
+  else updateRingProgress(0);
+}
+animate();
+
+// ============ PLAYER ============
+let playlist=[],cIdx=-1,isPlaying=false,mode='loop';
+window.audioEl=document.getElementById('audioPlayer');
+const audio=window.audioEl;
+audio.volume=0.7;
+audio.onended=()=>nextSong();
+let lyricsData=[],lyricsVisible=true;
+audio.ontimeupdate=()=>{
+  if(!audio.duration)return;
+  updateRingProgress(audio.currentTime/audio.duration);
+  document.getElementById('trailCur').textContent=fTime(audio.currentTime*1000);
+  document.getElementById('trailDur').textContent=fTime(audio.duration*1000);
+  updateTimeLabels(audio.currentTime/audio.duration);
+  syncLyrics(audio.currentTime);
+};
+audio.onerror=()=>{const m={1:'加载中断',2:'网络错误',3:'解码失败',4:'格式不支持'};toast('播放失败: '+(m[audio.error?.code]||'未知'))};
+audio.onplay=()=>{isPlaying=true;updatePb()};
+audio.onpause=()=>{isPlaying=false;updatePb()};
+
+async function api(ep,pr={}){
+  const q=Object.entries(pr).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  return (await fetch('/api/music/'+ep+(q?'?'+q:''))).json();
+}
+window.doSearch=async function(){
+  const kw=document.getElementById('searchInput').value.trim();if(!kw)return;
+  const d=await api('cloudsearch',{keywords:kw,limit:20});
+  const songs=d.result?.songs||[];
+  const box=document.getElementById('searchResults');
+  if(!songs.length){box.innerHTML='<div style="padding:16px;color:#556;font-size:.8rem">未找到</div>';box.style.display='block';return}
+  box.innerHTML=songs.map((s,i)=>`<div class="song-item" onclick="addSong(${s.id},'${(s.name||'?').replace(/'/g,"\\'")}','${(s.ar?.[0]?.name||'?').replace(/'/g,"\\'")}',${s.dt||0})"><span class="idx">${i+1}</span><div class="info"><div class="name">${s.name}</div><div class="artist">${s.ar?.map(a=>a.name).join('/')||'?'}</div></div></div>`).join('');
+  box.style.display='block';
+  setTimeout(()=>document.addEventListener('click',function h(e){if(!box.contains(e.target)&&e.target!==document.getElementById('searchInput')){box.style.display='none';document.removeEventListener('click',h)}}),100);
+};
+window.addSong=function(id,name,artist,dt){
+  playlist.push({id,name,artist,dt});renderPl();
+  if(cIdx===-1){cIdx=0;playSong(0)}
+  document.getElementById('searchResults').style.display='none';
+  document.getElementById('searchInput').value='';toast('已添加: '+name);
+};
+window.removeSong=function(i,e){e.stopPropagation();if(i===cIdx){audio.pause();audio.src='';cIdx=-1;document.getElementById('trackTitle').textContent='等待播放';document.getElementById('trackTitle').style.color='#556';document.getElementById('trackArtist').textContent='—';document.getElementById('albumCard').innerHTML='<span class="ph">🌌</span>';updateRingProgress(0);document.getElementById('trailCur').textContent='0:00';document.getElementById('trailDur').textContent='0:00'}else if(i<cIdx)cIdx--;playlist.splice(i,1);renderPl();toast('已移除')};
+function renderPl(){
+  const el=document.getElementById('playlist');document.getElementById('plCount').textContent=playlist.length;
+  if(!playlist.length){el.innerHTML='<div style="color:#556;text-align:center;padding:30px 0;font-size:.75rem">搜索歌曲添加</div>';return}
+  el.innerHTML=playlist.map((s,i)=>`<div class="song-item${i===cIdx?' active':''}" onclick="playSong(${i})"><span class="idx">${i+1}</span><div class="info"><div class="name">${s.name}</div><div class="artist">${s.artist}</div></div><button class="del-btn" onclick="removeSong(${i},event)">✕</button></div>`).join('');
+}
+window.playSong=async function(i){
+  if(i<0||i>=playlist.length)return;
+  cIdx=i;renderPl();const s=playlist[i];
+  document.getElementById('trackTitle').textContent=s.name;document.getElementById('trackTitle').style.color='';
+  document.getElementById('trackArtist').textContent=s.artist;
+  document.getElementById('albumCard').innerHTML='<span class="ph">⏳</span>';
+  updateRingProgress(0);document.getElementById('trailCur').textContent='0:00';document.getElementById('trailDur').textContent='...';
+  audio.pause();audio.src='/api/stream/'+s.id;audio.load();
+  try{await audio.play()}catch(e){toast('点一下页面再试')}
+  api('song_detail',{ids:s.id}).then(d=>{const c=d.songs?.[0]?.al?.picUrl;if(c)document.getElementById('albumCard').innerHTML=`<img src="${c}">`;else document.getElementById('albumCard').innerHTML='<span class="ph">🌌</span>'}).catch(()=>{});
+  fetchLyrics(s.id);
+};
+window.togglePlay=function(){if(!playlist.length){toast('先搜索歌曲');return}if(!audio.src){playSong(0);return}if(isPlaying)audio.pause();else audio.play().catch(()=>{})};
+function updatePb(){document.getElementById('playBtn').textContent=isPlaying?'⏸':'▶'}
+window.nextSong=function(){if(!playlist.length)return;if(mode==='shuffle')cIdx=Math.floor(Math.random()*playlist.length);else cIdx=(cIdx+1)%playlist.length;playSong(cIdx)};
+window.prevSong=function(){if(!playlist.length)return;cIdx=(cIdx-1+playlist.length)%playlist.length;playSong(cIdx)};
+window.toggleMode=function(){const ms=['loop','shuffle','repeat'];const i=ms.indexOf(mode);mode=ms[(i+1)%3];document.getElementById('modeBtn').textContent={loop:'🔀',shuffle:'🔁',repeat:'🔂'}[mode];toast('模式: '+mode)};
+window.setVol=function(){audio.volume=document.getElementById('volumeSlider').value/100};
+function fTime(ms){if(!ms)return'0:00';const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0')}
+
+// ===== LOGIN =====
+let neQRtimer=null;
+let neUserInfo=null;
+async function checkLogin(){
+  // QQ user
+  try{const r=await fetch('/api/user');const u=await r.json();if(u){renderUserBtn(u)}}catch(e){}
+  // NetEase user
+  try{const r=await fetch('/api/netease/user');const u=await r.json();if(u&&u.nickname){neUserInfo=u;renderUserBtn(u)}else{neUserInfo=null}}
+}
+function renderUserBtn(u){
+  const btn=document.getElementById('userBtn');
+  const avatar=u.avatar||'';
+  btn.innerHTML=`${avatar?`<img src="${avatar}" onerror="this.style.display='none'" style="width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:5px">`:''}<span>${u.nickname||'用户'}</span>`;
+  btn.className='logged';
+  btn.onclick=showUserMenu;
+  btn.title='点击查看选项';
+}
+window.showUserMenu=function(){
+  const opts=[];
+  if(neUserInfo)opts.push({text:'🎵 退出网易云',action:logoutNE});
+  if(opts.length===0){toggleLogin();return}
+  const html=opts.map(o=>`<div class="song-item" onclick="(${o.action.toString()})()" style="font-size:.75rem">${o.text}</div>`).join('');
+  const box=document.getElementById('searchResults');box.innerHTML=html;box.style.display='block';
+  setTimeout(()=>document.addEventListener('click',function h(e){if(!box.contains(e.target)&&e.target!==document.getElementById('userBtn')){box.style.display='none';document.removeEventListener('click',h)}}),100);
+};
+async function logoutNE(){
+  await fetch('/api/netease/logout',{method:'POST'});
+  neUserInfo=null;document.getElementById('userBtn').innerHTML='🚀 登录';document.getElementById('userBtn').className='';document.getElementById('userBtn').onclick=toggleLogin;
+  document.getElementById('searchResults').style.display='none';
+  playlist=[];cIdx=-1;renderPl();audio.pause();audio.src='';
+  document.getElementById('trackTitle').textContent='等待播放';document.getElementById('trackTitle').style.color='#556';
+  document.getElementById('trackArtist').textContent='—';document.getElementById('albumCard').innerHTML='<span class="ph">🌌</span>';
+  updateRingProgress(0);toast('已退出网易云');
+}
+window.toggleLogin=function(){document.getElementById('loginOverlay').classList.toggle('show');resetLoginUI()};
+function resetLoginUI(){document.getElementById('loginStep1').style.display='';document.getElementById('loginStepNE').style.display='none';if(neQRtimer)clearInterval(neQRtimer)}
+window.qqLogin=async function(){try{const r=await fetch('/api/login/qq');const d=await r.json();location.href=d.url}catch(e){toast('QQ登录暂不可用')}};
+window.skipLogin=function(){document.getElementById('loginOverlay').classList.remove('show');toast('已跳过')};
+window.showNeteaseLogin=function(){
+  document.getElementById('loginStep1').style.display='none';
+  document.getElementById('loginStepNE').style.display='';
+  startNELogin();
+};
+window.backToLoginStep1=function(){resetLoginUI()};
+
+async function startNELogin(){
+  if(neQRtimer)clearInterval(neQRtimer);
+  try{
+    const r=await fetch('/api/login/netease/qr/key');const d=await r.json();
+    const key=d.data?.unikey;if(!key){toast('获取二维码失败');return}
+    const url=`https://music.163.com/login?codekey=${key}`;
+    const c=document.getElementById('neQRcanvas');c.width=160;c.height=160;
+    const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,160,160);
+    // Use quickchart.io to generate QR
+    const qrImg=new Image();
+    qrImg.onload=()=>{ctx.drawImage(qrImg,0,0,160,160)};
+    qrImg.src=`https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=200&margin=2`;
+    document.getElementById('neQRstatus').textContent='请用网易云音乐App扫码';
+    let cnt=0;
+    neQRtimer=setInterval(async()=>{
+      cnt++;
+      const cr=await fetch('/api/login/netease/qr/check?key='+key);const cd=await cr.json();
+      if(cd.code===800){document.getElementById('neQRstatus').textContent='已过期，请刷新'}
+      else if(cd.code===801){document.getElementById('neQRstatus').textContent='请在手机上确认'}
+      else if(cd.code===802){document.getElementById('neQRstatus').textContent='授权中...'}
+      else if(cd.code===803){
+        clearInterval(neQRtimer);neQRtimer=null;
+        document.getElementById('neQRstatus').textContent='登录成功！';
+        setTimeout(()=>{document.getElementById('loginOverlay').classList.remove('show');checkLogin()},600);
+      }
+      if(cnt>90){clearInterval(neQRtimer);document.getElementById('neQRstatus').textContent='超时，请刷新'}
+    },2000);
+  }catch(e){toast('二维码加载失败')}
+}
+window.refreshNELogin=function(){startNELogin()};
+
+// ===== 个人音乐功能 =====
+window.loadRecommend=async function(){
+  try{const r=await fetch('/api/netease/recommend');const d=await r.json();
+    if(d.error){toast(d.error);return}
+    const songs=d.data?.dailySongs||[];
+    if(!songs.length){toast('请先登录网易云');return}
+    playlist=[];cIdx=-1;
+    songs.forEach(s=>{playlist.push({id:s.id,name:s.name,artist:s.ar?.map(a=>a.name).join('/')||'?',dt:s.dt||0})});
+    if(playlist.length>0){cIdx=0;playSong(0)}renderPl();toast('每日推荐: '+playlist.length+' 首');
+  }catch(e){toast('获取失败')}
+};
+window.loadPlaylists=async function(){
+  try{const r=await fetch('/api/netease/playlists');const d=await r.json();
+    if(d.error){toast(d.error);return}
+    const pls=d.playlist||[];
+    if(!pls.length){toast('请先登录网易云');return}
+    // Show playlist picker in search results area
+    const box=document.getElementById('searchResults');
+    box.innerHTML=pls.map(p=>`<div class="song-item" onclick="loadPlaylistSongs(${p.id},'${(p.name||'歌单').replace(/'/g,"\\'")}')"><span class="idx">📋</span><div class="info"><div class="name">${p.name}</div><div class="artist">${p.trackCount||0} 首 · ${p.creator?.nickname||''}</div></div></div>`).join('');
+    box.style.display='block';
+    setTimeout(()=>document.addEventListener('click',function h(e){if(!box.contains(e.target)){box.style.display='none';document.removeEventListener('click',h)}}),100);
+  }catch(e){toast('获取失败')}
+};
+window.loadPlaylistSongs=async function(id,name){
+  try{const r=await fetch('/api/netease/playlist/detail?id='+id);const d=await r.json();
+    const tracks=d.playlist?.tracks||[];
+    if(!tracks.length){toast('歌单为空');return}
+    playlist=[];cIdx=-1;
+    tracks.forEach(t=>{playlist.push({id:t.id,name:t.name,artist:t.ar?.map(a=>a.name).join('/')||'?',dt:t.dt||0})});
+    if(playlist.length>0){cIdx=0;playSong(0)}renderPl();
+    document.getElementById('searchResults').style.display='none';
+    document.getElementById('searchInput').value='';
+    toast('已加载: '+name+' ('+playlist.length+'首)');
+  }catch(e){toast('加载失败')}
+};
+window.loadLikedSongs=async function(){
+  try{const r=await fetch('/api/netease/likelist/songs?limit=500');const d=await r.json();
+    if(d.error){toast(d.error);return}
+    const songs=d.songs||[];if(!songs.length){toast('没有喜欢的歌曲');return}
+    playlist=[];cIdx=-1;
+    songs.forEach(s=>{playlist.push({id:s.id,name:s.name,artist:s.ar?.map(a=>a.name).join('/')||'?',dt:s.dt||0})});
+    if(playlist.length>0){cIdx=0;playSong(0)}renderPl();toast('我喜欢的音乐: '+playlist.length+' / '+d.total+' 首');
+  }catch(e){toast('获取失败')}
+};
+
+// ===== UI =====
+window.toggleImmersive=function(){
+  document.body.classList.toggle('immersive');
+  const isOn=document.body.classList.contains('immersive');
+  document.getElementById('immerseBtn').textContent=isOn?'🖥':'🌌';
+  document.getElementById('immerseBtn').title=isOn?'退出沉浸模式 (ESC)':'沉浸模式 (ESC)';
+  orbitControls.enabled=isOn;
+  orbitControls.target.set(0,0,0);
+  if(!isOn){orbitControls.reset();cC.position.set(0,0.15,4.2);cC.lookAt(0,0,0)}
+  setTimeout(resizeAll,600);
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')window.toggleImmersive()});
+window.toggleLeftPanel=function(){
+  const lp=document.getElementById('leftPanel');const icon=document.getElementById('collapseIcon');
+  if(lp.style.display==='none'){lp.style.display='';icon.textContent='◀'}else{lp.style.display='none';icon.textContent='▶'}
+};
+// Resize handle
+(function(){
+  const lp=document.getElementById('leftPanel');lp.style.position='relative';
+  const h=document.createElement('div');h.id='resizeHandle';lp.appendChild(h);
+  let rs=false,sx,sw;h.addEventListener('mousedown',e=>{rs=true;sx=e.clientX;sw=lp.offsetWidth;e.preventDefault()});
+  document.addEventListener('mousemove',e=>{if(!rs)return;lp.style.width=Math.max(160,Math.min(600,sw+(e.clientX-sx)))+'px';resizeAll()});
+  document.addEventListener('mouseup',()=>{rs=false});
+})();
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.classList.remove('show'),2500)}
+
+// ===== LYRICS =====
+function parseLRC(lrcText){
+  const lines=[];const re=/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/g;let m;
+  while((m=re.exec(lrcText))!==null){
+    const min=parseInt(m[1]),sec=parseInt(m[2]),ms=parseInt(m[3].padEnd(3,'0'));
+    const time=min*60+sec+ms/1000;
+    const text=m[4].trim();
+    if(text)lines.push({time,text});
+  }
+  return lines.sort((a,b)=>a.time-b.time);
+}
+async function fetchLyrics(songId){
+  lyricsData=[];syncLyrics._lastIdx=-1;
+  document.getElementById('lyricsStage').innerHTML='<div class="lyric-line" style="opacity:.2">⏳</div>';
+  try{
+    const d=await api('lyric',{id:songId});
+    const lrc=d.lrc?.lyric||'';
+    if(!lrc){document.getElementById('lyricsStage').innerHTML='<div class="lyric-line" style="opacity:.25">🎵 纯音乐</div>';return}
+    lyricsData=parseLRC(lrc);
+    renderLyrics(0);
+  }catch(e){document.getElementById('lyricsStage').innerHTML='<div class="lyric-line" style="opacity:.25">暂无歌词</div>'}
+}
+// CSS lyrics — stable overlay approach
+
+// CSS lyrics display functions
+function renderLyrics(currentTime){
+  let activeIdx=-1;
+  for(let i=0;i<lyricsData.length;i++){if(lyricsData[i].time<=currentTime)activeIdx=i;else break}
+  const stage=document.getElementById('lyricsStage');
+  if(!lyricsData.length){stage.innerHTML='';return}
+  const show=7,start=Math.max(0,activeIdx-Math.floor(show/2));
+  let html='';
+  for(let i=0;i<show;i++){
+    const idx=start+i;if(idx>=lyricsData.length)break;
+    let cls='lyric-line';
+    if(idx===activeIdx)cls+=' active';else if(idx<activeIdx)cls+=' prev';
+    html+=`<div class="${cls}">${lyricsData[idx].text}</div>`;
+  }
+  stage.innerHTML=html;
+  requestAnimationFrame(()=>{
+    const a=stage.querySelector('.active');
+    if(a)a.scrollIntoView({block:'center',behavior:'smooth'});
+  });
+}
+function syncLyrics(currentTime){
+  if(!lyricsData.length)return;
+  let idx=-1;
+  for(let i=0;i<lyricsData.length;i++){if(lyricsData[i].time<=currentTime)idx=i;else break}
+  if(idx>=0&&idx!==syncLyrics._lastIdx){syncLyrics._lastIdx=idx;renderLyrics(currentTime)}
+}
+syncLyrics._lastIdx=-1;
+window.toggleLyrics=function(){
+  lyricsVisible=!lyricsVisible;
+  const ov=document.getElementById('lyricsOverlay');
+  ov.style.display=lyricsVisible?'':'none';
+  document.getElementById('lyricsToggle').classList.toggle('hidden-state',!lyricsVisible);
+};
+checkLogin();updatePb();updateRingProgress(0);resizeAll();
+</script>
+</body>
+</html>

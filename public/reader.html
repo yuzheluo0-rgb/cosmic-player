@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>歌者书库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','Georgia',serif;background:var(--bg,rgba(4,10,24,0.72));color:#d0d8e8;overflow:hidden;height:100%;margin:0;position:absolute;inset:0}
+#app{display:flex;flex-direction:column;height:100%;--fs-scale:1}
+#hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(160,200,230,0.1);flex-shrink:0;gap:8px}
+#hdr .t{font-size:calc(.88rem*var(--fs-scale));color:#b0c8e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hdr .acts{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.bt{width:32px;height:32px;border-radius:50%;border:1px solid rgba(160,200,230,0.15);background:rgba(10,20,40,0.5);color:#a0b8d0;cursor:pointer;font-size:.8rem;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.bt:hover{border-color:rgba(160,200,230,0.4);color:#d0e0f0}
+#browser{flex:1;overflow-y:auto;padding:12px 16px;scrollbar-width:thin;scrollbar-color:rgba(160,200,230,0.1) transparent}
+#browser::-webkit-scrollbar{width:4px}#browser::-webkit-scrollbar-thumb{background:rgba(160,200,230,0.1)}
+.tabs{display:flex;gap:4px;margin-bottom:10px;align-items:center;flex-wrap:wrap}.tab{padding:6px 14px;border-radius:14px;border:1px solid rgba(160,200,230,0.1);background:rgba(10,20,40,0.3);color:#778;cursor:pointer;font-size:calc(.72rem*var(--fs-scale));transition:all .2s;white-space:nowrap}.tab.active{background:rgba(160,200,230,0.12);border-color:rgba(160,200,230,0.25);color:#c0d8e8}.tab .badge{font-size:calc(.58rem*var(--fs-scale));color:#668;margin-left:2px}.theme-dots{display:flex;gap:5px;margin-left:8px;align-items:center}.tdot{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;flex-shrink:0}.tdot:hover{transform:scale(1.2)}.tdot.active{border-color:rgba(200,220,240,0.7);box-shadow:0 0 8px currentColor}
+.srch{margin-bottom:10px}
+.srch input{width:100%;padding:7px 14px;background:rgba(10,20,40,0.5);border:1px solid rgba(160,200,230,0.1);border-radius:16px;color:#c8d8e8;font-size:calc(.76rem*var(--fs-scale));outline:none}
+.srch input:focus{border-color:rgba(160,200,230,0.25)}
+.cat{font-size:calc(.6rem*var(--fs-scale));color:rgba(160,200,230,0.45);letter-spacing:2px;margin:12px 0 4px;padding-bottom:3px;border-bottom:1px solid rgba(160,200,230,0.05)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px}
+.card{padding:7px 10px;border-radius:7px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.card:hover{background:rgba(160,200,230,0.04);border-color:rgba(160,200,230,0.08)}
+.card .n{font-size:calc(.74rem*var(--fs-scale));color:#c8d8e8;line-height:1.3}
+.card .a{font-size:calc(.64rem*var(--fs-scale));color:#668;margin-top:1px}
+.card .d{font-size:calc(.6rem*var(--fs-scale));color:#556;margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#rview{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#rtext{flex:1;overflow-y:auto;padding:16px 20px;scrollbar-width:thin;scrollbar-color:rgba(160,200,230,0.08) transparent;font-size:18px;line-height:1.85;color:#d4dce4}
+#rtext::-webkit-scrollbar{width:4px}#rtext::-webkit-scrollbar-thumb{background:rgba(160,200,230,0.08)}
+#rtext h3{font-size:1rem;color:#a0c8e8;margin:16px 0 8px;font-weight:400}
+#rtext p{margin:0 0 10px;text-indent:1em}
+#rfoot{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 16px;border-top:1px solid rgba(160,200,230,0.06);flex-shrink:0}
+.rprog{flex:1;height:3px;background:rgba(160,200,230,0.05);border-radius:2px;overflow:hidden;cursor:pointer}
+.rprog-bar{height:100%;background:linear-gradient(90deg,transparent,rgba(100,180,220,0.3),rgba(160,220,255,0.5));border-radius:2px;transition:width .3s}
+.glow-btn{padding:6px 14px;border-radius:14px;border:1px solid rgba(100,180,240,0.3);background:rgba(5,25,50,0.5);color:#80c0f0;cursor:pointer;font-size:calc(.7rem*var(--fs-scale));transition:all .3s;animation:g 2.5s ease-in-out infinite}
+@keyframes g{0%,100%{box-shadow:0 0 6px rgba(100,180,240,0.15)}50%{box-shadow:0 0 18px rgba(100,200,255,0.4),0 0 35px rgba(80,160,240,0.1)}}
+.glow-btn:hover{animation:none;box-shadow:0 0 22px rgba(120,200,255,0.45),0 0 45px rgba(80,160,240,0.15);color:#a0d8ff}
+.emp{color:#556;text-align:center;padding:40px 0;font-size:calc(.74rem*var(--fs-scale))}
+.fs{font-size:1rem;cursor:pointer;opacity:.3;transition:all .2s}.fs.active{opacity:1;color:#f0c040;text-shadow:0 0 8px rgba(240,192,64,0.4)}.fs:hover{opacity:.8}
+.fbtn{border:1px solid rgba(240,192,64,0.25);background:rgba(30,20,5,0.4);color:#f0c040;cursor:pointer;padding:5px 12px;border-radius:14px;font-size:calc(.72rem*var(--fs-scale));transition:all .2s;display:flex;align-items:center;gap:4px}.fbtn:hover{border-color:rgba(240,192,64,0.5);box-shadow:0 0 12px rgba(240,192,64,0.2)}.fbtn.active{background:rgba(240,192,64,0.12);box-shadow:0 0 16px rgba(240,192,64,0.25)}
+.pdot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:3px;background:#668}.pdot.done{background:#4a8;box-shadow:0 0 4px rgba(68,170,136,0.4)}.pdot.reading{background:#c0a040;box-shadow:0 0 4px rgba(192,160,64,0.3)}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="hdr">
+  <span class="t" id="title">📖 宇宙书库</span>
+  <span id="favStar" class="fs" onclick="toggleFavorite()" style="display:none" title="收藏">⭐</span>
+  <div class="acts" id="ha">
+    <button class="bt" onclick="adjFs(-1)">A-</button>
+    <span style="font-size:.65rem;color:#668;min-width:36px;text-align:center" id="fs">18px</span>
+    <button class="bt" onclick="adjFs(1)">A+</button>
+    <button class="bt" onclick="parent.postMessage('closeReader','*')" style="font-size:.85rem">✕</button>
+  </div>
+</div>
+<div id="browser"></div>
+<div id="rview" style="display:none">
+  <div id="rtext"></div>
+  <div id="rfoot">
+    <button class="bt" onclick="prevCh()">◀</button>
+    <span style="font-size:.65rem;color:#668;min-width:70px;text-align:center" id="cl">第1章</span>
+    <button class="bt" onclick="nextCh()">▶</button>
+    <button class="fbtn" id="favBtn" onclick="toggleFavorite()" style="display:none">☆ 收藏</button>
+    <div class="rprog" onclick="clkProg(event)"><div class="rprog-bar" id="pb" style="width:0%"></div></div>
+    <span style="font-size:.6rem;color:#556" id="pt">0%</span>
+    <button class="glow-btn" onclick="backList()">📚 书库</button>
+  </div>
+</div>
+</div>
+<script>
+const FSK='cs-fs';
+let ab=[],cb=null,cc=0,fs=18,loggedIn=false,_favs=[],_states={},_theme=0;
+const _themes=['rgba(4,10,24,0.72)','rgba(22,20,12,0.78)','rgba(6,18,14,0.78)','rgba(14,8,18,0.78)','rgba(2,2,2,0.88)'];
+window.setTheme=function(i,e){e.stopPropagation();_theme=i;document.body.style.setProperty('--bg',_themes[i]);document.querySelectorAll('.tdot').forEach(function(d,j){d.classList.toggle('active',j===i)});localStorage.setItem('cs-theme',i)};
+// Server-backed storage when logged in, empty when not
+async function sr(bid,ch,pct){if(!loggedIn)return;try{await fetch('/api/reading/state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bookId:bid,chapter:ch,progress:pct})})}catch{}}
+async function lr(bid){if(!loggedIn)return null;try{const r=await fetch('/api/reading/state');const d=await r.json();_states=d.states||{};return _states[bid]||null}catch{return null}}
+function gf(){return loggedIn?_favs:[]}
+async function _loadFavs(){if(!loggedIn)return;try{const r=await fetch('/api/reading/favorites');const d=await r.json();_favs=d.favorites||[]}catch{_favs=[]}}
+function iv(id){return _favs.includes(id)}
+async function tv(id){if(!loggedIn){parent.postMessage('toast:请先登录网易云账号','*');return false}try{const r=await fetch('/api/reading/favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bookId:id})});const d=await r.json();_favs=d.favorites||[];return d.favorited}catch{return false}}
+function es(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').replace(/"/g,'&quot;')}
+function as(){const s=fs/16;document.getElementById('app').style.setProperty('--fs-scale',s);document.getElementById('rtext').style.fontSize=fs+'px'}
+window.adjFs=function(d){fs=Math.max(12,Math.min(28,fs+d));as();document.getElementById('fs').textContent=fs+'px';localStorage.setItem(FSK,fs)};
+async function init(){
+  try{const s=parseInt(localStorage.getItem(FSK));if(s>=12&&s<=28){fs=s;document.getElementById('fs').textContent=s+'px'}as();
+    const st=parseInt(localStorage.getItem('cs-theme'));if(st>=0&&st<=4){_theme=st;document.body.style.setProperty('--bg',_themes[st]);document.querySelectorAll('.tdot').forEach(function(d,j){d.classList.toggle('active',j===st)})}
+    // Check login
+    const ur=await fetch('/api/user');const u=await ur.json();
+    if(u&&(u.userId||u.platform==='netease')){loggedIn=true;await _loadFavs();try{const r=await fetch('/api/reading/state');const d=await r.json();_states=d.states||{}}catch{}}
+
+    const[r1,r2]=await Promise.all([fetch('/api/books'),fetch('/api/books/local').catch(()=>({json:()=>({books:[]})}))]);
+    const d1=await r1.json(),d2=await r2.json();
+    ab=[...d1.books.map(x=>({...x,isL:false})),...d2.books.map(x=>({...x,isL:true}))];render();
+  }catch(e){document.getElementById('browser').innerHTML='<div class="emp">书库加载失败</div>'}
+}
+let _bookTab='all';
+window.switchTab=function(t){_bookTab=t;render()};
+function cardFav(x,sts){var s=sts[x.id],pct=s?Math.round(s.progress*100):0,dc="",pb="";if(pct>=95)dc="done";else if(pct>0)dc="reading";if(pct>0){var bg=pct>=95?"rgba(68,170,136,0.4)":"rgba(192,160,64,0.3)";pb='<div style="height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-top:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+bg+';border-radius:2px"></div></div>'}return '<div class="card" onclick="openB('+"'"+x.id+"'"+')"><div class="n"><span class="pdot '+dc+'"></span>'+es(x.title)+'</div><div class="a">'+es(x.author)+(pct>0?' · '+pct+'%':'')+'</div>'+pb+'<div class="d">'+x.desc+'</div></div>'}
+function render(filt=''){
+  const b=document.getElementById('browser'),cats={},cn={'科幻':'🚀 科幻','恐怖':'👻 恐怖','侦探':'🔍 侦探','文学':'📜 文学经典','哲学':'🧠 哲学思想','冒险':'⚔️ 冒险传奇','诗歌':'🎭 诗歌','科学':'🔬 科学探索','历史':'📜 历史','史诗':'🏛️ 史诗神话','中国古典':'🏮 中国古典','志怪笔记':'👺 志怪笔记','诸子百家':'☯️ 诸子百家','诗词':'📝 诗词','戏曲':'🎭 戏曲','现代文学':'✒️ 现代文学'};
+  let f=ab;const q=filt.toLowerCase();
+  if(_bookTab==='fav')f=f.filter(x=>_favs.includes(x.id));
+  if(q)f=f.filter(x=>x.title.toLowerCase().includes(q)||x.author.toLowerCase().includes(q)||x.cat.includes(q)||x.desc.includes(q));
+  // Use cached states
+  const sts=loggedIn?_states:{};
+  f.forEach(x=>{if(!cats[x.cat])cats[x.cat]=[];cats[x.cat].push(x)});
+  let h='<div class="tabs"><div class="tab' +(_bookTab==='all'?' active':'')+'" data-tab="all" onclick="switchTab(\'all\')">🌌 宇宙书库 <span class="badge">'+ab.length+'</span></div><div class="tab' +(_bookTab==='fav'?' active':'')+'" data-tab="fav" onclick="switchTab(\'fav\')">💎 私人馆藏 <span class="badge">'+_favs.length+'</span></div><div class="theme-dots"><div class="tdot" style="background:#0d1528" onclick="setTheme(0,event)" title="深空蓝黑"></div><div class="tdot" style="background:#1a1810" onclick="setTheme(1,event)" title="暖黄纸色"></div><div class="tdot" style="background:#0d1814" onclick="setTheme(2,event)" title="墨绿护眼"></div><div class="tdot" style="background:#180d1a" onclick="setTheme(3,event)" title="暗紫星云"></div><div class="tdot" style="background:#050505" onclick="setTheme(4,event)" title="纯黑夜读"></div></div></div>';
+  h+='<div class="srch"><input type="text" id="si" placeholder="搜索书名/作者/分类..." oninput="render(this.value)"></div>';
+  if(!f.length){h+=_bookTab==='fav'?'<div class="emp">'+(loggedIn?'💎 还没有收藏的书<br><span style="font-size:.62rem">阅读时点击 ⭐ 即可收藏</span>':'🔒 请先登录网易云账号')+'</div>':'<div class="emp">未找到匹配的书</div>'}
+  else if(_bookTab==='fav'){
+    h+='<div class="grid">';
+    f.forEach(x=>{h+=cardFav(x,sts)})
+    h+='</div>';
+  }else{
+    for(const[cat,books]of Object.entries(cats)){h+='<div class="cat">'+(cn[cat]||cat)+' ('+books.length+')</div><div class="grid">';books.forEach(x=>{const s=sts[x.id],fv=_favs.includes(x.id),pct=s?Math.round(s.progress*100):0;h+='<div class="card" onclick="openB(\''+x.id+'\')"><div class="n">'+(fv?'<span style="color:#c0a040">⭐</span> ':'')+es(x.title)+'</div><div class="a">'+es(x.author)+(pct>0?' · 📌'+pct+'%':'')+'</div><div class="d">'+x.desc+'</div></div>'});h+='</div>'}
+  }
+  b.innerHTML=h;const si=document.getElementById('si');if(si)si.value=filt;
+}
+window.openB=async function(id){
+  const b=document.getElementById('browser'),rv=document.getElementById('rview'),il=id.startsWith('local_');
+  b.innerHTML='<div class="emp">'+(il?'📖 正在打开本地书籍...':'📖 正在从古腾堡取书...')+'</div>';
+  try{const r=await fetch(il?'/api/books/local/'+id:'/api/books/'+id),bk=await r.json();
+    if(bk.error){b.innerHTML='<div class="emp" style="color:#f55">'+bk.error+'</div>';return}
+    cb=bk;cc=0;const sv=await lr(id);if(sv&&sv.chapter<bk.chapters.length)cc=sv.chapter;
+    document.getElementById('title').textContent=bk.title;updateFavStar();b.style.display='none';rv.style.display='flex';renderCh();as();
+    if(sv&&sv.progress>0)setTimeout(()=>{const el=document.getElementById('rtext');el.scrollTop=(el.scrollHeight-el.clientHeight)*sv.progress},200);
+  }catch(e){b.innerHTML='<div class="emp" style="color:#f55">加载失败</div>'}
+};
+function updateFavStar(){const f=cb&&_favs.includes(cb.id);const s=document.getElementById('favStar');if(s){s.style.display=loggedIn?'inline':'none';s.classList.toggle('active',f);s.textContent=f?'⭐':'☆'}const btn=document.getElementById('favBtn');if(btn){btn.style.display=loggedIn?'flex':'none';btn.classList.toggle('active',f);btn.innerHTML=f?'⭐ 已收藏':'☆ 收藏'}}
+window.toggleFavorite=async function(){if(!cb)return;if(!loggedIn){parent.postMessage('toast:请先登录网易云账号','*');return}const f=await tv(cb.id);updateFavStar();parent.postMessage('toast:'+(f?'💎 已收藏':'已取消收藏'),'*')};
+function renderCh(){
+  const el=document.getElementById('rtext');if(!cb||cc>=cb.chapters.length){el.innerHTML='<p style="color:#556">没有更多章节了</p>';return}
+  const ch=cb.chapters[cc];let h='';if(ch.title)h+='<h3>'+es(ch.title)+'</h3>';
+  const ps=ch.fullText.split(/\n\s*\n/);ps.forEach(p=>{const t=p.trim().replace(/\r/g,'');if(t)h+='<p>'+es(t)+'</p>'});
+  el.innerHTML=h||'<p style="color:#556">（空章节）</p>';el.scrollTop=0;upFt();
+}
+function upFt(){if(!cb)return;const ch=cb.chapters[cc];document.getElementById('cl').textContent='第'+(cc+1)+'/'+cb.chapters.length+'章';const el=document.getElementById('rtext');const pct=el&&el.scrollHeight>el.clientHeight?Math.round(el.scrollTop/(el.scrollHeight-el.clientHeight)*100):0;document.getElementById('pb').style.width=pct+'%';document.getElementById('pt').textContent=pct+'%'}
+window.nextCh=function(){if(!cb)return;if(cc<cb.chapters.length-1){cc++;renderCh();sr(cb.id,cc,0)}}
+window.prevCh=function(){if(cc>0){cc--;renderCh();sr(cb.id,cc,0)}}
+window.clkProg=function(e){if(!cb)return;const r=e.currentTarget.getBoundingClientRect(),el=document.getElementById('rtext');el.scrollTop=(el.scrollHeight-el.clientHeight)*(e.clientX-r.left)/r.width}
+window.backList=function(){if(cb){const el=document.getElementById('rtext');sr(cb.id,cc,el?el.scrollTop/(el.scrollHeight-el.clientHeight):0)}cb=null;cc=0;document.getElementById('title').textContent='📖 宇宙书库';document.getElementById('browser').style.display='';document.getElementById('rview').style.display='none';render()};
+let _st=null;document.getElementById('rtext').addEventListener('scroll',function(){upFt();if(cb){clearTimeout(_st);_st=setTimeout(()=>{sr(cb.id,cc,this.scrollTop/(this.scrollHeight-this.clientHeight))},800)}},true);
+init();
+</script>
+</body>
+</html>

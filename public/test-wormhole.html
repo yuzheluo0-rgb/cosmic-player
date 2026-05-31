@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Test</title>
+<style>
+body{background:#000;color:#fff;font-family:sans-serif}
+#resultsView{position:fixed;z-index:2;inset:0;display:none;flex-direction:column;overflow-y:auto;padding:30px;background:rgba(0,0,0,0.95)}
+#resultsView.show{display:flex}
+.res-year{font-size:2rem;color:#80b8d8}
+.res-card{background:rgba(8,18,36,0.75);border:1px solid rgba(120,180,220,0.3);border-radius:12px;padding:20px;margin:10px 0}
+</style></head><body>
+<h1>Wormhole Test</h1>
+<button onclick="test()">Test 1994</button>
+<div id="resultsView"></div>
+<script>
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+async function test(){
+  var r=await fetch('/api/wormhole/1994'),d=await r.json();
+  console.log('Data:',d);
+  var el=document.getElementById('resultsView');
+  var h='<div class="res-year">'+d.year+'</div>';
+  if(d.movie)h+='<div class="res-card"><h2>🎬 '+esc(d.movie.title)+'</h2><p>导演：'+esc(d.movie.dir)+'</p><p>'+esc(d.movie.desc)+'</p></div>';
+  if(d.book)h+='<div class="res-card"><h2>📖 '+esc(d.book.title)+'</h2><p>'+esc(d.book.author)+'</p><p>'+esc(d.book.desc)+'</p></div>';
+  if(d.event)h+='<div class="res-card"><h2>📜 '+d.year+'年</h2><p>'+esc(d.event)+'</p></div>';
+  el.innerHTML=h;el.classList.add('show');
+}
+</script>
+</body></html>

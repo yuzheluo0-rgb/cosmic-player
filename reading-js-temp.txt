@@ -1,0 +1,351 @@
+// === COSMIC READING ROOM ===
+let allBooks=[],currentBook=null,currentChapter=0,readingFontSize=18,bookTab='all';
+const READ_STORAGE_KEY='cosmic-reader-state';
+const FAV_STORAGE_KEY='cosmic-favorites';
+
+function getFavorites(){try{return JSON.parse(localStorage.getItem(FAV_STORAGE_KEY)||'[]')}catch{return[]}}
+function saveFavorites(arr){localStorage.setItem(FAV_STORAGE_KEY,JSON.stringify(arr))}
+function isFavorite(bookId){return getFavorites().includes(bookId)}
+function toggleFavoriteById(bookId){
+  const favs=getFavorites();
+  const idx=favs.indexOf(bookId);
+  if(idx>=0)favs.splice(idx,1);else favs.push(bookId);
+  saveFavorites(favs);
+  return favs.includes(bookId);
+}
+
+window.toggleReading=function(){
+  const ov=document.getElementById('readingOverlay');
+  const pn=document.getElementById('readingPanel');
+  if(ov.classList.contains('show')){closeReading();return}
+  ov.classList.add('show');
+  pn.style.display='flex';
+  document.getElementById('readingPanelTitle').textContent='📖 宇宙书库';
+  document.getElementById('bookBrowser').style.display='';
+  document.getElementById('readerView').style.display='none';
+  document.getElementById('readingHeader').querySelector('.r-actions').style.display='';
+  if(!allBooks.length)loadBookList();
+};
+
+window.closeReading=function(){
+  document.getElementById('readingOverlay').classList.remove('show');
+  document.getElementById('readingPanel').style.display='none';
+  if(currentBook){
+    const el=document.getElementById('readerContent');
+    const pct=el?el.scrollTop/(el.scrollHeight-el.clientHeight):0;
+    saveReadingState(currentBook.id,currentChapter,pct);
+  }
+};
+
+function saveReadingState(bookId,chapter,progress){
+  const state=JSON.parse(localStorage.getItem(READ_STORAGE_KEY)||'{}');
+  state[bookId]={chapter,progress,ts:Date.now()};
+  localStorage.setItem(READ_STORAGE_KEY,JSON.stringify(state));
+}
+
+function loadReadingState(bookId){
+  const state=JSON.parse(localStorage.getItem(READ_STORAGE_KEY)||'{}');
+  return state[bookId]||null;
+}
+
+async function loadBookList(){
+  const browser=document.getElementById('bookBrowser');
+  browser.innerHTML='<div style="color:#556;text-align:center;padding:40px 0;font-size:.78rem">🌌 书库加载中...</div>';
+  try{
+    const [r1, r2] = await Promise.all([
+      fetch('/api/books'),
+      fetch('/api/books/local').catch(()=>({json:()=>({books:[]})}))
+    ]);
+    const d1 = await r1.json();
+    const d2 = await r2.json();
+    // Merge local books at the end
+    const localBooks = (d2.books||[]).map(b=>({...b, isLocal:true}));
+    const gutenbergBooks = (d1.books||[]).map(b=>({...b, isLocal:false}));
+    allBooks = [...gutenbergBooks, ...localBooks];
+    renderBookBrowser();
+  }catch(e){browser.innerHTML='<div style="color:#f55;text-align:center;padding:40px 0">书库加载失败</div>'}
+}
+
+window.switchBookTab=function(tab){
+  bookTab=tab;
+  const tabs=document.querySelectorAll('.book-tab');
+  tabs.forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  const si=document.getElementById('bookSearchInput');
+  renderBookBrowser(si?si.value:'');
+};
+
+function renderBookBrowser(filter=''){
+  const browser=document.getElementById('bookBrowser');
+  const cats={};
+  const q=filter.toLowerCase();
+  const favs=getFavorites();
+
+  let filtered=allBooks;
+  // Apply favorites filter
+  if(bookTab==='fav'){
+    filtered=allBooks.filter(b=>favs.includes(b.id));
+  }
+  // Apply search filter
+  if(q)filtered=filtered.filter(b=>b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q)||b.cat.includes(q)||b.desc.includes(q));
+
+  // Group by category
+  filtered.forEach(b=>{
+    if(!cats[b.cat])cats[b.cat]=[];
+    cats[b.cat].push(b);
+  });
+
+  const catNames={
+    '科幻':'🚀 科幻','恐怖':'👻 恐怖','侦探':'🔍 侦探','文学':'📜 文学经典',
+    '哲学':'🧠 哲学思想','冒险':'⚔️ 冒险传奇','诗歌':'🎭 诗歌',
+    '科学':'🔬 科学探索','历史':'📜 历史','史诗':'🏛️ 史诗神话',
+    '中国古典':'🏮 中国古典','志怪笔记':'👺 志怪笔记','诸子百家':'☯️ 诸子百家',
+    '诗词':'📝 诗词','戏曲':'🎭 戏曲','现代文学':'✒️ 现代文学'
+  };
+
+  let h='';
+  // Tab bar
+  h+='<div class="book-tabs">';
+  h+='<div class="book-tab'+(bookTab==='all'?' active':'')+'" data-tab="all" onclick="switchBookTab(\'all\')">🌌 宇宙书库 <span class="tab-badge">'+allBooks.length+'</span></div>';
+  const favCount=favs.length;
+  h+='<div class="book-tab'+(bookTab==='fav'?' active':'')+'" data-tab="fav" onclick="switchBookTab(\'fav\')">💎 私人馆藏 <span class="tab-badge">'+(favCount||'0')+'</span></div>';
+  h+='</div>';
+
+  h+='<div class="book-search-wrap"><input type="text" id="bookSearchInput" placeholder="搜索书名/作者/分类..." oninput="renderBookBrowser(this.value)"></div>';
+
+  if(filtered.length===0){
+    h+=bookTab==='fav'
+      ?'<div style="color:#556;text-align:center;padding:30px 0;font-size:.78rem">💎 还没有收藏的书<br><span style="font-size:.65rem">点击书上的 ⭐ 即可收藏</span></div>'
+      :'<div style="color:#556;text-align:center;padding:30px 0">未找到匹配的书</div>';
+  } else if(bookTab==='fav'){
+    // Flat list with progress for favorites
+    h+='<div class="book-grid">';
+    filtered.forEach(b=>{
+      const saved=loadReadingState(b.id);
+      const pct=saved?Math.round(saved.progress*100):0;
+      const dotClass=pct>=95?'done':pct>0?'reading':'';
+      const progressBar=pct>0
+        ?'<div style=\"height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:4px;overflow:hidden\"><div style=\"height:100%;width:'+pct+'%;background:'+(pct>=95?'rgba(68,170,136,0.5)':'rgba(192,160,64,0.4))+';border-radius:2px\"></div></div>'
+        :'';
+      h+='<div class="book-card" onclick="openBook(\''+b.id+'\')"><div class="b-name"><span class="book-progress-dot '+(dotClass||'')+'"></span>'+b.title.replace(/'/g,'&#39;').replace(/"/g,'&quot;')+'</div><div class="b-author">'+b.author.replace(/'/g,'&#39;')+(pct>0?' · 📖'+pct+'%':'')+'</div>'+progressBar+'<div class="b-desc">'+b.desc+'</div></div>';
+    });
+    h+='</div>';
+  } else {
+    for(const [cat,books] of Object.entries(cats)){
+      h+='<div class="book-cat">'+(catNames[cat]||cat)+' ('+books.length+')</div>';
+      h+='<div class="book-grid">';
+      books.forEach(b=>{
+        const saved=loadReadingState(b.id);
+        const favved=isFavorite(b.id);
+        const pct=saved?Math.round(saved.progress*100):0;
+        const badge=(favved?'<span style="color:#c0a040;margin-right:2px" title="已收藏">⭐</span>':'')+(saved?' <span style="font-size:.55rem;color:#556">📌'+pct+'%</span>':'');
+        h+='<div class="book-card" onclick="openBook(\''+b.id+'\')"><div class="b-name">'+b.title.replace(/'/g,'&#39;').replace(/"/g,'&quot;')+'</div><div class="b-author">'+badge+''+b.author.replace(/'/g,'&#39;')+'</div><div class="b-desc">'+b.desc+'</div></div>';
+      });
+      h+='</div>';
+    }
+  }
+
+  browser.innerHTML=h;
+  const si=document.getElementById('bookSearchInput');
+  if(si)si.value=filter;
+}
+
+window.openBook=async function(id){
+  const browser=document.getElementById('bookBrowser');
+  const readerView=document.getElementById('readerView');
+  const header=document.getElementById('readingHeader');
+
+  const isLocal = id.startsWith('local_');
+  browser.innerHTML=isLocal
+    ?'<div style="color:#556;text-align:center;padding:60px 0;font-size:.78rem">📖 正在打开本地书籍...</div>'
+    :'<div style="color:#556;text-align:center;padding:60px 0;font-size:.78rem">📖 正在从古腾堡取书...</div>';
+
+  try{
+    const r=await fetch(isLocal?'/api/books/local/'+id:'/api/books/'+id);
+    const book=await r.json();
+    if(book.error){browser.innerHTML='<div style="color:#f55;text-align:center;padding:40px 0">'+book.error+'</div>';return}
+
+    currentBook=book;
+    currentChapter=0;
+
+    // Restore saved progress
+    const saved=loadReadingState(id);
+    if(saved&&saved.chapter<book.chapters.length){
+      currentChapter=saved.chapter;
+    }
+
+    // Switch to reader view
+    document.getElementById('readingPanelTitle').textContent=book.title;
+    header.querySelector('.r-actions').style.display='flex';
+    // Show/hide favorite star
+    const favStar=document.getElementById('favStarHeader');
+    favStar.style.display='inline';
+    updateFavUI(book.id);
+    browser.style.display='none';
+    readerView.style.display='flex';
+
+    renderChapter();
+    applyReadingFontSize();
+
+    // Restore scroll position
+    if(saved&&saved.progress>0){
+      setTimeout(()=>{
+        const el=document.getElementById('readerContent');
+        el.scrollTop=(el.scrollHeight-el.clientHeight)*saved.progress;
+      },200);
+    }
+
+    toast('📖 '+book.title);
+  }catch(e){
+    browser.innerHTML='<div style="color:#f55;text-align:center;padding:40px 0">加载失败: '+e.message+'</div>';
+  }
+};
+
+function renderChapter(){
+  const el=document.getElementById('readerContent');
+  if(!currentBook||currentChapter>=currentBook.chapters.length){
+    el.innerHTML='<p style="color:#556">没有更多章节了</p>';
+    return;
+  }
+  const ch=currentBook.chapters[currentChapter];
+  let h='';
+  if(ch.title)h+='<h3>'+ch.title+'</h3>';
+  // Split into paragraphs
+  const paras=ch.fullText.split(/\n\s*\n/);
+  for(const p of paras){
+    const trimmed=p.trim().replace(/\r/g,'');
+    if(trimmed){
+      // Escape HTML but preserve basic formatting
+      const safe=trimmed.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      h+='<p>'+safe+'</p>';
+    }
+  }
+  el.innerHTML=h||'<p style="color:#556">（空章节）</p>';
+  el.scrollTop=0;
+  updateReaderFooter();
+}
+
+function updateReaderFooter(){
+  if(!currentBook)return;
+  const ch=currentBook.chapters[currentChapter];
+  const chars=ch?ch.charCount:0;
+  document.getElementById('readerChapLabel').textContent=
+    '第'+(currentChapter+1)+'/'+currentBook.chapters.length+'章';
+
+  // Progress through current chapter
+  const el=document.getElementById('readerContent');
+  const pct=el&&el.scrollHeight>el.clientHeight
+    ?Math.round(el.scrollTop/(el.scrollHeight-el.clientHeight)*100)
+    :0;
+  document.getElementById('readerProgressBar').style.width=pct+'%';
+  document.getElementById('readerProgressText').textContent=pct+'%';
+}
+
+window.nextChapter=function(){
+  if(!currentBook)return;
+  if(currentChapter<currentBook.chapters.length-1){
+    currentChapter++;
+    renderChapter();
+    if(currentBook)saveReadingState(currentBook.id,currentChapter,0);
+  }else{toast('已是最后一章')}
+};
+
+window.prevChapter=function(){
+  if(currentChapter>0){
+    currentChapter--;
+    renderChapter();
+    if(currentBook)saveReadingState(currentBook.id,currentChapter,0);
+  }else{toast('已是第一章')}
+};
+
+window.adjustFontSize=function(delta){
+  readingFontSize=Math.max(12,Math.min(28,readingFontSize+delta));
+  applyReadingFontSize();
+  document.getElementById('readingFontSize').textContent=readingFontSize+'px';
+  localStorage.setItem('cosmic-reading-fontsize',readingFontSize);
+};
+
+function applyReadingFontSize(){
+  const scale=readingFontSize/16;
+  document.getElementById('readingPanel').style.setProperty('--fs-scale',scale);
+  document.getElementById('readerContent').style.fontSize=readingFontSize+'px';
+}
+
+window.clickProgress=function(e){
+  if(!currentBook)return;
+  const bar=e.currentTarget;
+  const rect=bar.getBoundingClientRect();
+  const pct=(e.clientX-rect.left)/rect.width;
+  const el=document.getElementById('readerContent');
+  el.scrollTop=(el.scrollHeight-el.clientHeight)*pct;
+};
+
+window.toggleFavorite=function(){
+  if(!currentBook)return;
+  const isNowFav=toggleFavoriteById(currentBook.id);
+  updateFavUI(currentBook.id);
+  toast(isNowFav?'💎 已收藏':'已取消收藏');
+};
+
+function updateFavUI(bookId){
+  const favved=isFavorite(bookId);
+  const star=document.getElementById('favStarHeader');
+  const btn=document.getElementById('favBtnBig');
+  if(star){
+    star.classList.toggle('active',favved);
+    star.textContent=favved?'⭐':'☆';
+  }
+  if(btn){
+    btn.classList.toggle('active',favved);
+    btn.innerHTML=favved?'⭐ 已收藏':'☆ 收藏';
+  }
+}
+
+window.backToBookList=function(){
+  if(currentBook){
+    const el=document.getElementById('readerContent');
+    const pct=el?el.scrollTop/(el.scrollHeight-el.clientHeight):0;
+    saveReadingState(currentBook.id,currentChapter,pct);
+  }
+  currentBook=null;currentChapter=0;
+  document.getElementById('readingPanelTitle').textContent='📖 宇宙书库';
+  document.getElementById('bookBrowser').style.display='';
+  document.getElementById('readerView').style.display='none';
+  renderBookBrowser();
+};
+
+// Init reading font size from storage
+(function(){
+  try{
+    const saved=parseInt(localStorage.getItem('cosmic-reading-fontsize'));
+    if(saved>=12&&saved<=28){readingFontSize=saved;const el=document.getElementById('readingFontSize');if(el)el.textContent=saved+'px'}
+  }catch(e){}
+})();
+
+// Auto-save progress on scroll
+let _rsaveTimer=null;
+(function(){
+  const el=document.getElementById('readerContent');
+  if(el){
+    el.addEventListener('scroll',function(){
+      updateReaderFooter();
+      if(currentBook){
+        clearTimeout(_rsaveTimer);
+        _rsaveTimer=setTimeout(()=>{
+          const pct=this.scrollTop/(this.scrollHeight-this.clientHeight);
+          saveReadingState(currentBook.id,currentChapter,pct);
+        },800);
+      }
+    },true);
+  }
+})();
+
+// ESC: close reading panel if open
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    try{
+      const readingOpen=document.getElementById('readingOverlay').classList.contains('show');
+      if(readingOpen){closeReading();e.stopImmediatePropagation();return}
+    }catch(e){}
+  }
+},true);
+

@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>恐怖墓地 — 歌者空间</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/"
+}}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cinzel','Georgia',serif;background:#050303;overflow:hidden;height:100vh;color:#c8b8b8}
+canvas#game{position:fixed;top:0;left:0;z-index:0}
+
+/* Blocker overlay */
+#blocker{position:fixed;inset:0;z-index:10;background:rgba(5,3,3,0.92);display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer}
+#blocker.hidden{display:none}
+#blocker h1{font-family:'Cinzel',serif;font-size:2.4rem;color:#8b0000;text-shadow:0 0 40px rgba(139,0,0,0.5),0 0 80px rgba(139,0,0,0.2);letter-spacing:6px;animation:pulse 2.5s ease-in-out infinite;margin-bottom:12px}
+#blocker p{font-size:.85rem;color:#886666;letter-spacing:3px;opacity:.7}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
+
+/* HUD */
+#crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;color:rgba(200,180,180,0.25);font-size:20px;pointer-events:none;text-shadow:0 0 4px rgba(200,180,180,0.3);display:none}
+#interactHint{position:fixed;bottom:40%;left:50%;transform:translateX(-50%);z-index:5;color:#cc6666;font-family:'Cinzel',serif;opacity:0;transition:opacity .3s;pointer-events:none;font-size:.85rem;letter-spacing:2px;text-shadow:0 0 8px rgba(139,0,0,0.4)}
+#interactHint.visible{opacity:1}
+#posterLabel{position:fixed;bottom:32%;left:50%;transform:translateX(-50%);z-index:5;color:#c8b8b8;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none;font-size:.8rem;max-width:340px;line-height:1.5;text-shadow:0 0 6px rgba(0,0,0,0.8)}
+#posterLabel.visible{opacity:1}
+#posterLabel .title{font-family:'Cinzel',serif;font-size:1.05rem;color:#cc5555;letter-spacing:2px;display:block}
+#posterLabel .info{font-size:.7rem;color:#886666;margin-top:2px}
+
+#movieCount{position:fixed;top:12px;right:16px;z-index:5;font-family:'Cinzel',serif;font-size:.7rem;color:#664444;letter-spacing:1px}
+#backBtn{position:fixed;top:12px;left:16px;z-index:5;padding:6px 14px;border:1px solid rgba(139,0,0,0.35);border-radius:14px;background:rgba(20,5,5,0.7);color:#886666;font-family:'Cinzel',serif;font-size:.7rem;cursor:pointer;letter-spacing:2px;transition:all .3s}
+#backBtn:hover{background:rgba(40,10,10,0.85);color:#cc6666;border-color:rgba(139,0,0,0.6);box-shadow:0 0 10px rgba(139,0,0,0.2)}
+
+/* Brightness slider */
+#brightnessCtl{position:fixed;bottom:20px;right:20px;z-index:6;display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(15,5,5,0.75);border:1px solid rgba(139,0,0,0.25);border-radius:20px;backdrop-filter:blur(6px)}
+#brightnessCtl label{font-family:'Cinzel',serif;font-size:.65rem;color:#886666;letter-spacing:1px}
+#brightnessCtl input[type=range]{-webkit-appearance:none;width:80px;height:4px;background:linear-gradient(90deg,#1a0505,#8b0000,#cc5555);border-radius:2px;outline:none;cursor:pointer}
+#brightnessCtl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#cc5555;cursor:pointer;border:1px solid #8b0000}
+#brightnessVal{font-size:.6rem;color:#aa8888;min-width:28px;text-align:center}
+
+/* Video overlay */
+#videoOverlay{position:fixed;inset:0;z-index:50;background:rgba(3,2,2,0.95);display:none;flex-direction:column;align-items:center;justify-content:center}
+#videoOverlay.active{display:flex}
+#videoHeader{display:flex;justify-content:space-between;align-items:center;width:80vw;max-width:1200px;padding:10px 20px;margin-bottom:8px}
+#videoTitle{font-family:'Cinzel',serif;font-size:1.1rem;color:#cc5555;letter-spacing:3px}
+#closeVideo{padding:6px 16px;border:1px solid rgba(139,0,0,0.4);border-radius:12px;background:rgba(30,5,5,0.7);color:#886666;font-family:'Cinzel',serif;font-size:.75rem;cursor:pointer;letter-spacing:2px;transition:all .3s}
+#closeVideo:hover{background:rgba(139,0,0,0.3);color:#cc6666}
+#videoPlayer{width:80vw;height:80vh;object-fit:contain;border-radius:6px;box-shadow:0 0 40px rgba(139,0,0,0.25)}
+#loadingMsg{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);z-index:8;font-family:'Cinzel',serif;font-size:1rem;color:#664444;letter-spacing:4px;animation:pulse 1.8s ease-in-out infinite}
+
+/* Toast */
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:60;padding:8px 22px;background:rgba(30,5,5,0.9);border:1px solid rgba(139,0,0,0.35);border-radius:16px;color:#cc6666;font-size:.75rem;letter-spacing:1px;display:none;opacity:0;transition:opacity .4s}
+
+@media(max-width:768px){
+  #blocker h1{font-size:1.4rem;letter-spacing:3px}
+  #videoPlayer{width:96vw;height:55vh}
+}
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="blocker">
+  <h1>进入墓地</h1>
+  <p>点击进入黑暗</p>
+  <p style="margin-top:20px;font-size:.65rem;opacity:.45;letter-spacing:2px">WASD 移动 &nbsp;|&nbsp; 鼠标 环视 &nbsp;|&nbsp; ESC 退出</p>
+</div>
+
+<div id="crosshair">+</div>
+<div id="interactHint">点击播放</div>
+<div id="posterLabel"><span class="title"></span><span class="info"></span></div>
+
+<div id="movieCount">0 films</div>
+<button id="backBtn" onclick="location.href='/'">← BACK</button>
+
+<div id="brightnessCtl">
+  <label>BRIGHT</label>
+  <input type="range" id="brightnessSlider" min="10" max="250" value="180" step="1">
+  <span id="brightnessVal">180</span>
+</div>
+
+<div id="videoOverlay">
+  <div id="videoHeader">
+    <span id="videoTitle"></span>
+    <button id="closeVideo">✕ CLOSE</button>
+  </div>
+  <video id="videoPlayer" controls playsinline></video>
+</div>
+
+<div id="loadingMsg">正在搜索档案库……</div>
+<div id="toast"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+
+// ===== DOM refs =====
+const blocker = document.getElementById('blocker');
+const crosshair = document.getElementById('crosshair');
+const interactHint = document.getElementById('interactHint');
+const posterLabel = document.getElementById('posterLabel');
+const movieCount = document.getElementById('movieCount');
+const videoOverlay = document.getElementById('videoOverlay');
+const videoPlayer = document.getElementById('videoPlayer');
+const videoTitle = document.getElementById('videoTitle');
+const closeVideoBtn = document.getElementById('closeVideo');
+const loadingMsg = document.getElementById('loadingMsg');
+const toastEl = document.getElementById('toast');
+
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.style.display = 'block';
+  toastEl.style.opacity = '1';
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => { toastEl.style.opacity = '0'; }, 3000);
+}
+
+// ===== Renderer =====
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('game'),
+  antialias: false,
+  powerPreference: 'low-power'
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.8;
+
+// ===== Scene =====
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0610);
+scene.fog = new THREE.FogExp2(0x0a0610, 0.004);
+
+// ===== Camera + Controls =====
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 80);
+camera.position.set(0, 1.6, 0);
+const controls = new PointerLockControls(camera, document.body);
+const clock = new THREE.Clock();
+
+// ===== Lighting =====
+const ambient = new THREE.AmbientLight(0x334466, 1.2);
+scene.add(ambient);
+
+const moonLight = new THREE.DirectionalLight(0x8899bb, 0.7);
+moonLight.position.set(8, 15, -5);
+moonLight.castShadow = true;
+moonLight.shadow.mapSize.width = 512;
+moonLight.shadow.mapSize.height = 512;
+moonLight.shadow.camera.far = 35;
+moonLight.shadow.camera.near = 0.5;
+moonLight.shadow.camera.left = -20;
+moonLight.shadow.camera.right = 20;
+moonLight.shadow.camera.top = 20;
+moonLight.shadow.camera.bottom = -20;
+scene.add(moonLight);
+
+// ===== Glow texture helper =====
+function mkGlow(inner, outer) {
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 128;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+  g.addColorStop(0, inner);
+  g.addColorStop(1, outer);
+  x.fillStyle = g;
+  x.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
+}
+
+// ===== Blood Moon =====
+const moonGeo = new THREE.SphereGeometry(0.55, 32, 32);
+const moonMat = new THREE.MeshBasicMaterial({ color: 0x661111 });
+const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+moonMesh.position.set(12, 8, -18);
+scene.add(moonMesh);
+
+const glowTex = mkGlow('rgba(100,20,20,0.6)', 'rgba(40,5,5,0)');
+const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: glowTex, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.45, depthWrite: false
+}));
+glowSprite.scale.set(4.5, 4.5, 1);
+glowSprite.position.copy(moonMesh.position);
+scene.add(glowSprite);
+
+// ===== Ground =====
+const gc = document.createElement('canvas');
+gc.width = 256; gc.height = 256;
+const gx = gc.getContext('2d');
+gx.fillStyle = '#1a1008';
+gx.fillRect(0, 0, 256, 256);
+for (let i = 0; i < 3000; i++) {
+  const v = 15 + Math.floor(Math.random() * 20);
+  gx.fillStyle = `rgb(${v},${Math.max(0, v - 6)},${Math.max(0, v - 12)})`;
+  gx.fillRect(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 3, 1 + Math.random() * 2);
+}
+for (let i = 0; i < 80; i++) {
+  gx.fillStyle = `rgba(25,15,8,${0.05 + Math.random() * 0.1})`;
+  gx.beginPath();
+  gx.ellipse(Math.random() * 256, Math.random() * 256, 5 + Math.random() * 15, 3 + Math.random() * 8, Math.random() * Math.PI, 0, Math.PI * 2);
+  gx.fill();
+}
+const groundTex = new THREE.CanvasTexture(gc);
+groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
+groundTex.repeat.set(30, 30);
+groundTex.anisotropy = 4;
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(100, 100),
+  new THREE.MeshStandardMaterial({ map: groundTex, roughness: 1, metalness: 0 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ===== Graveyard generation =====
+const GRAVE_RADIUS = 35;
+const CLEAR_RADIUS = 4;
+const MIN_GRAVE_SPACING = 3.0;
+const NUM_GRAVES = 40;
+
+// Generate grave positions with rejection sampling
+const gravePositions = [];
+let graveAttempts = 0;
+while (gravePositions.length < NUM_GRAVES && graveAttempts < 600) {
+  const angle = Math.random() * Math.PI * 2;
+  const radius = CLEAR_RADIUS + Math.random() * (GRAVE_RADIUS - CLEAR_RADIUS);
+  const x = Math.cos(angle) * radius;
+  const z = Math.sin(angle) * radius;
+  let ok = true;
+  for (const p of gravePositions) {
+    const dx = x - p.x, dz = z - p.z;
+    if (Math.sqrt(dx * dx + dz * dz) < MIN_GRAVE_SPACING) { ok = false; break; }
+  }
+  if (ok) gravePositions.push({ x, z, angle: Math.atan2(-x, -z) + (Math.random() - 0.5) * 0.4 });
+  graveAttempts++;
+}
+
+// Tombstone shape builders — each returns a BufferGeometry
+function makeArchedTombstone() {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.25, -0.6);
+  shape.lineTo(-0.25, 0.05);
+  shape.absarc(0, 0.05, 0.25, Math.PI, 0, true);
+  shape.lineTo(0.25, -0.6);
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { depth: 0.12, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 });
+}
+
+function makePointedTombstone() {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.22, -0.55);
+  shape.lineTo(-0.22, -0.05);
+  shape.lineTo(0, 0.35);
+  shape.lineTo(0.22, -0.05);
+  shape.lineTo(0.22, -0.55);
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { depth: 0.10, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 });
+}
+
+function makeCrossTombstone() {
+  const shape = new THREE.Shape();
+  // Base
+  shape.moveTo(-0.2, -0.5);
+  shape.lineTo(-0.2, -0.1);
+  shape.lineTo(-0.35, -0.1);
+  shape.lineTo(-0.35, 0.08);
+  shape.lineTo(-0.2, 0.08);
+  shape.lineTo(-0.2, 0.25);
+  shape.lineTo(0.2, 0.25);
+  shape.lineTo(0.2, 0.08);
+  shape.lineTo(0.35, 0.08);
+  shape.lineTo(0.35, -0.1);
+  shape.lineTo(0.2, -0.1);
+  shape.lineTo(0.2, -0.5);
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { depth: 0.10, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 });
+}
+
+function makeSlabTombstone() {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.28, -0.45);
+  shape.lineTo(-0.28, 0.2);
+  shape.lineTo(-0.22, 0.28);
+  shape.lineTo(0.22, 0.28);
+  shape.lineTo(0.28, 0.2);
+  shape.lineTo(0.28, -0.45);
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { depth: 0.10, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 });
+}
+
+function makeObelisk() {
+  const shape = new THREE.Shape();
+  shape.moveTo(-0.18, -0.55);
+  shape.lineTo(-0.18, 0.1);
+  shape.lineTo(-0.05, 0.5);
+  shape.lineTo(0.05, 0.5);
+  shape.lineTo(0.18, 0.1);
+  shape.lineTo(0.18, -0.55);
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { depth: 0.10, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 });
+}
+
+const tombstoneBuilders = [makeArchedTombstone, makePointedTombstone, makeCrossTombstone, makeSlabTombstone, makeObelisk];
+const tombstoneMeshes = [];
+
+// Stone material — varied slightly per grave
+function makeStoneMat() {
+  const shade = 0.35 + Math.random() * 0.2;
+  return new THREE.MeshStandardMaterial({
+    color: new THREE.Color(shade, shade * 0.95, shade * 0.88),
+    roughness: 0.7 + Math.random() * 0.25,
+    metalness: 0
+  });
+}
+
+const stoneGeoCache = tombstoneBuilders.map(fn => fn());
+
+gravePositions.forEach((pos, i) => {
+  const builderIdx = i % tombstoneBuilders.length;
+  const geo = stoneGeoCache[builderIdx];
+  const mat = makeStoneMat();
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(pos.x, 0, pos.z);
+  mesh.rotation.y = pos.angle;
+  mesh.scale.set(1.8, 2.0, 1.2);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData = { graveIndex: i, pos, type: builderIdx };
+  scene.add(mesh);
+  tombstoneMeshes.push(mesh);
+});
+
+// Dead trees — scattered for atmosphere
+function makeDeadTree(x, z, h, lean) {
+  const group = new THREE.Group();
+  const trunkGeo = new THREE.CylinderGeometry(0.03, 0.07, h, 5);
+  const trunk = new THREE.Mesh(trunkGeo, new THREE.MeshStandardMaterial({ color: 0x332218, roughness: 0.9 }));
+  trunk.position.y = h / 2;
+  group.add(trunk);
+  // Bare branches
+  for (let b = 0; b < 4 + Math.floor(Math.random() * 5); b++) {
+    const brLen = 0.4 + Math.random() * 0.8;
+    const brGeo = new THREE.CylinderGeometry(0.01, 0.03, brLen, 4);
+    const br = new THREE.Mesh(brGeo, new THREE.MeshStandardMaterial({ color: 0x2a1a10, roughness: 0.9 }));
+    br.position.y = h * 0.4 + Math.random() * h * 0.5;
+    const brAngle = Math.random() * Math.PI * 2;
+    br.position.x = Math.cos(brAngle) * 0.15;
+    br.position.z = Math.sin(brAngle) * 0.15;
+    br.rotation.z = (Math.random() - 0.5) * 1.5;
+    br.rotation.x = (Math.random() - 0.5) * 1.0;
+    group.add(br);
+  }
+  group.position.set(x, 0, z);
+  group.rotation.z = lean;
+  group.rotation.y = Math.random() * Math.PI * 2;
+  group.castShadow = true;
+  return group;
+}
+
+const deadTrees = [];
+for (let i = 0; i < 8; i++) {
+  const a = Math.random() * Math.PI * 2;
+  const r = CLEAR_RADIUS + 1.5 + Math.random() * (GRAVE_RADIUS - CLEAR_RADIUS);
+  const x = Math.cos(a) * r;
+  const z = Math.sin(a) * r;
+  // Don't place too close to graves
+  let tooClose = false;
+  for (const g of gravePositions) {
+    if (Math.sqrt((x - g.x) ** 2 + (z - g.z) ** 2) < 2.0) { tooClose = true; break; }
+  }
+  if (!tooClose) {
+    const tree = makeDeadTree(x, z, 2.0 + Math.random() * 2.5, (Math.random() - 0.5) * 0.5);
+    scene.add(tree);
+    deadTrees.push({ mesh: tree, x, z });
+  }
+}
+
+// Iron fence posts around the graveyard
+const fencePosts = [];
+for (let i = 0; i < 25; i++) {
+  const a = (i / 50) * Math.PI * 2;
+  const r = GRAVE_RADIUS + 1;
+  const x = Math.cos(a) * r;
+  const z = Math.sin(a) * r;
+  const postGeo = new THREE.CylinderGeometry(0.03, 0.04, 1.5, 6);
+  const post = new THREE.Mesh(postGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6, metalness: 0.7 }));
+  post.position.set(x, 0.75, z);
+  post.castShadow = true;
+  scene.add(post);
+  fencePosts.push(post);
+  // Horizontal rail between posts
+  if (i > 0 && i % 2 === 0) {
+    const prevA = ((i - 2) / 50) * Math.PI * 2;
+    const prevR = GRAVE_RADIUS + 1;
+    const px = Math.cos(prevA) * prevR;
+    const pz = Math.sin(prevA) * prevR;
+    const midX = (x + px) / 2;
+    const midZ = (z + pz) / 2;
+    const railLen = Math.sqrt((x - px) ** 2 + (z - pz) ** 2);
+    const railGeo = new THREE.CylinderGeometry(0.015, 0.015, railLen, 4);
+    const rail = new THREE.Mesh(railGeo, new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.6, metalness: 0.7 }));
+    rail.position.set(midX, 1.0, midZ);
+    rail.rotation.x = Math.PI / 2;
+    rail.rotation.y = a;
+    scene.add(rail);
+  }
+}
+
+// Ground mist particles
+const mistParticles = [];
+const mistTex = mkGlow('rgba(80,80,90,0.4)', 'rgba(30,30,40,0)');
+for (let i = 0; i < 20; i++) {
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: mistTex, blending: THREE.AdditiveBlending, transparent: true,
+    opacity: 0.08 + Math.random() * 0.12, depthWrite: false
+  }));
+  const a = Math.random() * Math.PI * 2;
+  const r = CLEAR_RADIUS + Math.random() * GRAVE_RADIUS;
+  sprite.scale.set(3 + Math.random() * 5, 0.6 + Math.random() * 1.2, 1);
+  sprite.position.set(Math.cos(a) * r, 0.15 + Math.random() * 0.5, Math.sin(a) * r);
+  sprite.userData = { baseX: sprite.position.x, baseZ: sprite.position.z, speed: 0.1 + Math.random() * 0.3, phase: Math.random() * Math.PI * 2 };
+  scene.add(sprite);
+  mistParticles.push(sprite);
+}
+
+// ===== Stars =====
+function starLayer(n, size, spread, colorCSS, tex) {
+  const geo = new THREE.BufferGeometry();
+  const arr = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = spread[0] + Math.random() * spread[1];
+    arr[i * 3] = Math.cos(theta) * Math.sin(phi) * r;
+    arr[i * 3 + 1] = Math.abs(Math.cos(phi)) * r;
+    arr[i * 3 + 2] = Math.sin(theta) * Math.sin(phi) * r;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+  const mat = new THREE.PointsMaterial({
+    size, map: tex, blending: THREE.AdditiveBlending, transparent: true,
+    opacity: 0.5, depthWrite: false, color: new THREE.Color(colorCSS)
+  });
+  return new THREE.Points(geo, mat);
+}
+const starGlow = mkGlow('rgba(180,200,220,0.9)', 'rgba(20,30,50,0)');
+const stars1 = starLayer(800, 0.08, [10, 50], '#334466', starGlow);
+const stars2 = starLayer(300, 0.14, [12, 38], '#554433', starGlow);
+scene.add(stars1, stars2);
+
+// ===== Will-o'-wisps =====
+const wisps = [];
+const wispTex = mkGlow('rgba(60,200,120,0.8)', 'rgba(15,50,25,0)');
+for (let i = 0; i < 7; i++) {
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: wispTex, blending: THREE.AdditiveBlending, transparent: true,
+    opacity: 0.25 + Math.random() * 0.3, depthWrite: false
+  }));
+  sprite.scale.set(0.35 + Math.random() * 0.55, 0.35 + Math.random() * 0.55, 1);
+  const a = Math.random() * Math.PI * 2;
+  const r = 5 + Math.random() * 14;
+  sprite.position.set(Math.cos(a) * r, 0.7 + Math.random() * 1.6, Math.sin(a) * r);
+  sprite.userData = {
+    base: sprite.position.clone(),
+    phase: Math.random() * Math.PI * 2,
+    speed: 0.25 + Math.random() * 0.5,
+    floatAmp: 0.25 + Math.random() * 0.5
+  };
+  scene.add(sprite);
+  wisps.push(sprite);
+}
+
+// ===== Tombstone movie textures =====
+const movieGraves = []; // { mesh, movie }
+let hoveredGrave = null;
+const highlightMat2 = new THREE.MeshBasicMaterial({
+  color: 0xcc2222, transparent: true, opacity: 0, side: THREE.DoubleSide,
+  depthWrite: false, blending: THREE.AdditiveBlending
+});
+
+async function loadImage(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+function drawGraveTexture(movie, coverImg) {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 768;
+  const ctx = c.getContext('2d');
+
+  // Weathered stone background
+  const stoneGrad = ctx.createLinearGradient(0, 0, 0, 768);
+  stoneGrad.addColorStop(0, '#4a4440');
+  stoneGrad.addColorStop(0.3, '#3d3834');
+  stoneGrad.addColorStop(0.6, '#35302c');
+  stoneGrad.addColorStop(1, '#2a2522');
+  ctx.fillStyle = stoneGrad;
+  ctx.fillRect(0, 0, 512, 768);
+
+  // Stone texture noise
+  for (let i = 0; i < 2000; i++) {
+    const v = 50 + Math.random() * 40;
+    ctx.fillStyle = `rgba(${v},${v-5},${v-10},${0.03 + Math.random() * 0.06})`;
+    ctx.fillRect(Math.random() * 512, Math.random() * 768, 2 + Math.random() * 3, 2 + Math.random() * 3);
+  }
+
+  // Crack lines
+  for (let i = 0; i < 3; i++) {
+    ctx.strokeStyle = `rgba(20,18,15,${0.15 + Math.random() * 0.2})`;
+    ctx.lineWidth = 0.5 + Math.random();
+    ctx.beginPath();
+    let cx = 100 + Math.random() * 312;
+    let cy = 100 + Math.random() * 500;
+    ctx.moveTo(cx, cy);
+    for (let j = 0; j < 5; j++) {
+      cx += (Math.random() - 0.5) * 120;
+      cy += 30 + Math.random() * 80;
+      ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+  }
+
+  // Rounded inner panel
+  ctx.fillStyle = 'rgba(30,25,22,0.5)';
+  ctx.beginPath();
+  ctx.roundRect(30, 50, 452, 668, 8);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(60,50,45,0.6)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Cover image area (top half of inner panel)
+  if (coverImg) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(50, 70, 412, 340, 4);
+    ctx.clip();
+    const scale = Math.max(412 / coverImg.width, 340 / coverImg.height);
+    const sw = coverImg.width * scale;
+    const sh = coverImg.height * scale;
+    ctx.drawImage(coverImg, 50 + (412 - sw) / 2, 70 + (340 - sh) / 2, sw, sh);
+    ctx.restore();
+    // Vignette
+    const vignette = ctx.createRadialGradient(256, 240, 30, 256, 240, 320);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(20,15,12,0.7)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(50, 70, 412, 340);
+  } else {
+    ctx.fillStyle = '#1a1512';
+    ctx.beginPath();
+    ctx.roundRect(50, 70, 412, 340, 4);
+    ctx.fill();
+    ctx.fillStyle = '#4a4038';
+    ctx.font = 'bold 26px "Microsoft YaHei", "SimHei", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('长眠于此', 256, 190);
+    ctx.font = 'bold 22px "Microsoft YaHei", "SimHei", sans-serif';
+    ctx.fillText(movie.title || '未知影片', 256, 250);
+    ctx.textAlign = 'start';
+  }
+
+  // Decorative divider
+  ctx.strokeStyle = '#8b0000';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, 435);
+  ctx.lineTo(432, 435);
+  ctx.stroke();
+
+  // Movie title in Chinese (large)
+  ctx.fillStyle = '#c8b8a0';
+  ctx.font = 'bold 30px "Microsoft YaHei", "SimHei", sans-serif';
+  ctx.textAlign = 'center';
+  const title = movie.title || '未知影片';
+  ctx.fillText(title, 256, 478);
+  // English title below
+  if (movie.titleEn) {
+    ctx.fillStyle = '#8a7a68';
+    ctx.font = 'italic 15px Cinzel, Georgia, serif';
+    ctx.fillText(movie.titleEn, 256, 505);
+  }
+  ctx.textAlign = 'start';
+
+  // Year & rating
+  ctx.fillStyle = '#b0a090';
+  ctx.font = '16px "Microsoft YaHei", "SimHei", sans-serif';
+  const parts = [];
+  if (movie.year) parts.push('年份 ' + movie.year);
+  if (movie.avg_rating) parts.push('评分 ★' + movie.avg_rating);
+  ctx.fillText(parts.join('      '), 70, 540);
+
+  // Description in Chinese
+  ctx.fillStyle = '#8a7a60';
+  ctx.font = '15px "Microsoft YaHei", "SimHei", sans-serif';
+  const desc = (movie.description || '公版电影档案中的经典恐怖片。').slice(0, 180);
+  // Chinese text wrapping by character
+  let cline = '';
+  let y = 580;
+  for (const ch of desc) {
+    const test = cline + ch;
+    if (ctx.measureText(test).width > 420) {
+      ctx.fillText(cline, 70, y);
+      y += 24;
+      cline = ch;
+      if (y > 660) break;
+    } else { cline = test; }
+  }
+  if (cline && y <= 660) ctx.fillText(cline, 70, y);
+
+  // Anxi and play hint at bottom
+  ctx.fillStyle = '#8b0000';
+  ctx.font = 'bold 20px "Microsoft YaHei", "SimHei", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('安 息', 256, 720);
+  ctx.fillStyle = 'rgba(200,80,60,0.7)';
+  ctx.font = '14px "Microsoft YaHei", "SimHei", sans-serif';
+  ctx.fillText('— 点击播放 —', 256, 748);
+  ctx.textAlign = 'start';
+
+  return new THREE.CanvasTexture(c);
+}
+
+function assignMoviesToGraves(movies) {
+  // Clear previous
+  for (const { mesh } of movieGraves) {
+    if (mesh.userData._movieTex) mesh.userData._movieTex.dispose();
+    mesh.userData.movie = null;
+  }
+  movieGraves.length = 0;
+
+  const count = Math.min(movies.length, tombstoneMeshes.length);
+  // Use a shuffled subset of graves
+  const shuffledGraves = [...tombstoneMeshes].sort(() => Math.random() - 0.5).slice(0, count);
+
+  for (let i = 0; i < count; i++) {
+    const mesh = shuffledGraves[i];
+    const movie = movies[i];
+
+    const tex = drawGraveTexture(movie, null);
+    mesh.material.map = tex;
+    mesh.material.needsUpdate = true;
+    mesh.userData.movie = movie;
+    mesh.userData._movieTex = tex;
+    movieGraves.push({ mesh, movie });
+
+    // Load cover async
+    if (movie.posterUrl) {
+      loadImage(movie.posterUrl).then(img => {
+        if (img && mesh.parent) {
+          const newTex = drawGraveTexture(movie, img);
+          mesh.userData._movieTex?.dispose();
+          mesh.material.map = newTex;
+          mesh.material.needsUpdate = true;
+          mesh.userData._movieTex = newTex;
+        }
+      });
+    }
+  }
+
+  movieCount.textContent = `${movieGraves.length} 部影片在此安息`;
+}
+
+// ===== Interaction =====
+const raycaster = new THREE.Raycaster();
+raycaster.far = 5;
+
+// Lookup only graves that have movies assigned
+function getMovieGraveMeshes() { return movieGraves.map(g => g.mesh); }
+
+function showGraveLabel(movie) {
+  posterLabel.querySelector('.title').textContent = movie.title || 'Unknown';
+  const parts = [];
+  if (movie.year) parts.push(movie.year);
+  if (movie.avg_rating) parts.push('★ ' + movie.avg_rating);
+  if (movie.description) parts.push(movie.description.slice(0, 100) + (movie.description.length > 100 ? '…' : ''));
+  posterLabel.querySelector('.info').textContent = parts.join('  ·  ');
+  posterLabel.classList.add('visible');
+}
+
+function hidePosterLabel() {
+  posterLabel.classList.remove('visible');
+}
+
+function checkInteraction() {
+  if (!controls.isLocked || videoOverlay.classList.contains('active')) return;
+
+  const targets = getMovieGraveMeshes();
+  if (targets.length === 0) return;
+
+  raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+  const hits = raycaster.intersectObjects(targets);
+
+  if (hits.length > 0) {
+    const mesh = hits[0].object;
+    if (mesh !== hoveredGrave) {
+      clearHover();
+      hoveredGrave = mesh;
+      mesh.material.emissive = new THREE.Color(0x441111);
+      mesh.material.emissiveIntensity = 0.7;
+      interactHint.classList.add('visible');
+      if (mesh.userData.movie) showGraveLabel(mesh.userData.movie);
+    }
+  } else {
+    clearHover();
+  }
+}
+
+function clearHover() {
+  if (hoveredGrave) {
+    hoveredGrave.material.emissiveIntensity = 0;
+    hoveredGrave = null;
+  }
+  interactHint.classList.remove('visible');
+  hidePosterLabel();
+}
+
+// ===== Movement =====
+const keys = { w: false, a: false, s: false, d: false };
+const velocity = new THREE.Vector2();
+const MOVE_SPEED = 7.0;
+let isMoving = false;
+
+document.addEventListener('keydown', e => {
+  switch (e.code) {
+    case 'KeyW': keys.w = true; e.preventDefault(); break;
+    case 'KeyA': keys.a = true; e.preventDefault(); break;
+    case 'KeyS': keys.s = true; e.preventDefault(); break;
+    case 'KeyD': keys.d = true; e.preventDefault(); break;
+  }
+});
+
+document.addEventListener('keyup', e => {
+  switch (e.code) {
+    case 'KeyW': keys.w = false; break;
+    case 'KeyA': keys.a = false; break;
+    case 'KeyS': keys.s = false; break;
+    case 'KeyD': keys.d = false; break;
+  }
+});
+
+function updateMovement(delta) {
+  const mx = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+  const mz = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+
+  if (mx !== 0 || mz !== 0) {
+    const len = Math.sqrt(mx * mx + mz * mz);
+    velocity.x = (mx / len) * MOVE_SPEED;
+    velocity.y = (mz / len) * MOVE_SPEED;
+    isMoving = true;
+  } else {
+    velocity.x = 0;
+    velocity.y = 0;
+    isMoving = false;
+  }
+
+  controls.moveRight(velocity.x * delta);
+  controls.moveForward(velocity.y * delta);
+
+  const pos = camera.position;
+  pos.y = 1.6;
+
+  // Grave + dead tree collision
+  const allObstacles = [
+    ...gravePositions.map(p => ({ x: p.x, z: p.z, r: 0.9 })),
+    ...deadTrees.map(t => ({ x: t.x, z: t.z, r: 0.4 }))
+  ];
+  for (const obs of allObstacles) {
+    const dx = pos.x - obs.x;
+    const dz = pos.z - obs.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    if (dist < obs.r && dist > 0.001) {
+      const overlap = obs.r - dist;
+      const nx = dx / dist;
+      const nz = dz / dist;
+      pos.x += nx * overlap;
+      pos.z += nz * overlap;
+    }
+  }
+
+  // Boundary
+  if (pos.x > 38) pos.x = 38;
+  if (pos.x < -38) pos.x = -38;
+  if (pos.z > 38) pos.z = 38;
+  if (pos.z < -38) pos.z = -38;
+}
+
+// ===== Brightness control =====
+const brightnessSlider = document.getElementById('brightnessSlider');
+const brightnessVal = document.getElementById('brightnessVal');
+brightnessSlider.addEventListener('input', () => {
+  const v = parseInt(brightnessSlider.value) / 100;
+  renderer.toneMappingExposure = v;
+  brightnessVal.textContent = brightnessSlider.value;
+  // Scale ambient and moonlight with brightness
+  ambient.intensity = 0.12 + v * 0.55;
+  moonLight.intensity = 0.05 + v * 0.28;
+});
+
+// ===== Audio system =====
+let audioCtx = null;
+let audioStarted = false;
+let windGain = null;
+let footstepTimer = 0;
+let cricketTimer = 0;
+
+function initAudio() {
+  if (audioStarted) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  audioStarted = true;
+
+  // Wind — filtered noise
+  const windBufLen = audioCtx.sampleRate * 6;
+  const windBuffer = audioCtx.createBuffer(1, windBufLen, audioCtx.sampleRate);
+  const windData = windBuffer.getChannelData(0);
+  for (let i = 0; i < windBufLen; i++) {
+    const t = i / audioCtx.sampleRate;
+    windData[i] = (Math.random() * 2 - 1) * (0.3 + 0.7 * Math.sin(t * 0.04 + Math.sin(t * 0.1) * 0.5));
+  }
+  const windSource = audioCtx.createBufferSource();
+  windSource.buffer = windBuffer;
+  windSource.loop = true;
+  const windLowpass = audioCtx.createBiquadFilter();
+  windLowpass.type = 'lowpass';
+  windLowpass.frequency.value = 100;
+  windLowpass.Q.value = 0.5;
+  windGain = audioCtx.createGain();
+  windGain.gain.value = 0.05;
+  windSource.connect(windLowpass).connect(windGain).connect(audioCtx.destination);
+  windSource.start();
+}
+
+function playFootstep() {
+  if (!audioCtx) return;
+  const dur = 0.07;
+  const bufLen = audioCtx.sampleRate * dur;
+  const buffer = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.sin((i / bufLen) * Math.PI) * 0.5;
+  }
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 250;
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0.12;
+  source.connect(filter).connect(gain).connect(audioCtx.destination);
+  source.start();
+}
+
+function playCricket() {
+  if (!audioCtx) return;
+  const dur = 0.06 + Math.random() * 0.04;
+  const osc = audioCtx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.value = 3800 + Math.random() * 2200;
+  const gain = audioCtx.createGain();
+  const now = audioCtx.currentTime;
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.015, now + dur * 0.3);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + dur);
+}
+
+// ===== Video player =====
+async function playMovie(movie) {
+  if (!movie) return toast('No film data');
+
+  videoTitle.textContent = movie.title || 'Unknown Film';
+  videoOverlay.classList.add('active');
+  videoPlayer.style.display = 'block';
+  controls.unlock();
+
+  if (movie.streamUrl) {
+    // Direct stream URL — proxy through our server
+    videoPlayer.src = `/api/video/proxy?url=${encodeURIComponent(movie.streamUrl)}`;
+    videoPlayer.load();
+    videoPlayer.play().catch(() => {});
+  } else if (movie.entryId) {
+    // Resolve from NetEase public archive
+    videoPlayer.src = ''; // clear while loading
+    try {
+      const res = await fetch(`/api/public163/entry/${movie.entryId}`);
+      if (!res.ok) throw new Error('Entry not found');
+      const data = await res.json();
+      if (data.streamUrl) {
+        movie.streamUrl = data.streamUrl;
+        if (data.posterUrl && !movie.posterUrl) movie.posterUrl = data.posterUrl;
+        videoPlayer.src = `/api/video/proxy?url=${encodeURIComponent(data.streamUrl)}`;
+        videoPlayer.load();
+        videoPlayer.play().catch(() => {});
+      } else {
+        toast('此影片暂无可用片源');
+        closeVideo();
+      }
+    } catch (e) {
+      toast('无法获取影片源');
+      closeVideo();
+    }
+  } else {
+    toast('此影片暂无可用片源');
+    closeVideo();
+  }
+}
+
+function closeVideo() {
+  videoPlayer.pause();
+  videoPlayer.removeAttribute('src');
+  videoPlayer.load();
+  videoPlayer.style.display = 'none';
+  videoOverlay.classList.remove('active');
+  setTimeout(() => {
+    if (!controls.isLocked && !videoOverlay.classList.contains('active')) controls.lock();
+  }, 300);
+}
+
+closeVideoBtn.addEventListener('click', closeVideo);
+
+// Click to interact with posters
+document.addEventListener('click', () => {
+  if (!controls.isLocked) return;
+  if (hoveredGrave) {
+    playMovie(hoveredGrave.userData.movie);
+  }
+});
+
+// Escape to close video
+document.addEventListener('keydown', e => {
+  if (e.code === 'Escape' && videoOverlay.classList.contains('active')) {
+    e.preventDefault();
+    closeVideo();
+  }
+});
+
+// ===== Pointer lock =====
+blocker.addEventListener('click', () => {
+  controls.lock();
+});
+
+// Fallback: click anywhere on body to lock (excluding UI buttons)
+document.addEventListener('click', (e) => {
+  if (controls.isLocked) return;
+  if (videoOverlay.classList.contains('active')) return;
+  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+  controls.lock();
+});
+
+controls.addEventListener('lock', () => {
+  blocker.classList.add('hidden');
+  crosshair.style.display = 'block';
+  if (!audioStarted) initAudio();
+});
+
+controls.addEventListener('unlock', () => {
+  if (!videoOverlay.classList.contains('active')) {
+    blocker.classList.remove('hidden');
+    crosshair.style.display = 'none';
+    clearHover();
+  }
+});
+
+document.addEventListener('pointerlockchange', () => {
+  if (!document.pointerLockElement && !videoOverlay.classList.contains('active')) {
+    blocker.classList.remove('hidden');
+    crosshair.style.display = 'none';
+  }
+});
+
+document.addEventListener('pointerlockerror', () => {
+  toast('Click again to enter — pointer lock interrupted');
+  blocker.classList.remove('hidden');
+  crosshair.style.display = 'none';
+});
+
+// ===== Fallback movies (NetEase public archive) =====
+// entryId: NetEase entry ID → resolves stream at play time via /api/public163/entry/:id
+const FALLBACK_MOVIES = [
+  // === 纯恐怖片 ===
+  { title:'卡里加里博士的小屋', titleEn:'The Cabinet of Dr. Caligari', year:'1920', avg_rating:'8.0',
+    description:'德国表现主义巅峰之作。扭曲布景、诡异阴影、疯狂的催眠师与梦游杀人者，电影史上第一部真正的恐怖电影。', entryId:1593 },
+  { title:'科学怪人', titleEn:'Frankenstein', year:'1931', avg_rating:'7.8',
+    description:'科学家弗兰肯斯坦用尸体拼凑出人造人，却创造了一个无法控制的怪物。环球经典怪物宇宙开篇，恐怖与科幻的完美结合。', entryId:1900 },
+  { title:'怪谈', titleEn:'Kwaidan', year:'1964', avg_rating:'8.0',
+    description:'小林正树执导的日本恐怖经典。黑发、雪女、无耳芳一、茶碗之中——四个取材自民间传说的凄美鬼故事，视觉美学登峰造极。', entryId:1560 },
+  { title:'黑猫', titleEn:'The Black Cat', year:'1934', avg_rating:'7.0',
+    description:'卢戈西与卡洛夫首次联袂。建筑师被卷入撒旦崇拜的噩梦中，爱伦·坡原著改编的心理恐怖佳作。', entryId:1931 },
+  { title:'哥斯拉', titleEn:'Godzilla', year:'1954', avg_rating:'7.6',
+    description:'核爆唤醒的远古巨兽登陆东京。本多猪四郎执导，日本特摄电影开山之作，战后核恐惧的终极隐喻。', entryId:1869 },
+  { title:'黑湖妖潭', titleEn:'Creature from the Black Lagoon', year:'1954', avg_rating:'7.0',
+    description:'亚马逊丛林深处潜伏着远古的鱼人怪物。环球经典怪兽收官之作，开创性的水下摄影技术影响后世无数电影。', entryId:1825 },
+  { title:'心惊肉跳', titleEn:'The Tingler', year:'1959', avg_rating:'6.5',
+    description:'文森特·普莱斯主演的B级恐怖经典。一种寄生在人体脊柱中的"惊叫虫"，恐惧会让它不断生长。导演威廉·卡斯尔在影院座位上安装震动器，开创4D体验。', entryId:1798 },
+  { title:'惊魂记', titleEn:'Psycho', year:'1960', avg_rating:'9.0',
+    description:'希区柯克最著名的心理恐怖杰作。汽车旅馆的淋浴谋杀——影史上最惊悚的三分钟，彻底改写了恐怖电影的叙事规则。', entryId:1827 },
+  { title:'鸭皮疙瘩', titleEn:'Goosebumps / Chair de Poule', year:'1963', avg_rating:'6.8',
+    description:'法国犯罪恐怖片。保险推销员卷入一桩谋杀案，黑夜逃亡中步步惊心。新浪潮风格的黑色恐怖佳作。', entryId:1862 },
+  { title:'倩女幽魂', titleEn:'The Enchanting Shadow', year:'1960', avg_rating:'7.3',
+    description:'李翰祥执导的中式古典恐怖美学。取材自《聊斋志异·聂小倩》，书生与女鬼的人鬼之恋，华语恐怖电影的先驱之作。', entryId:1663 },
+  // === 悬疑 / 惊悚 ===
+  { title:'后窗', titleEn:'Rear Window', year:'1954', avg_rating:'8.5',
+    description:'希区柯克悬疑巅峰。腿伤摄影师透过窗户偷窥邻居，却目睹了一桩谋杀案。关于观看与被观看的终极隐喻。', entryId:1776 },
+  { title:'西北偏北', titleEn:'North by Northwest', year:'1959', avg_rating:'8.2',
+    description:'希区柯克最宏大的惊悚史诗。广告人罗杰被错认为间谍CIA特工，从纽约到拉什莫尔山的亡命追逐。飞机追杀的经典场景永载影史。', entryId:1759 },
+  { title:'历劫佳人', titleEn:'Touch of Evil', year:'1958', avg_rating:'8.0',
+    description:'奥逊·威尔斯执导的黑色电影巅峰。美墨边境的一桩汽车爆炸案，引出一个关于腐败与正义的黑暗故事。开场三分钟长镜头震古烁今。', entryId:1681 },
+  { title:'M就是凶手', titleEn:'M', year:'1931', avg_rating:'8.3',
+    description:'弗里茨·朗执导。柏林街头，一个专门杀害儿童的连环杀手让全城陷入恐慌。彼得·洛的经典表演，犯罪惊悚片的源头活水。', entryId:1589 },
+  { title:'美人计', titleEn:'Notorious', year:'1946', avg_rating:'8.0',
+    description:'希区柯克执导，英格丽·褒曼与加里·格兰特主演。美国女间谍嫁给纳粹余孽以卧底获取情报，爱情与阴谋交织的悬疑经典。', entryId:1811 },
+  { title:'房客', titleEn:'The Lodger: A Story of the London Fog', year:'1927', avg_rating:'7.3',
+    description:'希区柯克早期默片杰作。伦敦雾夜出现连环杀手"复仇者"，一个神秘房客的到来让房东太太开始怀疑。关于怀疑与偏见的悬疑精品。', entryId:1916 },
+  { title:'饥饿海峡', titleEn:'A Fugitive from the Past', year:'1965', avg_rating:'7.8',
+    description:'内田吐梦执导的日本犯罪史诗。一场抢劫杀人案将刑警、妓女和逃犯的命运交织在一起，三小时的罪恶追踪。', entryId:1833 },
+  { title:'安全至下', titleEn:'Safety Last!', year:'1923', avg_rating:'8.2',
+    description:'哈罗德·劳埃德的默片惊悚喜剧经典。一个年轻人徒手攀爬摩天大楼，挂在钟楼指针上的画面成为电影史最著名的镜头之一。', entryId:1790 },
+  { title:'待客之道', titleEn:'Our Hospitality', year:'1923', avg_rating:'7.6',
+    description:'巴斯特·基顿的默片喜剧。家族世仇中的爱情故事，悬崖边上的惊险特技场面令人窒息。基顿巅峰期的杰出作品。', entryId:1908 },
+  { title:'人猿星球', titleEn:'Planet of the Apes', year:'1968', avg_rating:'8.1',
+    description:'宇航员降落在由猿猴统治的未知星球，人类被当成野兽奴役。科幻惊悚的里程碑之作，那个著名的反转结局至今震撼人心。', entryId:1647 },
+  { title:'2001太空漫游', titleEn:'2001: A Space Odyssey', year:'1968', avg_rating:'8.7',
+    description:'库布里克的不朽科幻史诗。从史前猿人到星际旅程，神秘的黑色石板引导人类文明进化。超级计算机HAL 9000的失控至今令人胆寒。', entryId:1652 },
+  { title:'放大', titleEn:'Blow-Up', year:'1966', avg_rating:'8.1',
+    description:'安东尼奥尼执导的悬疑经典。摄影师在公园拍摄的一组照片中，意外发现了一桩谋杀案的证据。真实与幻觉的边界逐渐模糊。', entryId:1671 },
+  { title:'时空大挪移', titleEn:'The Time Machine', year:'1960', avg_rating:'7.5',
+    description:'H.G.威尔斯科幻经典改编。维多利亚时代的时间旅行者穿越到未来的世界，却发现人类文明已沦为两个种族的对抗。', entryId:1686 },
+  { title:'去年在马里昂巴德', titleEn:'Last Year at Marienbad', year:'1961', avg_rating:'7.8',
+    description:'阿伦·雷乃执导的意识流悬疑经典。在豪华酒店中，一个男人坚持说服一个女人他们去年在马里昂巴德相遇过——但可能从未发生。', entryId:1777 },
+  { title:'罗生门', titleEn:'Rashomon', year:'1950', avg_rating:'8.7',
+    description:'黑泽明的传世杰作。一桩武士被杀案通过四个当事人截然不同的叙述呈现，真相在人性的黑暗迷雾中愈发模糊。悬念与哲学的完美结合。', entryId:1783 },
+  { title:'群鸟', titleEn:'The Birds', year:'1963', avg_rating:'7.8',
+    description:'希区柯克执导的灾难恐怖经典。北加州小镇遭到鸟类无差别攻击。没有配乐，只有鸟群的嘶鸣，极简主义恐怖叙事的完美典范。', entryId:1570 },
+  { title:'冰山上的来客', titleEn:'Visitor on the Icy Mountain', year:'1963', avg_rating:'7.0',
+    description:'中国悬疑经典。新疆边境上，解放军战士识破伪装的国民党特务。"花儿为什么这样红"一曲传唱至今，悬疑与民族风情融合的佳作。', entryId:1410 },
+  { title:'椿三十郎', titleEn:'Sanjuro', year:'1962', avg_rating:'8.0',
+    description:'黑泽明执导，三船敏郎主演的武士惊悚片。浪人椿三十郎帮助年轻武士对抗腐败官僚，暗中谋划、步步为营的智力较量。', entryId:1450 },
+];
+
+// ===== Initialization =====
+async function init() {
+  loadingMsg.style.display = 'none';
+  // Pre-fetch cover images for tombstones
+  for (const m of FALLBACK_MOVIES) {
+    if (!m.posterUrl && m.entryId) {
+      try {
+        const r = await fetch(`/api/public163/entry/${m.entryId}`);
+        const d = await r.json();
+        if (d.posterUrl) m.posterUrl = d.posterUrl;
+      } catch {}
+    }
+  }
+  assignMoviesToGraves(FALLBACK_MOVIES);
+  toast(`欢迎来到恐怖墓地 — ${FALLBACK_MOVIES.length} 部影片在此安息`);
+}
+
+// ===== Main loop =====
+let runningTime = 0;
+let frameAccum = 0;
+const FRAME_INTERVAL = 1 / 30; // 30fps cap
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const rawDelta = Math.min(clock.getDelta(), 0.1);
+  frameAccum += rawDelta;
+  if (frameAccum < FRAME_INTERVAL) return;
+  const delta = frameAccum;
+  frameAccum = 0;
+  runningTime += delta;
+
+  if (controls.isLocked && !videoOverlay.classList.contains('active')) {
+    updateMovement(delta);
+
+    // Footstep timing
+    if (isMoving) {
+      footstepTimer += delta;
+      if (footstepTimer > 0.48) {
+        footstepTimer = 0;
+        playFootstep();
+      }
+    } else {
+      footstepTimer = 0.48;
+    }
+
+    // Cricket timing
+    cricketTimer += delta;
+    if (cricketTimer > 2 + Math.random() * 4) {
+      cricketTimer = 0;
+      playCricket();
+    }
+  }
+
+  checkInteraction();
+
+  // Update mist particles — slow drifting ground fog
+  for (const mist of mistParticles) {
+    const ud = mist.userData;
+    const t = runningTime * ud.speed + ud.phase;
+    mist.position.x = ud.baseX + Math.sin(t) * 1.5;
+    mist.position.z = ud.baseZ + Math.cos(t * 0.8) * 1.5;
+    mist.position.y = 0.1 + Math.sin(t * 0.5) * 0.15;
+    mist.material.opacity = 0.05 + Math.sin(t * 1.5) * 0.04;
+  }
+
+  stars1.rotation.y += 0.00003;
+  stars2.rotation.y += 0.00006;
+
+  renderer.render(scene, camera);
+}
+
+// ===== Resize handler =====
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+// ===== Start =====
+init().then(() => animate());
+</script>
+</body>
+</html>

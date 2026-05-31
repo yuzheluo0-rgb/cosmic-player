@@ -1,0 +1,1208 @@
+{
+  "movies": {
+    "1926": {
+      "title": "The General",
+      "dir": "Buster Keaton",
+      "desc": "巴斯特·基顿自导自演的默片喜剧巅峰。美国南北战争背景下，火车司机约翰尼驾驶蒸汽火车穿越敌军阵地拯救爱人和火车。基顿亲自完成所有惊险特技——在飞驰的火车头上奔跑、让火车穿过燃烧的桥梁。全片几乎没用替身和特效，每一个惊险镜头都是真实的物理特技。当年因节奏不符合当时观众对搞笑片的期待而票房惨败，但半个世纪后被重新发现并奉为经典，2012年《视与听》杂志将其列入影史最伟大电影前十。",
+      "poster": ""
+    },
+    "1927": {
+      "title": "Metropolis",
+      "dir": "Fritz Lang",
+      "desc": "弗里茨·朗导演的德国表现主义科幻开山之作，耗资500万帝国马克，是当时最昂贵的默片。故事设定在2026年——地上是富人享乐的天堂花园，地下是工人操作巨型机器的地狱。资本家之子爱上工人领袖，由此揭开阶级对立。影片中的机器人Maria、高楼间的空中走廊、洪水中的人群——这些影像启发了后来几乎所有科幻电影的美学。全片原长153分钟，约四分之一胶片遗失，2008年在阿根廷发现完整拷贝时被称为电影界的圣杯发现。",
+      "poster": "https://image.tmdb.org/t/p/w500/qWiqDtONWADGW3Pd62O4WTgqJq0.jpg"
+    },
+    "1928": {
+      "title": "The Passion of Joan of Arc",
+      "dir": "Carl Theodor Dreyer",
+      "desc": "德莱叶镜头下的圣女贞德受难",
+      "poster": ""
+    },
+    "1929": {
+      "title": "Man with a Movie Camera",
+      "dir": "Dziga Vertov",
+      "desc": "一部没有对白的城市交响曲",
+      "poster": ""
+    },
+    "1930": {
+      "title": "All Quiet on the Western Front",
+      "dir": "Lewis Milestone",
+      "desc": "一战最伟大的反战电影",
+      "poster": ""
+    },
+    "1931": {
+      "title": "City Lights",
+      "dir": "Charlie Chaplin",
+      "desc": "卓别林的无声浪漫杰作",
+      "poster": ""
+    },
+    "1932": {
+      "title": "Scarface",
+      "dir": "Howard Hawks",
+      "desc": "黑帮电影的经典原型",
+      "poster": ""
+    },
+    "1933": {
+      "title": "King Kong",
+      "dir": "Cooper & Schoedsack",
+      "desc": "巨猿爬上帝国大厦的永恒画面",
+      "poster": ""
+    },
+    "1934": {
+      "title": "It Happened One Night",
+      "dir": "Frank Capra",
+      "desc": "史上第一部奥斯卡大满贯影片",
+      "poster": ""
+    },
+    "1935": {
+      "title": "The 39 Steps",
+      "dir": "Alfred Hitchcock",
+      "desc": "希区柯克早期悬疑杰作",
+      "poster": ""
+    },
+    "1936": {
+      "title": "Modern Times",
+      "dir": "Charlie Chaplin",
+      "desc": "工业时代的无奈与幽默",
+      "poster": ""
+    },
+    "1937": {
+      "title": "Snow White and the Seven Dwarfs",
+      "dir": "David Hand",
+      "desc": "世界第一部动画长片",
+      "poster": ""
+    },
+    "1938": {
+      "title": "The Adventures of Robin Hood",
+      "dir": "Michael Curtiz",
+      "desc": "绿林英雄的彩色冒险",
+      "poster": ""
+    },
+    "1939": {
+      "title": "The Wizard of Oz",
+      "dir": "Victor Fleming",
+      "desc": "绿野仙踪，电影史上最魔幻的一年",
+      "poster": "https://image.tmdb.org/t/p/w500/mI36ZftLH3Pjahz9HNjFhEUJzMf.jpg"
+    },
+    "1940": {
+      "title": "The Great Dictator",
+      "dir": "Charlie Chaplin",
+      "desc": "卓别林的大胆政治讽刺",
+      "poster": ""
+    },
+    "1941": {
+      "title": "Citizen Kane",
+      "dir": "Orson Welles",
+      "desc": "影史第一神作，玫瑰花的秘密",
+      "poster": "https://image.tmdb.org/t/p/w500/sav0jxhqiH0bPr2vZFUxjYRajbb.jpg"
+    },
+    "1942": {
+      "title": "Casablanca",
+      "dir": "Michael Curtiz",
+      "desc": "永志不忘的巴黎",
+      "poster": "https://image.tmdb.org/t/p/w500/2nAHQbMGcIGM8kGqyRqThZ43eup.jpg"
+    },
+    "1943": {
+      "title": "Shadow of a Doubt",
+      "dir": "Alfred Hitchcock",
+      "desc": "平静小镇下的暗流",
+      "poster": ""
+    },
+    "1944": {
+      "title": "Double Indemnity",
+      "dir": "Billy Wilder",
+      "desc": "黑色电影的完美范本",
+      "poster": ""
+    },
+    "1945": {
+      "title": "Rome, Open City",
+      "dir": "Roberto Rossellini",
+      "desc": "意大利新现实主义的诞生",
+      "poster": ""
+    },
+    "1946": {
+      "title": "It's a Wonderful Life",
+      "dir": "Frank Capra",
+      "desc": "每一个生命都改变了世界",
+      "poster": ""
+    },
+    "1947": {
+      "title": "Out of the Past",
+      "dir": "Jacques Tourneur",
+      "desc": "黑色电影中最黑色的那一部",
+      "poster": ""
+    },
+    "1948": {
+      "title": "Bicycle Thieves",
+      "dir": "Vittorio De Sica",
+      "desc": "意大利新现实主义巅峰",
+      "poster": ""
+    },
+    "1949": {
+      "title": "The Third Man",
+      "dir": "Carol Reed",
+      "desc": "战后维也纳的地下迷宫",
+      "poster": ""
+    },
+    "1950": {
+      "title": "Rashomon",
+      "dir": "Akira Kurosawa",
+      "desc": "黑泽明的记忆迷局",
+      "poster": ""
+    },
+    "1951": {
+      "title": "A Streetcar Named Desire",
+      "dir": "Elia Kazan",
+      "desc": "马龙·白兰度的怒吼",
+      "poster": ""
+    },
+    "1952": {
+      "title": "Singin' in the Rain",
+      "dir": "Donen & Kelly",
+      "desc": "影史最欢乐的雨中曲",
+      "poster": ""
+    },
+    "1953": {
+      "title": "Tokyo Story",
+      "dir": "Yasujiro Ozu",
+      "desc": "小津安二郎的家庭诗篇",
+      "poster": ""
+    },
+    "1954": {
+      "title": "Seven Samurai",
+      "dir": "Akira Kurosawa",
+      "desc": "七武士，动作片的永恒教科书",
+      "poster": "https://image.tmdb.org/t/p/w500/8OK1eCWKRUWuwCJaYcHL5A4qKtE.jpg"
+    },
+    "1955": {
+      "title": "Rebel Without a Cause",
+      "dir": "Nicholas Ray",
+      "desc": "詹姆斯·迪恩的不朽青春",
+      "poster": ""
+    },
+    "1956": {
+      "title": "The Searchers",
+      "dir": "John Ford",
+      "desc": "西部片的天花板",
+      "poster": ""
+    },
+    "1957": {
+      "title": "The Seventh Seal",
+      "dir": "Ingmar Bergman",
+      "desc": "与死神下棋的中世纪寓言",
+      "poster": ""
+    },
+    "1958": {
+      "title": "Vertigo",
+      "dir": "Alfred Hitchcock",
+      "desc": "眩晕，希区柯克的终极谜题",
+      "poster": ""
+    },
+    "1959": {
+      "title": "The 400 Blows",
+      "dir": "Francois Truffaut",
+      "desc": "法国新浪潮的宣言",
+      "poster": ""
+    },
+    "1960": {
+      "title": "Psycho",
+      "dir": "Alfred Hitchcock",
+      "desc": "浴室谋杀，惊悚片的永恒梦魇",
+      "poster": "https://image.tmdb.org/t/p/w500/nR4LD4ZJg2n6LxZhkEZ8RpqNfpc.jpg"
+    },
+    "1961": {
+      "title": "Yojimbo",
+      "dir": "Akira Kurosawa",
+      "desc": "用心棒，荒野大镖客的原型",
+      "poster": ""
+    },
+    "1962": {
+      "title": "Lawrence of Arabia",
+      "dir": "David Lean",
+      "desc": "沙漠中的史诗",
+      "poster": ""
+    },
+    "1963": {
+      "title": "8½",
+      "dir": "Federico Fellini",
+      "desc": "费里尼的导演之梦",
+      "poster": ""
+    },
+    "1964": {
+      "title": "Dr. Strangelove",
+      "dir": "Stanley Kubrick",
+      "desc": "库布里克的核战黑色喜剧",
+      "poster": ""
+    },
+    "1965": {
+      "title": "The Sound of Music",
+      "dir": "Robert Wise",
+      "desc": "阿尔卑斯山上的歌声",
+      "poster": ""
+    },
+    "1966": {
+      "title": "The Good, the Bad and the Ugly",
+      "dir": "Sergio Leone",
+      "desc": "镖客三部曲的完美终章",
+      "poster": ""
+    },
+    "1967": {
+      "title": "2001: A Space Odyssey",
+      "dir": "Stanley Kubrick",
+      "desc": "从猿人到星童，人类文明的史诗",
+      "poster": "https://image.tmdb.org/t/p/w500/ve72VxNqjGM69Uky3T3u5hH2nxn.jpg"
+    },
+    "1968": {
+      "title": "Once Upon a Time in the West",
+      "dir": "Sergio Leone",
+      "desc": "口琴声中的西部挽歌",
+      "poster": "https://image.tmdb.org/t/p/w500/qEIGQAY0r8JjX6HU0V6GcCZUNLc.jpg"
+    },
+    "1969": {
+      "title": "Easy Rider",
+      "dir": "Dennis Hopper",
+      "desc": "垮掉一代的公路之歌",
+      "poster": ""
+    },
+    "1970": {
+      "title": "A Clockwork Orange",
+      "dir": "Stanley Kubrick",
+      "desc": "库布里克的暴力美学",
+      "poster": ""
+    },
+    "1971": {
+      "title": "The French Connection",
+      "dir": "William Friedkin",
+      "desc": "影史最疯狂的追车戏",
+      "poster": ""
+    },
+    "1972": {
+      "title": "The Godfather",
+      "dir": "Francis Ford Coppola",
+      "desc": "我给他一个无法拒绝的提议",
+      "poster": "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg"
+    },
+    "1973": {
+      "title": "The Exorcist",
+      "dir": "William Friedkin",
+      "desc": "恐怖片的终极噩梦",
+      "poster": ""
+    },
+    "1974": {
+      "title": "Chinatown",
+      "dir": "Roman Polanski",
+      "desc": "忘了吧，杰克，这里是唐人街",
+      "poster": ""
+    },
+    "1975": {
+      "title": "Jaws",
+      "dir": "Steven Spielberg",
+      "desc": "你需要一艘更大的船",
+      "poster": "https://image.tmdb.org/t/p/w500/lxM6kDWi49EPa8MkUXcW8I8e55M.jpg"
+    },
+    "1976": {
+      "title": "Taxi Driver",
+      "dir": "Martin Scorsese",
+      "desc": "你在跟我说话？",
+      "poster": ""
+    },
+    "1977": {
+      "title": "Star Wars",
+      "dir": "George Lucas",
+      "desc": "乔治·卢卡斯的太空歌剧彻底改变了电影工业和流行文化。农场少年卢克·天行者加入义军同盟，在绝地武士欧比旺、走私犯汉·索罗帮助下对抗银河帝国。工业光魔创造了前所未有的视效——从千年隼跳跃到光速到死星爆炸。约翰·威廉姆斯的配乐成为电影音乐标杆。上映时仅32家影院愿意放映，但它迅速成为全球文化现象。从很久以前在一个遥远的银河系开始，电影永远变了。它不仅创造了一个宇宙，更创造了现代大片的定义。",
+      "poster": "https://image.tmdb.org/t/p/w500/6FfCtAuVAW8XJlUkUeYxQ5lN2hW.jpg"
+    },
+    "1978": {
+      "title": "The Deer Hunter",
+      "dir": "Michael Cimino",
+      "desc": "越战的创伤",
+      "poster": ""
+    },
+    "1979": {
+      "title": "Alien",
+      "dir": "Ridley Scott",
+      "desc": "在太空中，没人能听到你的尖叫",
+      "poster": "https://image.tmdb.org/t/p/w500/vfrQk5IPloGg0iAQMkpGBdgQBPe.jpg"
+    },
+    "1980": {
+      "title": "The Shining",
+      "dir": "Stanley Kubrick",
+      "desc": "这里是约翰尼！",
+      "poster": ""
+    },
+    "1981": {
+      "title": "Raiders of the Lost Ark",
+      "dir": "Steven Spielberg",
+      "desc": "印第安纳·琼斯的冒险",
+      "poster": ""
+    },
+    "1982": {
+      "title": "Blade Runner",
+      "dir": "Ridley Scott",
+      "desc": "雨中泪，仿生人的灵魂之问",
+      "poster": "https://image.tmdb.org/t/p/w500/63N9uy8nd9j7Eog2axqQrX4t0Bn.jpg"
+    },
+    "1983": {
+      "title": "Scarface",
+      "dir": "Brian De Palma",
+      "desc": "向我的小朋友问好",
+      "poster": ""
+    },
+    "1984": {
+      "title": "The Terminator",
+      "dir": "James Cameron",
+      "desc": "我会回来的",
+      "poster": ""
+    },
+    "1985": {
+      "title": "Back to the Future",
+      "dir": "Robert Zemeckis",
+      "desc": "我们需要1.21吉瓦！",
+      "poster": "https://image.tmdb.org/t/p/w500/fNOH9f1aOy9z2A8GgNWqxYBSHGP.jpg"
+    },
+    "1986": {
+      "title": "Aliens",
+      "dir": "James Cameron",
+      "desc": "这次是战争",
+      "poster": ""
+    },
+    "1987": {
+      "title": "Full Metal Jacket",
+      "dir": "Stanley Kubrick",
+      "desc": "库布里克的越战噩梦",
+      "poster": ""
+    },
+    "1988": {
+      "title": "My Neighbor Totoro",
+      "dir": "Hayao Miyazaki",
+      "desc": "龙猫，宫崎骏的温柔童话",
+      "poster": ""
+    },
+    "1989": {
+      "title": "Dead Poets Society",
+      "dir": "Peter Weir",
+      "desc": "哦船长，我的船长！",
+      "poster": ""
+    },
+    "1990": {
+      "title": "Goodfellas",
+      "dir": "Martin Scorsese",
+      "desc": "尽我所能做一个 gangster",
+      "poster": ""
+    },
+    "1991": {
+      "title": "The Silence of the Lambs",
+      "dir": "Jonathan Demme",
+      "desc": "汉尼拔的凝视",
+      "poster": ""
+    },
+    "1992": {
+      "title": "Reservoir Dogs",
+      "dir": "Quentin Tarantino",
+      "desc": "昆汀的处女作，耳朵与汽油",
+      "poster": ""
+    },
+    "1993": {
+      "title": "Schindler's List",
+      "dir": "Steven Spielberg",
+      "desc": "拯救一人即拯救全世界",
+      "poster": ""
+    },
+    "1994": {
+      "title": "The Shawshank Redemption",
+      "dir": "Frank Darabont",
+      "desc": "弗兰克·德拉邦特执导，蒂姆·罗宾斯和摩根·弗里曼主演。改编自斯蒂芬·金的中篇小说，讲述银行家安迪·杜弗伦被冤判谋杀妻子及其情人，在肖申克监狱度过十九年后最终越狱重获自由的故事。这不仅是越狱的故事，更是希望的故事——安迪用二十年时间和一把小锤凿通了墙壁，用智慧和尊严感化了每一个人。在监狱广播中播放莫扎特咏叹调让所有囚犯仰望天空的画面是影史最动人的场景之一。有些鸟是关不住的，它们的羽毛太鲜亮了。影片上映时票房平平，在录像带和电视重播后成为cult经典，常年占据IMDb影史评分榜首。",
+      "poster": "https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg"
+    },
+    "1995": {
+      "title": "Toy Story",
+      "dir": "John Lasseter",
+      "desc": "第一部全CG动画长片",
+      "poster": ""
+    },
+    "1996": {
+      "title": "Fargo",
+      "dir": "Coen Brothers",
+      "desc": "科恩兄弟的冰雪犯罪",
+      "poster": ""
+    },
+    "1997": {
+      "title": "Titanic",
+      "dir": "James Cameron",
+      "desc": "詹姆斯·卡梅隆的史诗爱情灾难片，当时影史最昂贵电影（2亿美元预算）。以现代探险队打捞泰坦尼克号残骸为框架，讲述1912年穷画家杰克和富家女萝丝在首航就触冰山沉没的巨轮上的跨阶级爱情。莱昂纳多和凯特·温丝莱特的化学反应让全球观众心碎。席琳·迪翁演唱的《My Heart Will Go On》风靡全球。影片获11项奥斯卡奖，与《宾虚》《指环王3》并列影史获奖最多。你跳我也跳成为银幕上永恒的承诺。卡梅隆用最宏大的技术讲述了一个最古老的爱情故事——跨越阶级、跨越时间、跨越生死。",
+      "poster": ""
+    },
+    "1998": {
+      "title": "Saving Private Ryan",
+      "dir": "Steven Spielberg",
+      "desc": "诺曼底登陆的真实震撼",
+      "poster": ""
+    },
+    "1999": {
+      "title": "The Matrix",
+      "dir": "Wachowskis",
+      "desc": "沃卓斯基姐妹执导的科幻动作哲学片。基努·里维斯饰演的程序员尼奥发现他所认知的世界是机器创造的虚拟现实——矩阵。墨菲斯给他两个选择：吞下红色药丸看到真实世界，或者吞下蓝色药丸回到舒适的幻觉中。子弹时间、绿色代码雨、皮质风衣和墨镜——这部影片重新定义了科幻动作美学，也引入了缸中之脑、模拟现实等哲学概念到主流文化。袁和平的武术指导为好莱坞带来了全新的动作设计语言。不要试图弯曲勺子，要明白真相——没有勺子。",
+      "poster": "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"
+    },
+    "2000": {
+      "title": "In the Mood for Love",
+      "dir": "Wong Kar-wai",
+      "desc": "花样年华的旗袍与秘密",
+      "poster": ""
+    },
+    "2001": {
+      "title": "Spirited Away",
+      "dir": "Hayao Miyazaki",
+      "desc": "宫崎骏编剧并导演的吉卜力动画长片，获奥斯卡最佳动画长片奖和柏林金熊奖。10岁女孩千寻随父母搬家途中误入神灵世界，父母因贪吃变成猪，千寻必须在汤婆婆的汤屋中工作以拯救他们。影片蕴含着对日本泡沫经济后一代的深刻隐喻——被宠坏的千寻在逆境中学会了勇气、责任和善良。无脸男的孤独、白龙的温柔、汤婆婆的双面性——宫崎骏创造了一个比现实更真实的神话世界。宫崎骏的手绘动画达到了艺术的极致，每一个画面都充满了细节和生命力。曾经发生的事不可能忘记，只是想不起来而已。",
+      "poster": "https://image.tmdb.org/t/p/w500/39wmItIWsg5sZMyRUHLkWBcuVCM.jpg"
+    },
+    "2002": {
+      "title": "City of God",
+      "dir": "Fernando Meirelles",
+      "desc": "上帝之城的残酷青春",
+      "poster": ""
+    },
+    "2003": {
+      "title": "Oldboy",
+      "dir": "Park Chan-wook",
+      "desc": "朴赞郁的复仇三部曲",
+      "poster": ""
+    },
+    "2004": {
+      "title": "Eternal Sunshine of the Spotless Mind",
+      "dir": "Michel Gondry",
+      "desc": "无痛失恋，记忆的迷宫",
+      "poster": ""
+    },
+    "2005": {
+      "title": "Batman Begins",
+      "dir": "Christopher Nolan",
+      "desc": "诺兰重塑蝙蝠侠",
+      "poster": ""
+    },
+    "2006": {
+      "title": "Pan's Labyrinth",
+      "dir": "Guillermo del Toro",
+      "desc": "潘神的迷宫，童话与战争",
+      "poster": ""
+    },
+    "2007": {
+      "title": "No Country for Old Men",
+      "dir": "Coen Brothers",
+      "desc": "老无所依的西部",
+      "poster": ""
+    },
+    "2008": {
+      "title": "The Dark Knight",
+      "dir": "Christopher Nolan",
+      "desc": "克里斯托弗·诺兰执导，希斯·莱杰奉献了影史最伟大的反派表演。蝙蝠侠、戈登警长和检察官哈维·登特联手打击哥谭市有组织犯罪，但小丑的出现打破了一切——他不为金钱不循逻辑，只想证明每个人都可能堕落到他的水平。莱杰的小丑融合了混沌、幽默和恐怖——他舔嘴唇、讲伤痕来源的多个版本、将铅笔变消失的魔术。我就是一只追着车跑的狗，就算追上了我也不知道该怎么办。莱杰在影片上映前因药物过量去世年仅28岁，他的表演被追授奥斯卡最佳男配角。小丑证明了有些男人只想看着世界燃烧。",
+      "poster": "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911BytUEMQoEKNU.jpg"
+    },
+    "2009": {
+      "title": "Inglourious Basterds",
+      "dir": "Quentin Tarantino",
+      "desc": "昆汀改写二战历史",
+      "poster": ""
+    },
+    "2010": {
+      "title": "Inception",
+      "dir": "Christopher Nolan",
+      "desc": "克里斯托弗·诺兰的科幻动作哲学片。莱昂纳多·迪卡普里奥饰演的盗梦者柯布被雇佣执行一项不可能的任务——不是窃取一个想法，而是在目标对象的潜意识中植入一个想法。影片构建了多层嵌套的梦境结构——现实、第一层、第二层、第三层以及迷失域——每一层时间流速不同、物理规则不同。汉斯·季默配乐中反复出现的低音是法国歌曲《Non, je ne regrette rien》放慢后的效果。结尾陀螺是否停下至今仍是影迷争论不休的话题。你在等一辆火车，它会带你去很远的地方。你知道你希望火车带你去哪儿，但你不能确定。不过这没关系。",
+      "poster": "https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg"
+    },
+    "2011": {
+      "title": "The Tree of Life",
+      "dir": "Terrence Malick",
+      "desc": "生命之树的宇宙诗篇",
+      "poster": ""
+    },
+    "2012": {
+      "title": "The Hunt",
+      "dir": "Thomas Vinterberg",
+      "desc": "谎言的雪崩",
+      "poster": ""
+    },
+    "2013": {
+      "title": "Her",
+      "dir": "Spike Jonze",
+      "desc": "爱上人工智能",
+      "poster": ""
+    },
+    "2014": {
+      "title": "Interstellar",
+      "dir": "Christopher Nolan",
+      "desc": "克里斯托弗·诺兰的太空史诗。地球面临生态崩溃，马修·麦康纳饰演的前NASA飞行员库珀被选中穿越虫洞寻找人类的新家园。影片基于诺贝尔物理学奖得主基普·索恩的理论——黑洞卡冈图亚的视觉呈现后来被实际科研证实了多项预测。但影片的核心不是科学而是时间与爱——库珀在米勒星球上度过三个小时地球上过去了二十三年，他收到孩子们二十三年的视频信息看着他们长大变老对他失去信心。爱是唯一可以超越时间和空间维度被感知的东西。我们曾经认为宇宙中最不可理解的事情是宇宙本身是可以被理解的。但也许宇宙之所以可以被理解，是因为有爱。",
+      "poster": "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
+    },
+    "2015": {
+      "title": "Mad Max: Fury Road",
+      "dir": "George Miller",
+      "desc": "废土之上的狂暴之路",
+      "poster": ""
+    },
+    "2016": {
+      "title": "Arrival",
+      "dir": "Denis Villeneuve",
+      "desc": "如果你能看到一生，你会改变吗",
+      "poster": ""
+    },
+    "2017": {
+      "title": "Blade Runner 2049",
+      "dir": "Denis Villeneuve",
+      "desc": "续写35年后的银翼传奇",
+      "poster": ""
+    },
+    "2018": {
+      "title": "Parasite",
+      "dir": "Bong Joon-ho",
+      "desc": "奉俊昊执导的韩国黑色喜剧惊悚片，2019年成为首部获得奥斯卡最佳影片的非英语电影。住在半地下室的贫穷金家四口通过精心设计的骗局逐渐渗透进富裕的朴家——儿子成为英语家教、女儿成为美术老师、父亲成为司机、母亲成为管家。但前任管家的秘密地下室藏着一个更黑暗的秘密。奉俊昊以令人窒息的悬疑和令人心碎的幽默揭示了阶级固化如何将人们推向道德的深渊。寄生虫不仅是地下室的人，也是寄生在富人身上的穷人——以及寄生在更穷的人身上的更穷的人。奉俊昊说所有人都可以理解这部电影，因为我们都生活在同一个资本主义体系中。",
+      "poster": "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
+    },
+    "2019": {
+      "title": "Joker",
+      "dir": "Todd Phillips",
+      "desc": "亚瑟·弗莱克的微笑",
+      "poster": ""
+    },
+    "2020": {
+      "title": "Soul",
+      "dir": "Pete Docter",
+      "desc": "灵魂的爵士之旅",
+      "poster": ""
+    },
+    "2021": {
+      "title": "Dune",
+      "dir": "Denis Villeneuve",
+      "desc": "沙丘，太空歌剧的复兴",
+      "poster": "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg"
+    },
+    "2022": {
+      "title": "Everything Everywhere All at Once",
+      "dir": "Daniels",
+      "desc": "瞬息全宇宙的贝果哲学",
+      "poster": ""
+    },
+    "2023": {
+      "title": "Oppenheimer",
+      "dir": "Christopher Nolan",
+      "desc": "克里斯托弗·诺兰执导的传记史诗，讲述原子弹之父罗伯特·奥本海默的故事。基里安·墨菲的表演贯穿奥本海默的整个成年人生——从量子物理学家到曼哈顿计划的科学总监，再到原子弹投下后深陷道德煎熬的悲剧人物。影片用彩色IMAX胶片拍摄奥本海默的主观视角，黑白胶片拍摄客观的政治斗争。三位一体核试验的沉默爆炸是全片最令人窒息的场景——观众和科学家一起等待那朵蘑菇云的升起。我成了死神，世界的毁灭者。奥本海默引用《薄伽梵歌》的这句话定义了整个原子时代。",
+      "poster": "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg"
+    },
+    "2024": {
+      "title": "The Wild Robot",
+      "dir": "Chris Sanders",
+      "desc": "机器人在荒野中学会爱",
+      "poster": ""
+    },
+    "2025": {
+      "title": "Mickey 17",
+      "dir": "Bong Joon-ho",
+      "desc": "奉俊昊的科幻新篇",
+      "poster": ""
+    }
+  },
+  "books": {
+    "1926": {
+      "title": "The Sun Also Rises",
+      "author": "Ernest Hemingway",
+      "desc": "太阳照常升起，迷惘一代的宣言"
+    },
+    "1927": {
+      "title": "To the Lighthouse",
+      "author": "Virginia Woolf",
+      "desc": "到灯塔去，意识流的巅峰"
+    },
+    "1928": {
+      "title": "Lady Chatterley's Lover",
+      "author": "D.H. Lawrence",
+      "desc": "查泰莱夫人的情人，被禁三十年的经典"
+    },
+    "1929": {
+      "title": "The Sound and the Fury",
+      "author": "William Faulkner",
+      "desc": "喧哗与骚动，南方的家族挽歌"
+    },
+    "1930": {
+      "title": "The Maltese Falcon",
+      "author": "Dashiell Hammett",
+      "desc": "马耳他之鹰，硬汉派侦探小说"
+    },
+    "1931": {
+      "title": "Brave New World",
+      "author": "Aldous Huxley",
+      "desc": "美丽新世界，反乌托邦三部曲之一"
+    },
+    "1932": {
+      "title": "Journey to the End of the Night",
+      "author": "Louis-Ferdinand Celine",
+      "desc": "长夜行，黑暗中的流浪"
+    },
+    "1933": {
+      "title": "The Thin Man",
+      "author": "Dashiell Hammett",
+      "desc": "瘦子，侦探夫妻的鸡尾酒探案"
+    },
+    "1934": {
+      "title": "Tender Is the Night",
+      "author": "F. Scott Fitzgerald",
+      "desc": "夜色温柔，爵士时代的终章"
+    },
+    "1935": {
+      "title": "Murder in the Cathedral",
+      "author": "T.S. Eliot",
+      "desc": "大教堂谋杀案，诗剧杰作"
+    },
+    "1936": {
+      "title": "Gone with the Wind",
+      "author": "Margaret Mitchell",
+      "desc": "飘，明天又是新的一天"
+    },
+    "1937": {
+      "title": "Of Mice and Men",
+      "author": "John Steinbeck",
+      "desc": "人鼠之间，梦想与孤独"
+    },
+    "1938": {
+      "title": "The Big Sleep",
+      "author": "Raymond Chandler",
+      "desc": "长眠不醒，菲利普·马洛登场"
+    },
+    "1939": {
+      "title": "The Grapes of Wrath",
+      "author": "John Steinbeck",
+      "desc": "愤怒的葡萄，大萧条时期的史诗"
+    },
+    "1940": {
+      "title": "For Whom the Bell Tolls",
+      "author": "Ernest Hemingway",
+      "desc": "丧钟为谁而鸣，西班牙内战的悲歌"
+    },
+    "1941": {
+      "title": "The Library of Babel",
+      "author": "Jorge Luis Borges",
+      "desc": "巴别图书馆，无限的迷宫"
+    },
+    "1942": {
+      "title": "The Stranger",
+      "author": "Albert Camus",
+      "desc": "局外人，今天妈妈死了"
+    },
+    "1943": {
+      "title": "The Little Prince",
+      "author": "Antoine de Saint-Exupery",
+      "desc": "小王子，用心才能看见"
+    },
+    "1944": {
+      "title": "Ficciones",
+      "author": "Jorge Luis Borges",
+      "desc": "小径分岔的花园，博尔赫斯的世界"
+    },
+    "1945": {
+      "title": "Animal Farm",
+      "author": "George Orwell",
+      "desc": "动物农场，所有动物都是平等的"
+    },
+    "1946": {
+      "title": "The Member of the Wedding",
+      "author": "Carson McCullers",
+      "desc": "婚礼的成员，孤独的青春期"
+    },
+    "1947": {
+      "title": "The Plague",
+      "author": "Albert Camus",
+      "desc": "鼠疫，存在主义的寓言"
+    },
+    "1948": {
+      "title": "Cry, the Beloved Country",
+      "author": "Alan Paton",
+      "desc": "哭泣的大地，南非的悲歌"
+    },
+    "1949": {
+      "title": "1984",
+      "author": "George Orwell",
+      "desc": "乔治·奥威尔的政治寓言小说，创作于1948年（将年份后两位颠倒即为书名）。故事设定在一个名为大洋国的极权主义超级大国——党通过无处不在的电幕监视每一个人，通过思想警察惩罚思想犯罪，通过改变历史和发明新话来控制思想。主人公温斯顿在真理部从事篡改历史的工作，偷偷写下日记，与女同事茱莉亚展开禁忌的恋情，最终在101号房间面对他最深的恐惧——老鼠。奥威尔创造了老大哥在看着你、双重思想、2+2=5等概念，深刻地塑造了现代人对极权主义的想象。谁控制了过去谁就控制了未来，谁控制了现在谁就控制了过去——这句话至今仍是对信息操控最精准的描述。"
+    },
+    "1950": {
+      "title": "The Lion, the Witch and the Wardrobe",
+      "author": "C.S. Lewis",
+      "desc": "纳尼亚传奇，衣橱后的世界"
+    },
+    "1951": {
+      "title": "The Catcher in the Rye",
+      "author": "J.D. Salinger",
+      "desc": "麦田里的守望者，青春的反叛"
+    },
+    "1952": {
+      "title": "The Old Man and the Sea",
+      "author": "Ernest Hemingway",
+      "desc": "老人与海，人可以被毁灭但不能被打败"
+    },
+    "1953": {
+      "title": "Fahrenheit 451",
+      "author": "Ray Bradbury",
+      "desc": "华氏451度，焚书的世界"
+    },
+    "1954": {
+      "title": "Lord of the Flies",
+      "author": "William Golding",
+      "desc": "蝇王，文明之下的野蛮"
+    },
+    "1955": {
+      "title": "Lolita",
+      "author": "Vladimir Nabokov",
+      "desc": "洛丽塔，我的生命之光"
+    },
+    "1956": {
+      "title": "The Fall",
+      "author": "Albert Camus",
+      "desc": "堕落，法官与忏悔者的独白"
+    },
+    "1957": {
+      "title": "On the Road",
+      "author": "Jack Kerouac",
+      "desc": "在路上，垮掉一代的圣经"
+    },
+    "1958": {
+      "title": "Things Fall Apart",
+      "author": "Chinua Achebe",
+      "desc": "瓦解，非洲文学的里程碑"
+    },
+    "1959": {
+      "title": "The Tin Drum",
+      "author": "Gunter Grass",
+      "desc": "铁皮鼓，不想长大的奥斯卡"
+    },
+    "1960": {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "desc": "杀死一只知更鸟，正义的勇气"
+    },
+    "1961": {
+      "title": "Catch-22",
+      "author": "Joseph Heller",
+      "desc": "第二十二条军规，战争的荒谬"
+    },
+    "1962": {
+      "title": "One Flew Over the Cuckoo's Nest",
+      "author": "Ken Kesey",
+      "desc": "飞越疯人院，自由的呐喊"
+    },
+    "1963": {
+      "title": "The Bell Jar",
+      "author": "Sylvia Plath",
+      "desc": "钟形罩，玻璃下的窒息"
+    },
+    "1964": {
+      "title": "Herzog",
+      "author": "Saul Bellow",
+      "desc": "赫索格，知识分子的精神困境"
+    },
+    "1965": {
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "desc": "沙丘，恐惧是心灵杀手"
+    },
+    "1966": {
+      "title": "In Cold Blood",
+      "author": "Truman Capote",
+      "desc": "冷血，非虚构小说的开山之作"
+    },
+    "1967": {
+      "title": "One Hundred Years of Solitude",
+      "author": "Gabriel Garcia Marquez",
+      "desc": "加西亚·马尔克斯的魔幻现实主义巅峰之作，用一个家族七代人的命运写出了整个拉丁美洲的孤独。故事设定在虚构小镇马孔多，布恩迪亚家族在这里建立家园、经历内战、迎来现代文明、最终在飓风中消亡。马尔克斯用荒诞不经的笔触写下了最真实的人间悲剧——下了四年十一个月零两天的雨、随着血液自动流向母亲家中的死亡之线、升上天空的蕾梅黛丝。家族的第一个人被捆在树上最后一个人正被蚂蚁吃掉。当最后一代译出羊皮卷预言才发现整个故事早已注定。1982年马尔克斯因此书获诺贝尔文学奖。"
+    },
+    "1968": {
+      "title": "2001: A Space Odyssey",
+      "author": "Arthur C. Clarke",
+      "desc": "2001太空漫游，星童的诞生"
+    },
+    "1969": {
+      "title": "Slaughterhouse-Five",
+      "author": "Kurt Vonnegut",
+      "desc": "五号屠场，事情就是这样"
+    },
+    "1970": {
+      "title": "The Bluest Eye",
+      "author": "Toni Morrison",
+      "desc": "最蓝的眼睛，渴望蓝色的悲哀"
+    },
+    "1971": {
+      "title": "Fear and Loathing in Las Vegas",
+      "author": "Hunter S. Thompson",
+      "desc": "赌城的恐惧与憎恨"
+    },
+    "1972": {
+      "title": "The Gods Themselves",
+      "author": "Isaac Asimov",
+      "desc": "神们自己，面对愚昧"
+    },
+    "1973": {
+      "title": "Gravity's Rainbow",
+      "author": "Thomas Pynchon",
+      "desc": "万有引力之虹，后现代的迷宫"
+    },
+    "1974": {
+      "title": "Carrie",
+      "author": "Stephen King",
+      "desc": "魔女嘉莉，斯蒂芬·金的恐怖初啼"
+    },
+    "1975": {
+      "title": "The Periodic Table",
+      "author": "Primo Levi",
+      "desc": "元素周期表，化学家的奥斯维辛回忆"
+    },
+    "1976": {
+      "title": "Interview with the Vampire",
+      "author": "Anne Rice",
+      "desc": "夜访吸血鬼，永生者的独白"
+    },
+    "1977": {
+      "title": "The Shining",
+      "author": "Stephen King",
+      "desc": "闪灵，这里是约翰尼"
+    },
+    "1978": {
+      "title": "The Hitchhiker's Guide to the Galaxy",
+      "author": "Douglas Adams",
+      "desc": "银河系漫游指南，别慌"
+    },
+    "1979": {
+      "title": "The Dead Zone",
+      "author": "Stephen King",
+      "desc": "死亡区域，预知未来的诅咒"
+    },
+    "1980": {
+      "title": "The Name of the Rose",
+      "author": "Umberto Eco",
+      "desc": "玫瑰的名字，修道院里的谋杀与哲学"
+    },
+    "1981": {
+      "title": "Midnight's Children",
+      "author": "Salman Rushdie",
+      "desc": "午夜之子，印度独立时的魔幻"
+    },
+    "1982": {
+      "title": "The Color Purple",
+      "author": "Alice Walker",
+      "desc": "紫色，黑人女性的灵魂之歌"
+    },
+    "1983": {
+      "title": "Neuromancer",
+      "author": "William Gibson",
+      "desc": "神经漫游者，赛博朋克的圣经"
+    },
+    "1984": {
+      "title": "The Unbearable Lightness of Being",
+      "author": "Milan Kundera",
+      "desc": "不能承受的生命之轻"
+    },
+    "1985": {
+      "title": "The Handmaid's Tale",
+      "author": "Margaret Atwood",
+      "desc": "使女的故事，基列共和国的噩梦"
+    },
+    "1986": {
+      "title": "It",
+      "author": "Stephen King",
+      "desc": "小丑回魂，德里镇的27年轮回"
+    },
+    "1987": {
+      "title": "Beloved",
+      "author": "Toni Morrison",
+      "desc": "宠儿，鬼魂般的记忆"
+    },
+    "1988": {
+      "title": "The Satanic Verses",
+      "author": "Salman Rushdie",
+      "desc": "撒旦诗篇，信仰与自由的碰撞"
+    },
+    "1989": {
+      "title": "The Remains of the Day",
+      "author": "Kazuo Ishiguro",
+      "desc": "长日将尽，管家的黄昏"
+    },
+    "1990": {
+      "title": "Good Omens",
+      "author": "Neil Gaiman & Terry Pratchett",
+      "desc": "好兆头，天使与恶魔的末日喜剧"
+    },
+    "1991": {
+      "title": "The Witching Hour",
+      "author": "Anne Rice",
+      "desc": "巫异时刻，新奥尔良的女巫世家"
+    },
+    "1992": {
+      "title": "Snow Crash",
+      "author": "Neal Stephenson",
+      "desc": "雪崩，元宇宙的第一声号角"
+    },
+    "1993": {
+      "title": "The Giver",
+      "author": "Lois Lowry",
+      "desc": "记忆传授人，完美世界的代价"
+    },
+    "1994": {
+      "title": "The Wind-Up Bird Chronicle",
+      "author": "Haruki Murakami",
+      "desc": "奇鸟行状录，深井中的黑暗"
+    },
+    "1995": {
+      "title": "The Golden Compass",
+      "author": "Philip Pullman",
+      "desc": "黄金罗盘，黑暗物质三部曲"
+    },
+    "1996": {
+      "title": "A Game of Thrones",
+      "author": "George R.R. Martin",
+      "desc": "权力的游戏，凛冬将至"
+    },
+    "1997": {
+      "title": "Harry Potter and the Philosopher's Stone",
+      "author": "J.K. Rowling",
+      "desc": "哈利波特与魔法石，大难不死的男孩"
+    },
+    "1998": {
+      "title": "Kafka on the Shore",
+      "author": "Haruki Murakami",
+      "desc": "海边的卡夫卡，十五岁的出走"
+    },
+    "1999": {
+      "title": "The Perks of Being a Wallflower",
+      "author": "Stephen Chbosky",
+      "desc": "壁花少年，成长的信件"
+    },
+    "2000": {
+      "title": "House of Leaves",
+      "author": "Mark Z. Danielewski",
+      "desc": "树叶屋，比房子更大的黑暗"
+    },
+    "2001": {
+      "title": "American Gods",
+      "author": "Neil Gaiman",
+      "desc": "美国众神，新旧神祇的战争"
+    },
+    "2002": {
+      "title": "The Kite Runner",
+      "author": "Khaled Hosseini",
+      "desc": "追风筝的人，为你千千万万遍"
+    },
+    "2003": {
+      "title": "The Da Vinci Code",
+      "author": "Dan Brown",
+      "desc": "达芬奇密码，圣杯的秘密"
+    },
+    "2004": {
+      "title": "Cloud Atlas",
+      "author": "David Mitchell",
+      "desc": "云图，六个时空的交响"
+    },
+    "2005": {
+      "title": "Never Let Me Go",
+      "author": "Kazuo Ishiguro",
+      "desc": "别让我走，克隆人的哀歌"
+    },
+    "2006": {
+      "title": "The Road",
+      "author": "Cormac McCarthy",
+      "desc": "路，末日后的父子"
+    },
+    "2007": {
+      "title": "The Brief Wondrous Life of Oscar Wao",
+      "author": "Junot Diaz",
+      "desc": "奥斯卡·瓦奥短暂而奇妙的一生"
+    },
+    "2008": {
+      "title": "1Q84",
+      "author": "Haruki Murakami",
+      "desc": "1Q84，两个月亮的世界"
+    },
+    "2009": {
+      "title": "The Girl with the Dragon Tattoo",
+      "author": "Stieg Larsson",
+      "desc": "龙纹身的女孩，黑客复仇记"
+    },
+    "2010": {
+      "title": "The Three-Body Problem",
+      "author": "Liu Cixin",
+      "desc": "刘慈欣的硬科幻巨作，2015年获雨果奖最佳长篇小说奖，是亚洲作家首次获此殊荣。故事始于文化大革命期间，天体物理学家叶文洁在红岸基地向宇宙发送了地球文明的第一声问候。四光年外的三体文明正经历着三颗太阳无规则运行带来的周期性毁灭，接收到地球信号后决定入侵。不要回答！不要回答！！不要回答！！！——和平主义者发出的警告被叶文洁忽略，人类的命运由此逆转。你们是虫子——三体人的这句话开启了两个文明之间长达数百年的黑暗博弈，以及宇宙社会学的终极法则：黑暗森林理论。"
+    },
+    "2011": {
+      "title": "Ready Player One",
+      "author": "Ernest Cline",
+      "desc": "头号玩家，彩蛋猎人的虚拟冒险"
+    },
+    "2012": {
+      "title": "Gone Girl",
+      "author": "Gillian Flynn",
+      "desc": "消失的爱人，婚姻的黑暗面"
+    },
+    "2013": {
+      "title": "The Circle",
+      "author": "Dave Eggers",
+      "desc": "圆圈，透明的监狱"
+    },
+    "2014": {
+      "title": "Station Eleven",
+      "author": "Emily St. John Mandel",
+      "desc": "第十一站，末日后的莎士比亚"
+    },
+    "2015": {
+      "title": "A Little Life",
+      "author": "Hanya Yanagihara",
+      "desc": "渺小一生，友情的极致重量"
+    },
+    "2016": {
+      "title": "The Underground Railroad",
+      "author": "Colson Whitehead",
+      "desc": "地下铁道，历史的另一种可能"
+    },
+    "2017": {
+      "title": "Lincoln in the Bardo",
+      "author": "George Saunders",
+      "desc": "林肯在中阴，亡魂的合唱"
+    },
+    "2018": {
+      "title": "Normal People",
+      "author": "Sally Rooney",
+      "desc": "正常人，爱与被爱的困难"
+    },
+    "2019": {
+      "title": "The Testaments",
+      "author": "Margaret Atwood",
+      "desc": "证言，使女的故事续篇"
+    },
+    "2020": {
+      "title": "The Vanishing Half",
+      "author": "Brit Bennett",
+      "desc": "消失的一半，肤色与身份"
+    },
+    "2021": {
+      "title": "Project Hail Mary",
+      "author": "Andy Weir",
+      "desc": "拯救计划，外星微生物与友谊"
+    },
+    "2022": {
+      "title": "Sea of Tranquility",
+      "author": "Emily St. John Mandel",
+      "desc": "宁静之海，时间旅行与月光"
+    },
+    "2023": {
+      "title": "Yellowface",
+      "author": "R.F. Kuang",
+      "desc": "黄脸，文学界的身份盗窃"
+    },
+    "2024": {
+      "title": "The Familiar",
+      "author": "Leigh Bardugo",
+      "desc": "熟悉者，西班牙黄金时代的魔法"
+    },
+    "2025": {
+      "title": "Sunrise on the Reaping",
+      "author": "Suzanne Collins",
+      "desc": "收割日的黎明，饥饿游戏前传"
+    }
+  },
+  "events": {
+    "1926": "1926年是技术与文化的转折之年。1月26日，苏格兰发明家约翰·洛吉·贝尔德在伦敦皇家研究所首次公开展示了机械电视系统，成功传输了模糊但可辨认的人脸图像。同年，罗伯特·戈达德发射了世界上第一枚液体燃料火箭。在日本，大正天皇去世，裕仁天皇继位，昭和时代开始",
+    "1927": "林德伯格完成人类首次单人不着陆飞越大西洋",
+    "1928": "青霉素被发现，开启抗生素时代",
+    "1929": "1929年10月24日'黑色星期四'，华尔街股市崩盘，大萧条开始。此后数年，全球失业率飙升至25%，银行倒闭、工厂停工、无数人流离失所。经济危机最终催生了凯恩斯主义和罗斯福新政，也间接为二战埋下了种子",
+    "1930": "冥王星被发现，太阳系第九大行星",
+    "1931": "帝国大厦在纽约落成，世界最高建筑",
+    "1932": "罗斯福当选美国总统，推行新政",
+    "1933": "希特勒就任德国总理，第三帝国开始",
+    "1934": "中国工农红军开始长征",
+    "1935": "茅台酒在万国博览会上荣获金奖",
+    "1936": "柏林奥运会，杰西·欧文斯夺得四枚金牌",
+    "1937": "兴登堡号飞艇爆炸；南京大屠杀",
+    "1938": "广播剧《世界大战》引发全美恐慌",
+    "1939": "1939年9月1日，德国入侵波兰，第二次世界大战爆发。英法对德宣战，但最初几个月战事平淡，史称'静坐战争'。在德国，爱因斯坦致信罗斯福总统，建议美国开展核武器研究。也是这一年，《绿野仙踪》和《乱世佳人》上映，好莱坞进入黄金时代",
+    "1940": "不列颠空战，皇家空军保卫英伦",
+    "1941": "1941年是改写世界历史的一年。6月22日，纳粹德国发动代号巴巴罗萨的军事行动，以300万大军、3500辆坦克和2700架飞机从波罗的海到黑海的2000公里战线上入侵苏联，东线战争陷入空前残酷的深渊——这成为人类历史上规模最大、伤亡最惨重的战场。12月7日清晨，日本海军航空兵偷袭美国太平洋舰队基地珍珠港，353架飞机分两波攻击，炸沉四艘战列舰造成2403名美国人死亡。次日罗斯福发表耻辱日演说美国正式对日宣战。在中国抗日战争进入最艰难阶段。也是这一年青霉素首次成功用于治疗人类感染、弗吉尼亚·伍尔夫在口袋中装满石头走进乌斯河自尽。",
+    "1942": "中途岛海战，太平洋战争转折点",
+    "1943": "斯大林格勒战役结束，德军东线溃败",
+    "1944": "诺曼底登陆，盟军开辟第二战场",
+    "1945": "1945年，第二次世界大战结束。4月，希特勒自杀；5月，德国投降。8月6日和9日，美国在广岛和长崎投下原子弹，日本于8月15日宣布投降。联合国于10月正式成立。也是这一年，奥威尔开始写作《动物农场》。全球开始面对核时代的来临",
+    "1946": "第一台通用电子计算机ENIAC诞生",
+    "1947": "贝尔实验室发明晶体管；印巴分治",
+    "1948": "以色列建国；世界卫生组织成立",
+    "1949": "中华人民共和国成立；北约成立",
+    "1950": "朝鲜战争爆发",
+    "1951": "中国西藏和平解放",
+    "1952": "伊丽莎白二世登基成为英国女王",
+    "1953": "DNA双螺旋结构被发现；人类首次登顶珠峰",
+    "1954": "图灵去世；首颗人造钻石合成成功",
+    "1955": "爱因斯坦逝世；华沙条约组织成立",
+    "1956": "匈牙利革命；苏伊士运河危机",
+    "1957": "1957年10月4日，苏联发射了人类第一颗人造卫星'斯普特尼克1号'。美国举国震惊，随即成立NASA，太空竞赛正式拉开帷幕。也是这一年，苏联发射了携带小狗莱卡的'斯普特尼克2号'，莱卡成为第一个进入地球轨道的生物。在中国，反右运动开始",
+    "1958": "美国成立NASA；中国开始大跃进",
+    "1959": "古巴革命成功，卡斯特罗执政",
+    "1960": "激光器被发明；中国发生大饥荒",
+    "1961": "加加林成为第一个进入太空的人；柏林墙修建",
+    "1962": "古巴导弹危机，世界濒临核战争",
+    "1963": "肯尼迪遇刺；马丁·路德·金发表《我有一个梦想》",
+    "1964": "中国第一颗原子弹爆炸成功；披头士风靡美国",
+    "1965": "越战升级；马尔科姆X遇刺",
+    "1966": "文化大革命开始",
+    "1967": "六日战争；首例心脏移植手术成功",
+    "1968": "马丁·路德·金遇刺；巴黎五月风暴；阿波罗8号绕月",
+    "1969": "1969年7月20日阿波罗11号登月舱鹰号降落在月球静海。尼尔·阿姆斯特朗踏上月球表面说出了被5亿人通过电视直播听到的那句话——这是个人的一小步却是人类的一大步。8月伍德斯托克音乐节在纽约州举行超过40万嬉皮士在暴雨和泥泞中享受了三天三夜的和平爱与音乐——吉米·亨德里克斯用电吉他演奏了扭曲版的《星条旗》。10月ARPANET在加州大学洛杉矶分校向斯坦福研究院发送了第一个数据包仅两个字母LO系统就崩溃了（他们想发送LOGIN）但互联网由此诞生。中苏边境珍宝岛武装冲突爆发文化大革命进入第四个年头。",
+    "1970": "中国发射第一颗人造卫星东方红一号",
+    "1971": "乒乓外交；中国恢复联合国席位",
+    "1972": "尼克松访华；慕尼黑奥运会惨案",
+    "1973": "赎罪日战争引发石油危机",
+    "1974": "尼克松因水门事件辞职",
+    "1975": "越南战争结束；微软公司成立",
+    "1976": "唐山大地震；毛泽东、周恩来、朱德逝世",
+    "1977": "1977年5月，《星球大战》上映，彻底改变了电影工业。乔治·卢卡斯的太空歌剧融合了黑泽明的武士美学和约瑟夫·坎贝尔的神话学，创造了一个全新的宇宙。也是这一年，中国恢复高考，570万人参加考试，仅27万人被录取。苹果公司发布了AppleII个人电脑",
+    "1978": "中国改革开放；世界首例试管婴儿诞生",
+    "1979": "苏联入侵阿富汗；伊朗伊斯兰革命",
+    "1980": "两伊战争爆发；约翰·列侬遇刺",
+    "1981": "IBMPC发布；艾滋病被首次确认",
+    "1982": "马岛战争；《时代》杂志将个人电脑选为年度机器",
+    "1983": "互联网TCP/IP协议确立",
+    "1984": "苹果发布Macintosh；印度博帕尔毒气泄漏",
+    "1985": "戈尔巴乔夫上台推行改革；LiveAid慈善演唱会",
+    "1986": "切尔诺贝利核事故；挑战者号航天飞机爆炸",
+    "1987": "世界人口突破50亿；黑色星期一股灾",
+    "1988": "两伊战争结束；缅甸民主运动",
+    "1989": "1989年11月9日晚东德政府发言人君特·沙博夫斯基在记者会上含糊地宣布新的旅行法规即刻生效。数小时内成千上万的东柏林人涌向柏林墙用锤子凿子和赤手拆除了这座割裂东西方28年的混凝土屏障。此后数周从华沙到布加勒斯特东欧的共产党政权如多米诺骨牌般纷纷倒下史称天鹅绒革命。在北京胡耀邦逝世引发大规模学生运动抗议者占据天安门广场长达七周最终以6月4日凌晨的军事镇压告终——数百乃至数千名平民丧生成为当代中国历史上最沉痛的一页。同年3月蒂姆·伯纳斯-李在欧洲核子研究中心提交了《信息管理：一项提案》——这后来成为万维网的基础架构。第一台GPS卫星也于同年进入轨道彻底改变了人类的导航方式。",
+    "1990": "两德统一；海湾战争爆发；哈勃望远镜发射",
+    "1991": "苏联解体；万维网向公众开放",
+    "1992": "邓小平南巡；洛杉矶种族骚乱",
+    "1993": "欧盟正式成立；《霸王别姬》获金棕榈奖",
+    "1994": "1994年是充满希望与悲剧的一年。5月10日纳尔逊·曼德拉宣誓就任南非共和国总统成为该国历史上第一位黑人总统——种族隔离制度在27年监禁后以和解而非复仇的方式终结。5月6日英吉利海峡隧道正式开通英国和欧洲大陆首次被物理连接起来这项工程花费了六年时间和150亿英镑。4月至7月间卢旺达发生了人类现代史上最惨烈的种族屠杀——约80万图西族人在短短100天内被胡图族民兵用砍刀杀害而国际社会几乎袖手旁观。6月17日O.J.辛普森在洛杉矶高速公路上低速逃亡9500万美国人通过电视观看了这场离奇的追捕。也是这一年杰夫·贝索斯在车库里创立了亚马逊最初只是一家在线书店——没人想到它会改变全球商业。巴西传奇车手埃尔顿·塞纳在圣马力诺大奖赛中因事故去世整个巴西为之停摆。",
+    "1995": "Windows95发布；WTO成立",
+    "1996": "克隆羊多莉诞生；亚特兰大奥运会",
+    "1997": "1997年7月1日，香港回归中国，结束了155年的英国殖民统治。8月31日，戴安娜王妃在巴黎车祸中去世，全球哀悼。也是这一年，IBM深蓝计算机击败国际象棋世界冠军卡斯帕罗夫。哈利·波特系列第一本书在英国出版。亚洲金融危机爆发",
+    "1998": "Google公司成立；长江特大洪水",
+    "1999": "欧元诞生；澳门回归中国；千年虫恐慌",
+    "2000": "人类基因组草图完成；悉尼奥运会",
+    "2001": "2001年9月11日早晨基地组织劫持四架美国民航客机——两架分别撞入纽约世贸中心北塔和南塔一架撞向弗吉尼亚州五角大楼西翼一架在乘客反抗后坠毁于宾夕法尼亚州尚克斯维尔的田野。总计2996人遇难超过6000人受伤这是自珍珠港事件以来美国本土遭受的最严重袭击。事件彻底改变了全球政治格局——美国随后发动阿富汗战争和伊拉克战争世界进入反恐战争时代。也是在这一年中国正式加入世界贸易组织WTO经济进入爆炸式增长轨道。维基百科上线苹果发布第一代iPod第一个太空游客丹尼斯·蒂托自费2000万美元造访国际空间站。《哈利·波特》第一部与《指环王》第一部同日上映开启了奇幻电影的新时代。",
+    "2002": "欧元正式流通；SARS在广东出现",
+    "2003": "美国入侵伊拉克；中国首次载人航天；SARS全球流行",
+    "2004": "印度洋大海啸；Facebook创立；雅典奥运会",
+    "2005": "卡特里娜飓风；YouTube创立",
+    "2006": "冥王星被降级为矮行星；Twitter创立",
+    "2007": "iPhone发布；全球金融危机开始",
+    "2008": "2008年5月12日14时28分四川汶川发生里氏8.0级特大地震震中位于汶川县映秀镇。地震波及大半个中国及亚洲多个国家和地区约50万平方公里土地严重受灾。官方统计近7万人遇难37万余人受伤1.8万人失踪。全国人民陷入巨大的悲痛与团结之中——捐款捐物献血志愿者从四面八方涌入灾区。8月8日晚8时北京奥运会在国家体育场鸟巢盛大开幕张艺谋导演的开幕式以2008名击缶者活字印刷方阵和空中漫步的李宁震撼了全球约40亿电视观众。9月15日美国投资银行雷曼兄弟申请破产保护全球金融危机爆发——数万亿美元财富蒸发数百万家庭失去住房。也是这一年奥巴马当选美国首位非裔总统中本聪发表了比特币白皮书漫威宇宙以《钢铁侠》正式拉开序幕。",
+    "2009": "奥巴马就任美国总统；比特币诞生",
+    "2010": "上海世博会；维基解密发布外交电文",
+    "2011": "阿拉伯之春；本·拉登被击毙；日本311大地震",
+    "2012": "玛雅末日预言落空；希格斯玻色子被发现",
+    "2013": "斯诺登曝光棱镜计划；中国提出一带一路",
+    "2014": "马航MH370失踪；克里米亚危机",
+    "2015": "巴黎气候协定达成；《三体》获雨果奖",
+    "2016": "AlphaGo击败李世石；特朗普当选美国总统；英国脱欧公投",
+    "2017": "人类首次观测到引力波光源；比特币突破2万美元",
+    "2018": "SpaceX发射猎鹰重型火箭；基因编辑婴儿事件",
+    "2019": "2019年12月，中国武汉首次报告不明原因肺炎病例，后确认为新型冠状病毒。2020年初，COVID-19演变为全球大流行。4月15日，巴黎圣母院遭遇大火，尖塔倒塌。4月，人类首次拍摄到黑洞照片。也是这一年，《复仇者联盟4：终局之战》成为影史票房冠军",
+    "2020": "2020年彻底改变了人类的生活方式。2019年末在中国武汉首次发现的新型冠状病毒SARS-CoV-2在2020年初迅速蔓延至全球。3月11日世界卫生组织宣布COVID-19为全球大流行。各国纷纷实施封锁措施——城市街道空无一人航班停飞奥运会被迫延期至2021年这是现代奥运会历史上首次因非战争原因延期。口罩成为日常生活的必需品Zoom和远程办公从边缘走向主流社交距离成为一个陌生的新词汇。1月26日篮球巨星科比·布莱恩特和13岁的女儿吉安娜在加州卡拉巴萨斯的一次直升机坠毁事故中不幸去世——震惊全球。5月乔治·弗洛伊德在明尼阿波利斯被警察跪压颈部致死后黑人的命也是命抗议浪潮席卷全美乃至全球。年底辉瑞-BioNTech和Moderna的mRNA疫苗以前所未有的速度获批为人类战胜疫情带来曙光——这也是mRNA技术首次大规模商业应用开启了疫苗研发的新纪元。",
+    "2021": "苏伊士运河堵塞；NFT热潮；元宇宙元年",
+    "2022": "俄乌战争爆发；伊丽莎白二世去世；ChatGPT发布",
+    "2023": "巴以冲突再起；印度成为人口第一大国；AI元年",
+    "2024": "全球大选年，超半数地球人口参与选举",
+    "2025": "天问二号发射，人类加速迈向深空时代"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "books": [
+    {
+      "id": "local_santi",
+      "title": "三体",
+      "author": "刘慈欣",
+      "cat": "科幻",
+      "lang": "zh",
+      "desc": "三体三部曲全集：地球往事·黑暗森林·死神永生 — 雨果奖获奖巨作",
+      "file": "三体.txt",
+      "source": "本地文件"
+    },
+    {
+      "id": "local_qiusan",
+      "title": "球状闪电",
+      "author": "刘慈欣",
+      "cat": "科幻",
+      "lang": "zh",
+      "desc": "一个少年毕其一生追寻球状闪电的真相，从自然之谜到终极武器",
+      "file": "球状闪电.txt",
+      "source": "本地文件"
+    }
+  ]
+}

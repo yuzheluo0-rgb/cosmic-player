@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>歌者空间 — SINGER SPACE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','Orbitron',sans-serif;background:#000;overflow:hidden;height:100vh;color:#e0f0ff}
+canvas#bg{position:fixed;top:0;left:0;z-index:0}
+#app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;pointer-events:none}
+#app>*{pointer-events:auto}
+#topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:linear-gradient(180deg,rgba(5,10,30,0.9)0%,rgba(5,10,30,0)100%)}
+.logo{font-family:'Orbitron';font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,#00d4ff,#7b2fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+#userBtn{cursor:pointer;padding:5px 14px;border:1px solid rgba(0,212,255,0.4);border-radius:18px;font-size:.8rem;color:#00d4ff;background:rgba(0,20,50,0.5);transition:all .3s}
+#userBtn.logged{color:#0f0;border-color:rgba(0,255,100,0.4)}
+#userBtn img{width:18px;height:18px;border-radius:50%;vertical-align:middle;margin-right:4px}
+#userMenu{display:none;position:fixed;top:44px;right:18px;z-index:50;background:rgba(5,12,28,0.95);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:4px;min-width:140px;backdrop-filter:blur(10px)}#userMenu.show{display:block}.um-item{padding:10px 16px;border-radius:6px;cursor:pointer;font-size:.78rem;color:#c0d0e0;display:flex;align-items:center;gap:8px;transition:all .2s}.um-item:hover{background:rgba(255,50,50,0.1);color:#f66}
+#main{flex:1;display:flex;gap:12px;padding:0 12px;overflow:hidden}
+.panel{background:rgba(5,10,30,0.65);backdrop-filter:blur(10px);border:1px solid rgba(0,212,255,0.1);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.panel-header{padding:10px 14px;border-bottom:1px solid rgba(0,212,255,0.1);font-family:'Orbitron';font-size:.75rem;letter-spacing:2px;color:#00d4ff;display:flex;justify-content:space-between;align-items:center}
+#leftPanel{width:310px;flex-shrink:0}
+#playlist{flex:1;overflow-y:auto;padding:4px}
+#playlist::-webkit-scrollbar{width:3px}
+#playlist::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2);border-radius:2px}
+#searchBox{margin:6px;position:relative}
+#searchBox input{width:100%;padding:9px 36px 9px 12px;background:rgba(5,10,30,0.6);border:1px solid rgba(0,212,255,0.15);border-radius:20px;color:#e0f0ff;font-size:.82rem;outline:none}
+#searchBox input:focus{border-color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,0.15)}
+#searchBox button{position:absolute;right:2px;top:2px;width:30px;height:30px;border-radius:50%;border:none;background:linear-gradient(135deg,#00d4ff,#7b2fff);color:#fff;font-size:.8rem;cursor:pointer}
+#searchResults{position:absolute;top:42px;left:0;right:0;background:rgba(5,10,30,0.97);border:1px solid rgba(0,212,255,0.18);border-radius:10px;max-height:250px;overflow-y:auto;z-index:10;display:none}
+.song-item{padding:8px 10px;margin:1px 0;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.78rem}
+.song-item:hover{background:rgba(0,212,255,0.06)}
+.song-item.active{background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.18)}
+.song-item .idx{width:16px;text-align:center;color:#446;font-family:'Orbitron';font-size:.62rem;flex-shrink:0}
+.song-item.active .idx{color:#00d4ff}
+.song-item .info{flex:1;min-width:0}
+.song-item .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-item .artist{font-size:.68rem;color:#778}
+.song-item .del-btn{width:18px;height:18px;border-radius:50%;border:none;background:rgba(255,50,50,0.1);color:#f66;cursor:pointer;font-size:.55rem;opacity:0;transition:opacity .2s;flex-shrink:0;line-height:18px;text-align:center;padding:0}
+.song-item:hover .del-btn{opacity:1}
+/* Radio panel */
+#radioPanel{display:none;flex-direction:column;height:100%}
+#radioPanel.active{display:flex}
+#radioList{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(0,212,255,0.15) transparent}
+.radio-cat{font-size:.65rem;color:#00d4ff;padding:8px 14px 2px;font-family:'Orbitron';letter-spacing:1px;opacity:.7}
+.radio-item{display:flex;align-items:center;padding:7px 14px;cursor:pointer;transition:background .2s;gap:8px}
+.radio-item:hover{background:rgba(0,212,255,0.06)}
+.radio-item.active{background:rgba(0,212,255,0.1)}
+.radio-item .r-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#00d4ff;opacity:.5}
+.radio-item.active .r-dot{opacity:1;box-shadow:0 0 6px #00d4ff}
+.radio-item .r-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c8d8e8;font-size:.78rem}
+.radio-item .r-info{font-size:.62rem;color:#556;white-space:nowrap}
+#rightPanel{flex:1;display:flex;flex-direction:column}
+#planetZone{flex:1;position:relative;min-height:180px}
+#planetZone canvas{position:absolute;top:0;left:0;width:100%;height:100%}
+#albumCard{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:120px;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1.5px solid rgba(0,212,255,0.2);box-shadow:0 0 25px rgba(0,212,255,0.1);z-index:5;background:rgba(5,10,30,0.7);display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+#albumCard img{width:100%;height:100%;object-fit:cover}
+#trackSection{text-align:center;padding:4px 16px 0}
+#trackTitle{font-size:1rem;font-weight:700;color:#e0f0ff}
+#trackArtist{color:#889;font-size:.76rem}
+#starTrailWrap{padding:0 20px}#starTrailCanvas{width:100%;height:28px;border-radius:14px;cursor:pointer}
+#trailTimes{display:flex;justify-content:space-between;padding:1px 22px 0;font-family:'Orbitron';font-size:.62rem;color:#556}
+#controls{display:flex;align-items:center;justify-content:center;gap:12px;padding:4px 0 10px}
+.ctrl-btn{width:52px;height:52px;border-radius:50%;border:1px solid rgba(0,212,255,0.2);background:rgba(5,10,30,0.35);color:#00d4ff;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:all .3s}
+.ctrl-btn:hover{background:rgba(0,40,80,0.5);border-color:#00d4ff;box-shadow:0 0 18px rgba(0,212,255,0.25)}
+.ctrl-btn.play{width:64px;height:64px;font-size:1.4rem;background:linear-gradient(135deg,rgba(0,212,255,0.7),rgba(123,47,255,0.7));color:#fff;border:none}
+.ctrl-btn.play:hover{box-shadow:0 0 30px rgba(0,212,255,0.5)}
+.ctrl-btn.sm{width:44px;height:44px;font-size:.85rem}
+#volumeWrap{display:flex;align-items:center;gap:5px}
+#volumeSlider{width:60px;accent-color:#00d4ff}
+#loginOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;align-items:center;justify-content:center}
+#loginOverlay.show{display:flex}
+#loginBox{background:rgba(5,10,30,0.95);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.3);border-radius:18px;padding:32px;text-align:center;max-width:360px;width:90%}
+#loginBox h2{font-family:'Orbitron';font-size:1.2rem;margin-bottom:18px;color:#00d4ff}
+.login-btn{width:100%;padding:12px;border:none;border-radius:24px;font-size:.92rem;cursor:pointer;font-weight:700;margin-bottom:8px;transition:all .3s}
+.btn-qq{background:linear-gradient(135deg,#12b7f5,#0d8bcc);color:#fff}
+.btn-ne{background:transparent;color:#f55;border:1px solid rgba(255,50,50,0.3)}
+.btn-skip{display:block;margin:12px auto 0;background:none;border:none;color:#556;cursor:pointer;font-size:.75rem}
+#neLoginStep{display:none;text-align:center}
+#neQRwrap{width:180px;height:180px;margin:0 auto 12px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center}
+#neQRwrap canvas{width:160px;height:160px}
+#neQRstatus{color:#889;font-size:.78rem;margin-bottom:10px}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:18px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);color:#00d4ff;font-size:.78rem;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* Immersive */
+body.immersive #topbar,body.immersive #leftPanel,body.immersive #controls,body.immersive #trackSection,body.immersive #starTrailWrap,body.immersive #trailTimes,body.immersive #albumCard,body.immersive .panel-header{opacity:0;pointer-events:none;transition:opacity .6s}
+body.immersive .panel{background:transparent!important;backdrop-filter:none!important;border-color:transparent!important}
+#immerseBtn{position:fixed;bottom:20px;right:20px;z-index:60;width:44px;height:44px;border-radius:50%;border:2px solid rgba(0,212,255,0.4);background:rgba(0,20,50,0.7);color:#00d4ff;cursor:pointer;font-size:1.1rem;box-shadow:0 0 18px rgba(0,212,255,0.15);transition:all .3s}
+#immerseBtn:hover{border-color:#00d4ff;box-shadow:0 0 28px rgba(0,212,255,0.4)}
+
+/* Lyrics */
+#lyricsOverlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;pointer-events:none;text-align:center;width:80%;max-width:500px}
+#lyricsStage{display:flex;flex-direction:column;align-items:center;justify-content:center;mask-image:linear-gradient(to bottom,transparent 5%,#fff 30%,#fff 70%,transparent 95%);-webkit-mask-image:linear-gradient(to bottom,transparent 5%,#fff 30%,#fff 70%,transparent 95%);max-height:260px;overflow:hidden}
+.lyric-line{transition:all .5s cubic-bezier(.23,1,.32,1);font-size:1rem;color:rgba(255,255,255,0.2);text-align:center;line-height:2.8;white-space:nowrap}
+.lyric-line.active{color:#fff;font-size:1.35rem;font-weight:700;text-shadow:0 0 20px rgba(0,212,255,0.9),0 0 40px rgba(120,40,255,0.5)}
+.lyrics-toggle{position:absolute;right:14px;bottom:14px;z-index:7;padding:5px 12px;border-radius:14px;border:1px solid rgba(0,212,255,0.2);background:rgba(3,8,22,0.6);color:#00d4ff;cursor:pointer;font-size:.7rem}
+body.immersive #lyricsOverlay{opacity:1!important}
+
+/* Subtitle / Translation */
+#subtitlePanel{position:fixed;bottom:130px;left:50%;transform:translateX(-50%);z-index:40;width:min(90vw,700px);max-height:180px;overflow-y:auto;pointer-events:none;display:flex;flex-direction:column;gap:4px;font-size:.78rem;text-align:center;scrollbar-width:none}
+#subtitlePanel::-webkit-scrollbar{display:none}
+.sub-line{margin:0;padding:4px 16px;border-radius:16px;opacity:0;transform:translateY(10px);transition:all .5s cubic-bezier(.23,1,.32,1);background:rgba(0,0,0,0.4)}
+.sub-line.show{opacity:1;transform:translateY(0)}
+.sub-orig{color:#e0e0e0;font-size:.8rem;text-shadow:0 0 8px rgba(0,212,255,0.3)}
+.sub-trans{color:#00d4ff;font-size:.85rem;font-weight:700;text-shadow:0 0 12px rgba(0,212,255,0.5)}
+#subIndicator{position:fixed;bottom:108px;left:50%;transform:translateX(-50%);z-index:41;font-size:.65rem;color:#556;pointer-events:none;display:none}
+#subIndicator.on{display:block;animation:subPulse 1.5s ease-in-out infinite}
+@keyframes subPulse{0%,100%{opacity:.3}50%{opacity:.8}}
+
+/* Theme */
+#themePicker{position:fixed;bottom:14px;left:14px;z-index:50;display:flex;gap:6px}
+.theme-dot{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .3s}
+.theme-dot.active{border-color:#fff;box-shadow:0 0 12px currentColor}
+@media(max-width:768px){#main{flex-direction:column;padding:0 6px}#leftPanel{width:100%;max-height:220px}#planetZone{min-height:160px}#albumCard{width:80px;right:6px}}
+
+#readerFrame{display:none;position:fixed;z-index:46;top:0;left:316px;width:calc(100vw - 316px);height:calc(100vh - 72px);border:none;border-left:1px solid rgba(160,200,230,0.12);background:#000}#readerFrame.show{display:block}
+#cosmicClock{position:fixed;top:60px;right:20px;z-index:30;font-family:'Orbitron',monospace;text-align:right;cursor:pointer;user-select:none;opacity:.75}#cosmicClock:hover{opacity:1}.clock-time{font-size:1.6rem;font-weight:700;color:#c0e0f8;text-shadow:0 0 18px rgba(120,200,240,0.5),0 0 40px rgba(80,160,220,0.2);letter-spacing:3px;line-height:1}.clock-date{font-size:.62rem;color:#667;letter-spacing:2px;margin-top:2px}.clock-zone{font-size:.62rem;color:#80b8d8;letter-spacing:1px;margin-top:1px}.clock-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#80c8f0;margin-right:6px;vertical-align:middle;animation:clockPulse 2s ease-in-out infinite}@keyframes clockPulse{0%,100%{box-shadow:0 0 4px rgba(128,200,240,0.3)}50%{box-shadow:0 0 10px rgba(128,200,240,0.7)}}#tzList{display:none;position:fixed;z-index:35;top:132px;right:20px;max-height:60vh;width:260px;overflow-y:auto;background:rgba(4,10,24,0.94);border:1px solid rgba(120,180,220,.2);border-radius:12px;scrollbar-width:thin;scrollbar-color:rgba(120,180,220,.15) transparent}#tzList.show{display:block}.tz-item{display:flex;align-items:center;padding:9px 14px;cursor:pointer;gap:10px;border-bottom:1px solid rgba(120,180,220,.05)}.tz-item:hover{background:rgba(120,180,220,.06)}.tz-item.active{background:rgba(120,180,220,.1)}.tz-item .tz-flag{font-size:1rem}.tz-item .tz-city{font-size:.8rem;color:#c8dce8;flex:1}.tz-item .tz-time{font-size:.72rem;color:#80b0c8;font-family:'Orbitron';letter-spacing:1px}.tz-item .tz-offset{font-size:.58rem;color:#556;font-family:'Orbitron';min-width:48px;text-align:right}
+#dailyQuote{display:none;position:fixed;top:46px;left:0;right:0;z-index:28}#dailyQuote.show{display:block}.dq-inner{max-width:900px;margin:0 auto;padding:30px 60px;text-align:center;background:rgba(5,12,28,0.65);border-bottom:1px solid rgba(140,200,240,0.1);backdrop-filter:blur(6px)}.dq-text{font-size:1.5rem;color:#d8e8f8;line-height:1.8;font-style:italic;font-weight:500;text-shadow:0 0 22px rgba(180,220,255,0.6),0 0 50px rgba(100,180,240,0.3);letter-spacing:.5px}.dq-text::before{content:'\201C'}.dq-text::after{content:'\201D'}.dq-meta{font-size:.85rem;color:#90c0d8;margin-top:12px;letter-spacing:1.5px;text-shadow:0 0 12px rgba(120,180,220,0.3)}.dq-meta span{color:#b0d8e8}
+#aiChat{display:none;position:fixed;z-index:47;top:80px;right:30px;width:380px;height:420px;min-width:300px;min-height:280px;background:rgba(3,10,20,0.85);border:1px solid rgba(140,200,160,0.2);border-radius:14px;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px);box-shadow:0 0 40px rgba(80,160,120,0.15);resize:both}#aiChat.show{display:flex}#aiDragBar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;cursor:move;user-select:none;flex-shrink:0;background:rgba(10,30,20,0.5);border-bottom:1px solid rgba(140,200,160,0.1)}#aiDragBar span{font-size:.7rem;color:#80c0a0;font-family:'Orbitron';letter-spacing:1px}#aiDragBar button{background:none;border:none;color:#668;cursor:pointer;font-size:.9rem;padding:0 4px}#aiDragBar button:hover{color:#a0d8b0}#aiMessages{flex:1;overflow-y:auto;padding:12px 16px;scrollbar-width:thin;scrollbar-color:rgba(140,200,160,0.1) transparent}#aiInputWrap{display:flex;padding:8px 12px;border-top:1px solid rgba(140,200,160,0.08);gap:6px;flex-shrink:0}#aiInputWrap input{flex:1;padding:7px 12px;background:rgba(5,15,25,0.6);border:1px solid rgba(140,200,160,0.15);border-radius:16px;color:#c0d8e0;font-size:.74rem;outline:none}#aiInputWrap input:focus{border-color:rgba(160,220,180,0.4)}#aiInputWrap button{padding:6px 12px;border-radius:14px;border:1px solid rgba(140,200,160,0.3);background:rgba(10,30,20,0.5);color:#80c8a0;cursor:pointer;font-family:'Orbitron';font-size:.65rem;letter-spacing:1px;white-space:nowrap}#aiInputWrap button:hover{border-color:rgba(160,220,180,0.6);box-shadow:0 0 12px rgba(120,200,160,0.2)}.ai-msg{margin-bottom:14px;max-width:90%;animation:aiFadeIn .4s ease-out}@keyframes aiFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.ai-msg.user{margin-left:auto;text-align:right}.ai-msg .bubble{padding:10px 16px;border-radius:16px;font-size:.8rem;line-height:1.6;display:inline-block;text-align:left}.ai-msg.user .bubble{background:rgba(100,180,140,0.15);border:1px solid rgba(140,200,160,0.2);color:#c0e0d0}.ai-msg.assistant .bubble{background:rgba(30,40,50,0.6);border:1px solid rgba(120,160,200,0.15);color:#c0d8e8}
+@media(max-width:768px){#readerFrame{left:0;width:100vw;height:calc(100vh - 68px)}#cosmicClock{top:8px;right:8px}.clock-time{font-size:1rem}#tzList{right:4px;top:94px;width:230px;max-height:50vh}.dq-inner{padding:18px 24px}.dq-text{font-size:1.1rem}#aiChat{top:60px;right:10px;width:300px;height:360px}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="app">
+  <div id="topbar"><div class="logo">COSMIC<span style="font-size:.45rem;display:block;letter-spacing:4px;opacity:.65">UNIVERSE PLAYER</span></div><div style="display:flex;gap:8px;align-items:center"><button id="quoteBtn" onclick="toggleQuote()" style="padding:5px 12px;border:1px solid rgba(140,200,240,0.3);border-radius:16px;font-size:.68rem;color:#80c0e0;background:rgba(5,15,30,0.5);cursor:pointer;font-family:Orbitron;letter-spacing:1px;white-space:nowrap">💬 每日一语</button><button onclick="toggleReader()" style="padding:5px 12px;border:1px solid rgba(180,200,220,0.35);border-radius:16px;font-size:.68rem;color:#a0b8d0;background:rgba(10,20,40,0.5);cursor:pointer;font-family:Orbitron;letter-spacing:1px;white-space:nowrap">📖 READ</button><a href="/wormhole.html" style="padding:5px 12px;border:1px solid rgba(140,100,240,0.4);border-radius:16px;font-size:.68rem;color:#a080d0;background:rgba(15,5,30,0.5);cursor:pointer;text-decoration:none;font-family:Orbitron;letter-spacing:1px;white-space:nowrap">🌀 WORMHOLE</a><a href="/horror" style="padding:5px 14px;border:1px solid rgba(200,50,50,0.5);border-radius:18px;font-size:.75rem;color:#cc6666;background:rgba(30,5,5,0.6);cursor:pointer;text-decoration:none;font-family:'Orbitron';letter-spacing:1px;transition:all .3s" onmouseenter="this.style.background='rgba(60,10,10,0.8)';this.style.boxShadow='0 0 12px rgba(139,0,0,0.3)'" onmouseleave="this.style.background='rgba(30,5,5,0.6)';this.style.boxShadow='none'">FOREST</a><button id="aiBtn" onclick="toggleAiChat()" style="padding:5px 12px;border:1px solid rgba(140,200,160,0.35);border-radius:16px;font-size:.68rem;color:#80d0a0;background:rgba(5,15,10,0.5);cursor:pointer;font-family:Orbitron;letter-spacing:1px;white-space:nowrap">✨ AI</button><button id="userBtn" onclick="_toggleLogin()">🚀 登录</button></div></div>
+  <div id="main">
+    <div class="panel" id="leftPanel">
+      <div class="panel-header">🎵 播放列表 <span id="plCount" style="font-size:.6rem;color:#556">0</span>
+        <span style="display:flex;gap:4px">
+          <span onclick="loadRecommend()" style="cursor:pointer;font-size:.6rem;padding:2px 6px;border-radius:8px;border:1px solid rgba(0,212,255,0.2);color:#00d4ff" title="每日推荐">📅</span>
+          <span onclick="loadPlaylists()" style="cursor:pointer;font-size:.6rem;padding:2px 6px;border-radius:8px;border:1px solid rgba(0,212,255,0.2);color:#00d4ff" title="我的歌单">📋</span>
+          <span onclick="loadLiked()" style="cursor:pointer;font-size:.6rem;padding:2px 6px;border-radius:8px;border:1px solid rgba(0,212,255,0.2);color:#00d4ff" title="我喜欢的">❤️</span>
+        </span>
+      </div>
+      <div id="searchBox"><input type="text" id="searchInput" placeholder="搜索歌曲..." onkeydown="if(event.key==='Enter')doSearch()"><button onclick="doSearch()">▶</button><div id="searchResults"></div></div>
+      <div id="playlist"><div style="color:#556;text-align:center;padding:30px 0;font-size:.78rem">搜索歌曲添加</div></div>
+      <div id="radioPanel">
+        <div class="panel-header" style="justify-content:flex-start;gap:8px">
+          <button onclick="toggleRadio()" style="background:none;border:none;color:#00d4ff;cursor:pointer;font-size:.9rem;padding:0">←</button>
+          <span>📻 精选电台</span>
+          <span id="radioCount" style="font-size:.6rem;color:#556">0</span>
+          <span style="flex:1"></span>
+          <span onclick="loadDiscoveryStations()" style="cursor:pointer;font-size:.55rem;padding:3px 8px;border-radius:10px;border:1px solid rgba(0,212,255,0.2);color:#556" title="加载全宇宙电台">🌌 探索</span>
+        </div>
+        <div id="radioList"><div style="color:#556;text-align:center;padding:30px 0;font-size:.78rem">加载电台数据中...</div></div>
+      </div>
+    </div>
+    <div class="panel" id="rightPanel">
+      <div class="panel-header">🌍 星域</div>
+      <div id="planetZone"><canvas id="planetCanvas"></canvas>
+        <div id="albumCard"><span style="opacity:.25">🌌</span></div>
+        <div id="lyricsOverlay"><div id="lyricsStage"><div class="lyric-line">🎵</div></div></div>
+        <button class="lyrics-toggle" onclick="toggleLyrics()">🎤</button>
+      </div>
+      <div id="trackSection"><div id="trackTitle">等待播放</div><div id="trackArtist">—</div></div>
+      <div id="starTrailWrap"><canvas id="starTrailCanvas"></canvas></div>
+      <div id="trailTimes"><span id="trailCur">0:00</span><span id="trailDur">0:00</span></div>
+      <div id="controls">
+        <button class="ctrl-btn sm" onclick="toggleMode()" id="modeBtn">🔀</button>
+        <button class="ctrl-btn" onclick="prevSong()">⏮</button>
+        <button class="ctrl-btn play" id="playBtn" onclick="togglePlay()">▶</button>
+        <button class="ctrl-btn" onclick="nextSong()">⏭</button>
+        <div id="volumeWrap"><span style="font-size:.65rem;color:#556">🔊</span><input type="range" id="volumeSlider" min="0" max="100" value="70" oninput="setVol()"></div>
+        <button class="ctrl-btn sm" id="radioBtn" onclick="toggleRadio()" title="宇宙电台">📻</button>
+      </div>
+    </div>
+  </div>
+  <div id="subtitlePanel"></div>
+  <div id="subIndicator">📡 实时翻译中...</div>
+  </div>
+</div>
+<button id="immerseBtn" onclick="toggleImmersive()" title="沉浸模式 (ESC)">🌌</button>
+<div id="themePicker">
+  <div class="theme-dot active" style="background:#0d1b3e" onclick="switchTheme(0)" title="深空蓝"></div>
+  <div class="theme-dot" style="background:#1a0d28" onclick="switchTheme(1)" title="紫红星云"></div>
+  <div class="theme-dot" style="background:#0d1a18" onclick="switchTheme(2)" title="极光绿"></div>
+  <div class="theme-dot" style="background:#1a0f08" onclick="switchTheme(3)" title="赤红星系"></div>
+</div>
+<div id="loginOverlay"><div id="loginBox">
+  <h2>🎵 登录歌者空间</h2>
+  <div id="loginMain">
+    <button class="login-btn btn-qq" onclick="_qqLogin()">🐧 QQ 账号登录</button>
+    <button class="login-btn btn-ne" onclick="_showNELogin()">🎵 网易云扫码登录</button>
+    <button class="btn-skip" onclick="_skipLogin()">跳过，直接使用</button>
+  </div>
+  <div id="neLoginStep">
+    <div id="neQRwrap"><canvas id="neQRcanvas"></canvas></div>
+    <div id="neQRstatus">请用网易云音乐App扫码</div>
+    <button class="login-btn btn-ne" onclick="_refreshNELogin()" style="width:auto;padding:8px 20px;margin:0 auto 8px">🔄 刷新</button>
+    <button class="btn-skip" onclick="_backToLogin()" style="margin:0 auto">返回</button>
+  </div>
+</div></div>
+<div id="cosmicClock" onclick="toggleTzList(event)"><div class="clock-time" id="clockTime">00:00:00</div><div class="clock-date" id="clockDate">----</div><div class="clock-zone"><span class="clock-dot"></span><span id="clockZone">UTC+8</span></div></div><div id="tzList"></div><div id="dailyQuote"><div class="dq-inner"><div class="dq-text"></div><div class="dq-meta"></div></div></div><iframe id="readerFrame" src=""></iframe><div id="aiChat"><div id="aiDragBar" onmousedown="startDragAi(event)"><span>✨ 歌者</span><button onclick="toggleAiChat()">✕</button></div><div id="aiMessages"><div class="ai-msg assistant"><div class="bubble">🌌 我是歌者，来自猎户座旋臂的星际旅人。聊聊宇宙、音乐和书籍吧。</div></div></div><div id="aiInputWrap"><input type="text" id="aiInput" placeholder="与歌者对话..." onkeydown="if(event.key==='Enter')sendAiMsg()"><button onclick="sendAiMsg()">发送</button></div></div><audio id="audioPlayer" preload="auto"></audio>
+<div class="toast" id="toast"></div>
+<div id="userMenu"><div class="um-item" onclick="logoutNE()">🚪 退出网易云</div></div>
+<!-- Toast & login functions always available -->
+<script>
+function toast(msg){document.getElementById('toast').textContent=msg;document.getElementById('toast').className='toast show';setTimeout(function(){document.getElementById('toast').className='toast'},2500)}
+// Login UI
+window._toggleLogin=function(){document.getElementById('loginOverlay').classList.toggle('show');document.getElementById('loginMain').style.display='';document.getElementById('neLoginStep').style.display='none'}
+window._skipLogin=function(){document.getElementById('loginOverlay').classList.remove('show');toast('已跳过')}
+window._qqLogin=async function(){try{location.href=(await(await fetch('/api/login/qq')).json()).url}catch(e){toast('QQ登录暂不可用')}}
+window._showNELogin=function(){document.getElementById('loginMain').style.display='none';document.getElementById('neLoginStep').style.display='block';window._startNELogin()}
+window._backToLogin=function(){document.getElementById('loginMain').style.display='';document.getElementById('neLoginStep').style.display='none'}
+var _neQRtimer=null;
+window._startNELogin=async function(){
+  if(_neQRtimer)clearInterval(_neQRtimer);
+  try{
+    var r=await fetch('/api/login/netease/qr/key'),d=await r.json(),key=d.data&&d.data.unikey;
+    if(!key){toast('获取二维码失败');return}
+    var url='https://music.163.com/login?codekey='+key;
+    var wrap=document.getElementById('neQRwrap');
+    wrap.innerHTML='<span style=\"color:#889;font-size:.7rem\">加载中...</span>';
+    try{
+      var qrRes=await fetch('/api/qrcode?url='+encodeURIComponent(url)),qrData=await qrRes.json();
+      if(qrData.dataUrl){var img=document.createElement('img');img.src=qrData.dataUrl;img.style.width='170px';img.style.height='170px';wrap.innerHTML='';wrap.appendChild(img)}
+      else{wrap.innerHTML='<a href=\"'+url+'\" target=\"_blank\" style=\"color:#00d4ff;font-size:.7rem\">点此打开扫码页</a>'}
+    }catch(e){wrap.innerHTML='<a href=\"'+url+'\" target=\"_blank\" style=\"color:#00d4ff;font-size:.7rem\">点此打开扫码页</a>'}
+    document.getElementById('neQRstatus').textContent='请用网易云音乐App扫码';
+    var cnt=0;
+    _neQRtimer=setInterval(async function(){
+      cnt++;
+      var cr=await fetch('/api/login/netease/qr/check?key='+key),cd=await cr.json();
+      if(cd.code===800)document.getElementById('neQRstatus').textContent='已过期，请刷新';
+      else if(cd.code===801)document.getElementById('neQRstatus').textContent='请在手机上确认';
+      else if(cd.code===802)document.getElementById('neQRstatus').textContent='授权中...';
+      else if(cd.code===803){clearInterval(_neQRtimer);document.getElementById('neQRstatus').textContent='登录成功！';setTimeout(function(){document.getElementById('loginOverlay').classList.remove('show');if(window._checkLogin)window._checkLogin()},600)}
+      if(cnt>90){clearInterval(_neQRtimer);document.getElementById('neQRstatus').textContent='超时，请刷新'}
+    },2000);
+  }catch(e){toast('二维码失败:'+e.message)}
+};
+window._refreshNELogin=function(){window._startNELogin()};
+function toggleReader(){var f=document.getElementById('readerFrame');if(f.classList.contains('show')){f.classList.remove('show');f.src=''}else{f.src='/reader.html';f.classList.add('show')}}
+window.addEventListener('message',function(e){if(e.data==='closeReader'){document.getElementById('readerFrame').classList.remove('show');document.getElementById('readerFrame').src=''}if(typeof e.data==='string'&&e.data.startsWith('toast:')){toast(e.data.slice(6))}});
+var _tzIdx=0,_tzList=[{city:'北京',o:8,f:'🇨🇳'},{city:'上海',o:8,f:'🇨🇳'},{city:'香港',o:8,f:'🇭🇰'},{city:'东京',o:9,f:'🇯🇵'},{city:'悉尼',o:10,f:'🇦🇺'},{city:'伦敦',o:0,f:'🇬🇧'},{city:'巴黎',o:1,f:'🇫🇷'},{city:'纽约',o:-5,f:'🇺🇸'},{city:'洛杉矶',o:-8,f:'🇺🇸'},{city:'莫斯科',o:3,f:'🇷🇺'},{city:'迪拜',o:4,f:'🇦🇪'},{city:'新德里',o:5.5,f:'🇮🇳'},{city:'首尔',o:9,f:'🇰🇷'},{city:'新加坡',o:8,f:'🇸🇬'},{city:'柏林',o:1,f:'🇩🇪'},{city:'圣保罗',o:-3,f:'🇧🇷'},{city:'开罗',o:2,f:'🇪🇬'},{city:'芝加哥',o:-6,f:'🇺🇸'},{city:'曼谷',o:7,f:'🇹🇭'}];
+function _fmtTz(o){var s=o>=0?'+':'-',a=Math.abs(o),h=Math.floor(a),m=Math.round((a-h)*60);return'UTC'+s+h+(m?':'+('0'+m).slice(-2):'')}
+function _tzTime(o){var n=new Date(),u=n.getTime()+n.getTimezoneOffset()*6e4,l=new Date(u+o*36e5);return l.getHours().toString().padStart(2,'0')+':'+l.getMinutes().toString().padStart(2,'0')}
+function _upClk(){var t=_tzList[_tzIdx],n=new Date(),u=n.getTime()+n.getTimezoneOffset()*6e4,l=new Date(u+t.o*36e5),h=l.getHours().toString().padStart(2,'0'),m=l.getMinutes().toString().padStart(2,'0'),s=l.getSeconds().toString().padStart(2,'0'),ds=['周日','周一','周二','周三','周四','周五','周六'];document.getElementById('clockTime').textContent=h+':'+m+':'+s;document.getElementById('clockDate').textContent=l.getFullYear()+'/'+('0'+(l.getMonth()+1)).slice(-2)+'/'+('0'+l.getDate()).slice(-2)+' '+ds[l.getDay()];document.getElementById('clockZone').innerHTML='<span class=clock-dot></span>'+t.f+' '+t.city+' · '+_fmtTz(t.o)}
+function _renderTzList(){var h='';for(var i=0;i<_tzList.length;i++){var t=_tzList[i],act=i===_tzIdx;h+='<div class="tz-item'+(act?' active':'')+'" onclick="selectTz('+i+',event)"><span class=tz-flag>'+t.f+'</span><span class=tz-city>'+t.city+'</span><span class=tz-time>'+_tzTime(t.o)+'</span><span class=tz-offset>'+_fmtTz(t.o)+'</span></div>'}document.getElementById('tzList').innerHTML=h}
+window.toggleTzList=function(e){e.stopPropagation();var l=document.getElementById('tzList');if(l.classList.contains('show')){l.classList.remove('show')}else{_renderTzList();l.classList.add('show')}};
+window.selectTz=function(i,e){e.stopPropagation();_tzIdx=i;_upClk();document.getElementById('tzList').classList.remove('show')};
+document.addEventListener('click',function(){document.getElementById('tzList').classList.remove('show')});
+_upClk();setInterval(function(){_upClk();var l=document.getElementById('tzList');if(l.classList.contains('show'))_renderTzList()},1000);
+window.toggleQuote=function(){var dq=document.getElementById('dailyQuote'),btn=document.getElementById('quoteBtn');if(dq.classList.contains('show')){dq.classList.remove('show');btn.classList.remove('active')}else{dq.classList.add('show');btn.classList.add('active')}};
+(function(){fetch('/quotes.json').then(function(r){return r.json()}).then(function(q){var d=new Date(),day=Math.floor((d.getFullYear()*365+d.getMonth()*30+d.getDate())%q.length),qt=q[day],el=document.querySelector('.dq-text'),em=document.querySelector('.dq-meta');if(el)el.textContent=qt.q;if(em){var y=qt.y<0?'公元前'+(-qt.y)+'年':qt.y+'年';em.innerHTML='—— <span>'+qt.a+'</span> · '+qt.n+' · '+y+' · '+qt.s}}).catch(function(){})})();
+var _aiDrag=false,_aiX=0,_aiY=0;
+window.startDragAi=function(e){_aiDrag=true;var c=document.getElementById('aiChat');_aiX=e.clientX-c.offsetLeft;_aiY=e.clientY-c.offsetTop;document.addEventListener('mousemove',_doDragAi);document.addEventListener('mouseup',_stopDragAi)};
+function _doDragAi(e){if(!_aiDrag)return;var c=document.getElementById('aiChat');c.style.left=(e.clientX-_aiX)+'px';c.style.top=(e.clientY-_aiY)+'px';c.style.right='auto'}
+function _stopDragAi(){_aiDrag=false;document.removeEventListener('mousemove',_doDragAi);document.removeEventListener('mouseup',_stopDragAi)}
+window.toggleAiChat=function(){var c=document.getElementById('aiChat');c.classList.toggle('show')};
+window.sendAiMsg=async function(){var inp=document.getElementById('aiInput'),msg=inp.value.trim();if(!msg)return;inp.value='';var msgs=document.getElementById('aiMessages');msgs.innerHTML+='<div class="ai-msg user"><div class=bubble>'+msg.replace(/</g,'&lt;')+'</div></div>';msgs.innerHTML+='<div class="ai-msg assistant"><div class=bubble>🌌 思考中...</div></div>';msgs.scrollTop=msgs.scrollHeight;try{var r=await fetch('/api/ai/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})}),d=await r.json();var bubbles=msgs.querySelectorAll('.ai-msg.assistant .bubble');bubbles[bubbles.length-1].textContent=d.reply;msgs.scrollTop=msgs.scrollHeight}catch(e){var all2=msgs.querySelectorAll('.ai-msg.assistant .bubble');all2[all2.length-1].textContent='星辰信号中断...'}};
+
+</script>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/"}}
+</script>
+<!-- QR code generated via API -->
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// === STARFIELD BACKGROUND ===
+const bgR=new THREE.WebGLRenderer({canvas:document.getElementById('bg'),antialias:true,alpha:true});
+bgR.setPixelRatio(Math.min(window.devicePixelRatio,2));bgR.setSize(innerWidth,innerHeight);
+const sS=new THREE.Scene();
+const sC=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,80);
+sC.position.set(0,1.5,8);sC.lookAt(0,0,-3);
+
+// Glow sprite
+function mkGlow(inner,outer){const c=document.createElement('canvas');c.width=128;c.height=128;const x=c.getContext('2d');const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,inner);g.addColorStop(0.08,inner);g.addColorStop(0.35,outer);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
+const gTexB=mkGlow('rgba(160,210,255,1)','rgba(30,60,200,0.4)');
+const gTexW=mkGlow('rgba(255,200,140,1)','rgba(200,80,20,0.4)');
+
+// 4-layer stars
+function starLayer(n,sz,sp,cl,tex){const g=new THREE.BufferGeometry();const p=new Float32Array(n*3);const c=new Float32Array(n*3);for(let i=0;i<n;i++){const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=sp[0]+Math.random()*(sp[1]-sp[0]);p[i*3]=r*Math.sin(ph)*Math.cos(th);p[i*3+1]=r*Math.sin(ph)*Math.sin(th);p[i*3+2]=r*Math.cos(ph);const co=new THREE.Color().setHSL(cl[0]+Math.random()*cl[1],0.55,0.5+Math.random()*cl[2]);c[i*3]=co.r;c[i*3+1]=co.g;c[i*3+2]=co.b}g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));return new THREE.Points(g,new THREE.PointsMaterial({size:sz,map:tex||null,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.85}))}
+const sl1=starLayer(5000,0.13,[5,40],[0.56,0.25,0.5],gTexB);
+const sl2=starLayer(3000,0.20,[8,30],[0.59,0.18,0.42],gTexB);
+const sl3=starLayer(1000,0.30,[10,26],[0.61,0.12,0.35],gTexW);
+const sl4=starLayer(250,0.50,[5,22],[0.57,0.22,0.32],gTexB);
+sS.add(sl1,sl2,sl3,sl4);
+
+// Nebula clouds
+const ng=new THREE.Group();
+for(let i=0;i<6;i++){const g=new THREE.SphereGeometry(2+Math.random()*4,32,32);const m=new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL(0.55+Math.random()*0.3,0.45,0.08+Math.random()*0.18),transparent:true,opacity:0.14,depthWrite:false});const n=new THREE.Mesh(g,m);n.position.set((Math.random()-0.5)*22,(Math.random()-0.5)*14,(Math.random()-0.5)*12-5);ng.add(n)}
+sS.add(ng);
+
+// Milky way
+const mwG=new THREE.BufferGeometry();const mwP=new Float32Array(4000*3);const mwC=new Float32Array(4000*3);
+for(let i=0;i<4000;i++){mwP[i*3]=(Math.random()-0.5)*35;mwP[i*3+1]=(Math.random()-0.5)*2.5;mwP[i*3+2]=(Math.random()-0.5)*7-2;const c=new THREE.Color().setHSL(0.58+Math.random()*0.12,0.3,0.1+Math.random()*0.22);mwC[i*3]=c.r;mwC[i*3+1]=c.g;mwC[i*3+2]=c.b}
+mwG.setAttribute('position',new THREE.BufferAttribute(mwP,3));mwG.setAttribute('color',new THREE.BufferAttribute(mwC,3));
+const mw=new THREE.Points(mwG,new THREE.PointsMaterial({size:0.10,map:gTexB,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.6}));mw.rotation.x=0.6;mw.rotation.y=0.3;sS.add(mw);
+
+// Earth — hi-res procedural
+const earthG=new THREE.SphereGeometry(0.55,56,56);
+const ec=document.createElement('canvas');ec.width=1024;ec.height=512;const ex=ec.getContext('2d');
+const og=ex.createLinearGradient(0,0,0,512);og.addColorStop(0,'#152d5e');og.addColorStop(0.15,'#1a4078');og.addColorStop(0.3,'#1e5090');og.addColorStop(0.5,'#2366a8');og.addColorStop(0.7,'#1e5090');og.addColorStop(0.85,'#1a4078');og.addColorStop(1,'#152d5e');ex.fillStyle=og;ex.fillRect(0,0,1024,512);
+for(let i=0;i<3000;i++){const x=Math.random()*1024,y=Math.random()*512;ex.fillStyle='rgba('+(Math.random()>0.5?40:0)+','+(Math.random()>0.5?60:0)+','+(Math.random()>0.5?80:20)+',0.03)';ex.fillRect(x,y,4+Math.random()*12,3+Math.random()*6)}
+ex.fillStyle='#3d8b40';const conts=[[200,100,140,90],[480,120,160,110],[750,80,120,80],[130,240,80,100],[380,230,130,90],[650,210,100,85],[820,190,80,95],[280,300,110,85],[500,310,140,80],[720,290,90,70],[160,360,75,80],[400,370,100,75],[600,360,85,60],[850,340,65,70],[320,140,55,65],[550,160,60,55],[700,130,50,60]];conts.forEach(([cx,cy,rw,rh])=>{ex.beginPath();ex.ellipse(cx,cy,rw,rh,Math.random()*0.3,0,Math.PI*2);ex.fill()});
+ex.fillStyle='#2d7030';for(let i=0;i<200;i++){ex.beginPath();ex.arc(Math.random()*1024,Math.random()*512,8+Math.random()*25,0,Math.PI*2);ex.fill()}
+ex.strokeStyle='rgba(180,210,160,0.4)';ex.lineWidth=2;conts.forEach(([cx,cy,rw,rh])=>{ex.beginPath();ex.ellipse(cx,cy,rw+3,rh+3,0,0,Math.PI*2);ex.stroke()});
+ex.fillStyle='rgba(235,240,248,0.6)';ex.fillRect(0,0,1024,30);ex.fillRect(0,460,1024,52);
+ex.fillStyle='rgba(255,255,255,0.2)';for(let i=0;i<150;i++){ex.beginPath();ex.ellipse(Math.random()*1024,Math.random()*512,20+Math.random()*60,3+Math.random()*10,Math.random()*Math.PI,0,Math.PI*2);ex.fill()}
+const earthTex=new THREE.CanvasTexture(ec);earthTex.colorSpace=THREE.SRGBColorSpace;
+const earth=new THREE.Mesh(earthG,new THREE.MeshStandardMaterial({map:earthTex,roughness:0.55,metalness:0.03}));
+earth.add(new THREE.Mesh(new THREE.SphereGeometry(0.58,48,48),new THREE.MeshBasicMaterial({color:0x5599dd,transparent:true,opacity:0.08,side:THREE.BackSide})));
+earth.position.set(-5.5,2.5,-7);earth.userData={oa:Math.random()*Math.PI*2,or:7,os:0.07};sS.add(earth);
+
+// Distant planets
+const dpData=[];[0xcc8844,0x88aacc,0xcc6688,0xaacc88].forEach(cl=>{const g=new THREE.SphereGeometry(0.18+Math.random()*0.25,40,40);const p=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:cl,roughness:0.35,metalness:0.1}));p.position.set((Math.random()-0.5)*14,(Math.random()-0.5)*8,(Math.random()-0.5)*8-4);p.add(new THREE.Mesh(new THREE.SphereGeometry(g.parameters.radius*1.12,24,24),new THREE.MeshBasicMaterial({color:cl,transparent:true,opacity:0.06,side:THREE.BackSide})));if(Math.random()>0.4){const rg=new THREE.TorusGeometry(g.parameters.radius*1.8,0.03,8,48);const R=new THREE.Mesh(rg,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.3}));R.rotation.x=Math.PI/2.2+Math.random()*0.3;p.add(R)}dpData.push({m:p,or:4+Math.random()*5,os:0.02+Math.random()*0.05,oa:Math.random()*Math.PI*2});sS.add(p)});
+
+// Comets
+const comets=[];
+function newComet(){const hG=new THREE.SphereGeometry(0.06,8,8);const h=new THREE.Mesh(hG,new THREE.MeshBasicMaterial({color:0xaaddff,transparent:true,opacity:0.9,depthWrite:false}));const g=new THREE.BufferGeometry();const p=new Float32Array(80*3);const c=new Float32Array(80*3);for(let i=0;i<80;i++){p[i*3]=i*0.05;const cl=new THREE.Color().setHSL(0.55+Math.random()*0.12,0.6,0.25+(1-i/80)*0.75);c[i*3]=cl.r;c[i*3+1]=cl.g;c[i*3+2]=cl.b}g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));const t=new THREE.Line(g,new THREE.LineBasicMaterial({vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false}));const grp=new THREE.Group();grp.add(h);grp.add(t);grp.position.set((Math.random()-0.5)*20,(Math.random()-0.5)*12,(Math.random()-0.5)*8);grp.rotation.set(Math.random()*0.3,Math.random()*Math.PI*2,0);grp.userData={sp:0.1+Math.random()*0.2,life:0,ml:200+Math.random()*300,head:h};sS.add(grp);comets.push(grp);if(comets.length>6){const o=comets.shift();sS.remove(o);o.traverse(ch=>{if(ch.geometry)ch.geometry.dispose();if(ch.material)ch.material.dispose()})}}
+
+// Meteors
+const meteors=[];
+function newMeteor(){const g=new THREE.BufferGeometry();const p=new Float32Array(20*3);const c=new Float32Array(20*3);for(let i=0;i<20;i++){p[i*3]=i*0.04;const cl=new THREE.Color().setHSL(0.1,0.35,(1-i/20)*0.85);c[i*3]=cl.r;c[i*3+1]=cl.g;c[i*3+2]=cl.b}g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));const m=new THREE.Line(g,new THREE.LineBasicMaterial({vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false}));m.position.set((Math.random()-0.5)*16,3+Math.random()*8,(Math.random()-0.5)*6);m.rotation.z=Math.PI*0.65+Math.random()*0.25;m.userData={sp:0.2+Math.random()*0.4,life:0,ml:35+Math.random()*70};sS.add(m);meteors.push(m);if(meteors.length>12){const o=meteors.shift();sS.remove(o);o.geometry.dispose();o.material.dispose()}}
+sS.add(new THREE.AmbientLight(0x223344,0.5));
+const sunL=new THREE.DirectionalLight(0xffeedd,0.7);sunL.position.set(8,3,5);sS.add(sunL);
+
+// === CENTER PLANET WITH PARTICLES & ORBITAL RING ===
+const pc=document.getElementById('planetCanvas');
+const pR=new THREE.WebGLRenderer({canvas:pc,antialias:true,alpha:true});
+pR.setPixelRatio(Math.min(window.devicePixelRatio,2));
+const cS=new THREE.Scene();
+const cC=new THREE.PerspectiveCamera(50,1,0.1,20);
+cC.position.set(0,0.15,4.2);
+cS.add(new THREE.AmbientLight(0x334466,0.8));
+const cl1=new THREE.DirectionalLight(0xffffff,1.2);cl1.position.set(3,2,3);cS.add(cl1);
+const cl2=new THREE.DirectionalLight(0x4488ff,0.5);cl2.position.set(-2,-1,-2);cS.add(cl2);
+
+// Lunar-style planet texture — 2048x1024 ultra detail
+const ptC=document.createElement('canvas');ptC.width=2048;ptC.height=1024;const ptx=ptC.getContext('2d');
+
+// Base regolith — mix of gray tones
+const bgG=ptx.createLinearGradient(0,0,0,1024);
+bgG.addColorStop(0,'#c8c4be');bgG.addColorStop(0.08,'#c0bcb6');bgG.addColorStop(0.2,'#b8b4ae');
+bgG.addColorStop(0.35,'#b0aca6');bgG.addColorStop(0.5,'#a8a49e');bgG.addColorStop(0.65,'#b0aba5');
+bgG.addColorStop(0.8,'#b9b3ad');bgG.addColorStop(0.92,'#c2bcb6');bgG.addColorStop(1,'#c9c5bf');
+ptx.fillStyle=bgG;ptx.fillRect(0,0,2048,1024);
+
+// Fine regolith noise
+for(let i=0;i<6000;i++){
+  const x=Math.random()*2048,y=Math.random()*1024;
+  const v=140+Math.floor(Math.random()*60);
+  ptx.fillStyle='rgba('+v+','+(v-5)+','+(v-10)+','+(0.02+Math.random()*0.04)+')';
+  ptx.fillRect(x,y,2+Math.random()*5,2+Math.random()*4);
+}
+
+// Maria (dark patches) — large irregular dark areas
+for(let i=0;i<8;i++){
+  const cx=Math.random()*2048,cy=Math.random()*1024,r=80+Math.random()*250;
+  const g=ptx.createRadialGradient(cx,cy,0,cx,cy,r);
+  g.addColorStop(0,'rgba(100,95,90,0.15)');g.addColorStop(0.6,'rgba(110,105,100,0.08)');
+  g.addColorStop(1,'rgba(0,0,0,0)');ptx.fillStyle=g;
+  ptx.beginPath();ptx.arc(cx,cy,r,0,Math.PI*2);ptx.fill();
+}
+
+// === CRATERS — 3 tiers ===
+// Tier 1: Major craters — 15 craters
+for(let i=0;i<15;i++){
+  const cx=Math.random()*2048,cy=Math.random()*1024,r=20+Math.random()*60;
+  const sa=Math.random()*Math.PI*2; // shadow angle
+  // Rim highlight (lighter ring on the lit side)
+  const rimG=ptx.createRadialGradient(cx-Math.cos(sa)*r*0.15,cy-Math.sin(sa)*r*0.15,r*0.6,cx,cy,r);
+  rimG.addColorStop(0,'rgba(200,195,188,0.3)'); // inner floor
+  rimG.addColorStop(0.7,'rgba(220,215,208,0.4)'); // rim top
+  rimG.addColorStop(0.85,'rgba(180,175,168,0.5)'); // outer rim
+  rimG.addColorStop(1,'rgba(0,0,0,0)');
+  ptx.fillStyle=rimG;ptx.beginPath();ptx.arc(cx,cy,r,0,Math.PI*2);ptx.fill();
+  // Shadow inside (darker on shadow side)
+  const shG=ptx.createRadialGradient(cx+Math.cos(sa)*r*0.2,cy+Math.sin(sa)*r*0.2,r*0.1,cx,cy,r*0.9);
+  shG.addColorStop(0,'rgba(80,75,68,0.5)');shG.addColorStop(0.5,'rgba(120,115,108,0.2)');
+  shG.addColorStop(1,'rgba(0,0,0,0)');
+  ptx.fillStyle=shG;ptx.beginPath();ptx.arc(cx,cy,r*0.9,0,Math.PI*2);ptx.fill();
+}
+
+// Tier 2: Medium craters — 50 craters
+for(let i=0;i<50;i++){
+  const cx=Math.random()*2048,cy=Math.random()*1024,r=8+Math.random()*25;
+  const sa=Math.random()*Math.PI*2;
+  const g=ptx.createRadialGradient(cx-Math.cos(sa)*r*0.2,cy-Math.sin(sa)*r*0.2,r*0.3,cx,cy,r);
+  g.addColorStop(0,'rgba(190,185,178,0.3)');
+  g.addColorStop(0.5,'rgba(215,210,203,0.4)'); // rim
+  g.addColorStop(0.75,'rgba(170,165,158,0.4)');
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  ptx.fillStyle=g;ptx.beginPath();ptx.arc(cx,cy,r,0,Math.PI*2);ptx.fill();
+  // tiny shadow
+  const sg=ptx.createRadialGradient(cx+Math.cos(sa)*r*0.25,cy+Math.sin(sa)*r*0.25,0,cx,cy,r*0.85);
+  sg.addColorStop(0,'rgba(80,75,68,0.35)');sg.addColorStop(1,'rgba(0,0,0,0)');
+  ptx.fillStyle=sg;ptx.beginPath();ptx.arc(cx,cy,r*0.85,0,Math.PI*2);ptx.fill();
+}
+
+// Tier 3: Small craters — 120 craters
+for(let i=0;i<120;i++){
+  const cx=Math.random()*2048,cy=Math.random()*1024,r=2+Math.random()*10;
+  const g=ptx.createRadialGradient(cx-r*0.15,cy-r*0.15,r*0.2,cx,cy,r);
+  g.addColorStop(0,'rgba(195,190,183,0.25)');
+  g.addColorStop(0.5,'rgba(210,205,198,0.3)');
+  g.addColorStop(1,'rgba(160,155,148,0.3)');
+  ptx.fillStyle=g;ptx.beginPath();ptx.arc(cx,cy,r,0,Math.PI*2);ptx.fill();
+}
+
+// Ray systems from large craters
+for(let i=0;i<5;i++){
+  const cx=Math.random()*2048,cy=Math.random()*1024;
+  ptx.strokeStyle='rgba(210,205,198,0.08)';ptx.lineWidth=1+Math.random()*2;
+  for(let j=0;j<8;j++){
+    const a=Math.random()*Math.PI*2,len=40+Math.random()*150;
+    ptx.beginPath();ptx.moveTo(cx,cy);
+    let px=cx,py=cy;
+    for(let k=0;k<6;k++){px+=Math.cos(a)*len/6+(Math.random()-0.5)*15;py+=Math.sin(a)*len/6+(Math.random()-0.5)*15;ptx.lineTo(px,py)}
+    ptx.stroke();
+  }
+}
+
+// Crater chains
+for(let i=0;i<5;i++){
+  let x=Math.random()*2048,y=Math.random()*1024;
+  const a=Math.random()*Math.PI*2,len=80+Math.random()*200;
+  for(let j=0;j<12;j++){
+    const r=3+Math.random()*8;
+    const g=ptx.createRadialGradient(x-r*0.2,y-r*0.2,0,x,y,r);
+    g.addColorStop(0,'rgba(190,185,178,0.2)');g.addColorStop(0.6,'rgba(205,200,193,0.25)');
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ptx.fillStyle=g;ptx.beginPath();ptx.arc(x,y,r,0,Math.PI*2);ptx.fill();
+    x+=Math.cos(a)*len/12+(Math.random()-0.5)*10;y+=Math.sin(a)*len/12+(Math.random()-0.5)*10;
+  }
+}
+
+// Fractures / rilles
+ptx.strokeStyle='rgba(140,135,128,0.1)';ptx.lineWidth=1;
+for(let i=0;i<20;i++){
+  ptx.beginPath();let x=Math.random()*2048,y=Math.random()*1024;ptx.moveTo(x,y);
+  for(let j=0;j<12;j++){x+=(Math.random()-0.5)*60;y+=(Math.random()-0.5)*30;ptx.lineTo(x,y)}ptx.stroke();
+}
+
+// Subtle polar darkening
+const plG=ptx.createLinearGradient(0,0,0,40);plG.addColorStop(0,'rgba(120,115,108,0.2)');plG.addColorStop(1,'rgba(0,0,0,0)');ptx.fillStyle=plG;ptx.fillRect(0,0,2048,40);
+const plG2=ptx.createLinearGradient(0,1024,0,984);plG2.addColorStop(0,'rgba(120,115,108,0.2)');plG2.addColorStop(1,'rgba(0,0,0,0)');ptx.fillStyle=plG2;ptx.fillRect(0,984,2048,40);
+
+const planetTex=new THREE.CanvasTexture(ptC);planetTex.colorSpace=THREE.SRGBColorSpace;planetTex.anisotropy=16;
+
+// Generate bump/height map — same resolution, grayscale for depth
+const bumpC=document.createElement('canvas');bumpC.width=2048;bumpC.height=1024;const btx=bumpC.getContext('2d');
+// Light base (high ground)
+btx.fillStyle='#c0c0c0';btx.fillRect(0,0,2048,1024);
+// Fine noise for surface roughness
+for(let i=0;i<8000;i++){const v=170+Math.floor(Math.random()*40);btx.fillStyle='rgb('+v+','+v+','+v+')';btx.fillRect(Math.random()*2048,Math.random()*1024,3+Math.random()*6,3+Math.random()*4)}
+// Dark patches (maria) — slightly lower
+for(let i=0;i<8;i++){const cx=Math.random()*2048,cy=Math.random()*1024,r=80+Math.random()*250;const g=btx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba(140,140,140,1)');g.addColorStop(0.6,'rgba(170,170,170,1)');g.addColorStop(1,'rgba(192,192,192,1)');btx.fillStyle=g;btx.beginPath();btx.arc(cx,cy,r,0,Math.PI*2);btx.fill()}
+// Huge craters bump — 15 craters
+for(let i=0;i<15;i++){
+  const cx=Math.random()*2048,cy=Math.random()*1024,r=20+Math.random()*60;
+  // Crater bowl — dark center = deep
+  const bg=btx.createRadialGradient(cx,cy,r*0.1,cx,cy,r*0.95);
+  bg.addColorStop(0,'rgba(60,60,60,1)');     // deepest point
+  bg.addColorStop(0.3,'rgba(100,100,100,1)'); // slope
+  bg.addColorStop(0.6,'rgba(150,150,150,1)'); // inner wall
+  bg.addColorStop(0.8,'rgba(230,230,230,1)'); // rim — raised!
+  bg.addColorStop(1,'rgba(192,192,192,1)');   // surrounding terrain
+  btx.fillStyle=bg;btx.beginPath();btx.arc(cx,cy,r*0.95,0,Math.PI*2);btx.fill();
+}
+// Medium craters bump
+for(let i=0;i<50;i++){
+  const cx=Math.random()*2048,cy=Math.random()*1024,r=8+Math.random()*25;
+  const bg=btx.createRadialGradient(cx,cy,0,cx,cy,r*0.95);
+  bg.addColorStop(0,'rgba(70,70,70,1)');bg.addColorStop(0.4,'rgba(130,130,130,1)');
+  bg.addColorStop(0.75,'rgba(220,220,220,1)');bg.addColorStop(1,'rgba(192,192,192,1)');
+  btx.fillStyle=bg;btx.beginPath();btx.arc(cx,cy,r*0.95,0,Math.PI*2);btx.fill();
+}
+// Small craters bump
+for(let i=0;i<120;i++){const cx=Math.random()*2048,cy=Math.random()*1024,r=2+Math.random()*10;const bg=btx.createRadialGradient(cx,cy,0,cx,cy,r);bg.addColorStop(0,'rgba(80,80,80,1)');bg.addColorStop(0.5,'rgba(210,210,210,1)');bg.addColorStop(1,'rgba(192,192,192,1)');btx.fillStyle=bg;btx.beginPath();btx.arc(cx,cy,r,0,Math.PI*2);btx.fill()}
+
+const bumpTex=new THREE.CanvasTexture(bumpC);bumpTex.colorSpace=THREE.LinearSRGBColorSpace;
+
+// Planet with bump mapping
+const cpG2=new THREE.SphereGeometry(0.84,128,128);
+const cpM2=new THREE.MeshStandardMaterial({map:planetTex,bumpMap:bumpTex,bumpScale:0.06,roughness:0.65,metalness:0.02});
+const cp2=new THREE.Mesh(cpG2,cpM2);cS.add(cp2);
+// Atmosphere layers
+cS.add(new THREE.Mesh(new THREE.SphereGeometry(0.86,48,48),new THREE.MeshBasicMaterial({color:0x8899cc,transparent:true,opacity:0.06,side:THREE.BackSide})));
+cS.add(new THREE.Mesh(new THREE.SphereGeometry(0.92,40,40),new THREE.MeshBasicMaterial({color:0x5566aa,transparent:true,opacity:0.04,side:THREE.BackSide})));
+
+// Atmosphere particles
+const apG=new THREE.BufferGeometry();const apP=new Float32Array(600*3);const apC=new Float32Array(600*3);
+for(let i=0;i<600;i++){const ph=Math.acos(2*Math.random()-1),th=Math.random()*Math.PI*2,r=0.88+Math.random()*0.25;apP[i*3]=r*Math.sin(ph)*Math.cos(th);apP[i*3+1]=r*Math.sin(ph)*Math.sin(th);apP[i*3+2]=r*Math.cos(ph);const co=new THREE.Color().setHSL(0.56+Math.random()*0.1,0.4,0.5+Math.random()*0.5);apC[i*3]=co.r;apC[i*3+1]=co.g;apC[i*3+2]=co.b}
+apG.setAttribute('position',new THREE.BufferAttribute(apP,3));apG.setAttribute('color',new THREE.BufferAttribute(apC,3));
+const atmoP=new THREE.Points(apG,new THREE.PointsMaterial({size:0.015,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.7}));cS.add(atmoP);
+
+// Orbital progress ring
+const rR=1.35,rS=240;const rpG=new THREE.BufferGeometry();const rpP=new Float32Array(rS*3);const rpC=new Float32Array(rS*3);
+for(let i=0;i<rS;i++){const a=(i/rS)*Math.PI*2-Math.PI/2;rpP[i*3]=Math.cos(a)*rR;rpP[i*3+1]=Math.sin(a)*rR;rpC[i*3]=0.1;rpC[i*3+1]=0.2;rpC[i*3+2]=0.3}
+rpG.setAttribute('position',new THREE.BufferAttribute(rpP,3));rpG.setAttribute('color',new THREE.BufferAttribute(rpC,3));
+const ringM=new THREE.Points(rpG,new THREE.PointsMaterial({size:0.045,vertexColors:true,blending:THREE.AdditiveBlending,depthWrite:false}));ringM.rotation.x=Math.PI/2.35;cS.add(ringM);
+// Decorative ring
+cS.add(new THREE.Mesh(new THREE.TorusGeometry(1.55,0.012,8,160),new THREE.MeshBasicMaterial({color:0x3366aa,transparent:true,opacity:0.3})).rotateX(Math.PI/2.5));
+
+// Debris
+const dbG=new THREE.BufferGeometry();const dbP=new Float32Array(80*3);
+for(let i=0;i<80;i++){const a=Math.random()*Math.PI*2,r=1.0+Math.random()*0.6;dbP[i*3]=Math.cos(a)*r;dbP[i*3+1]=Math.sin(a)*r;dbP[i*3+2]=(Math.random()-0.5)*0.3}
+dbG.setAttribute('position',new THREE.BufferAttribute(dbP,3));const dbM=new THREE.Points(dbG,new THREE.PointsMaterial({size:0.018,color:0x8899bb,blending:THREE.AdditiveBlending,depthWrite:false}));dbM.rotation.x=Math.PI/2.35;cS.add(dbM);
+
+// Moon
+const moon=new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),new THREE.MeshStandardMaterial({color:0xddddcc,roughness:0.6}));
+moon.position.set(1.6,0.15,0);cS.add(moon);
+
+// Ring progress update
+function updateRingProgress(prog){const cl=rpG.attributes.color.array;const act=Math.floor(prog*rS);for(let i=0;i<rS;i++){if(i<act){const c=new THREE.Color().setHSL(0.55+(i/rS)*0.12,0.9,0.45+Math.sin(i*0.15+performance.now()*0.002)*0.2);cl[i*3]=c.r;cl[i*3+1]=c.g;cl[i*3+2]=c.b}else if(i===act&&prog>0){cl[i*3]=1;cl[i*3+1]=1;cl[i*3+2]=1}else{cl[i*3]=0.06;cl[i*3+1]=0.1;cl[i*3+2]=0.16}}rpG.attributes.color.needsUpdate=true}
+
+// OrbitControls — planet zone
+const orbitCtrl=new OrbitControls(cC,pR.domElement);
+orbitCtrl.enableDamping=true;orbitCtrl.dampingFactor=0.08;
+orbitCtrl.minDistance=2.2;orbitCtrl.maxDistance=8;
+orbitCtrl.target.set(0,0,0);orbitCtrl.enablePan=false;
+
+
+orbitCtrl.enabled=false;
+
+// === STAR TRAIL CANVAS ===
+const tc=document.getElementById('starTrailCanvas');const tctx=tc.getContext('2d');
+function drawTrail(prog){
+  const w=tc.parentElement.clientWidth,h=22;
+  if(tc.width!==w||tc.height!==h){tc.width=w;tc.height=h}
+  tctx.clearRect(0,0,w,h);
+  const cy=h/2;
+  tctx.beginPath();tctx.moveTo(18,cy);tctx.lineTo(w-18,cy);
+  tctx.strokeStyle='rgba(255,255,255,0.06)';tctx.stroke();
+  const lx=18+prog*(w-36);
+  const g=tctx.createRadialGradient(lx,cy,0,lx,cy,5);
+  g.addColorStop(0,'rgba(0,220,255,0.9)');g.addColorStop(0.5,'rgba(120,40,255,0.4)');g.addColorStop(1,'rgba(0,0,0,0)');
+  tctx.fillStyle=g;tctx.beginPath();tctx.arc(lx,cy,5,0,Math.PI*2);tctx.fill();
+}
+document.getElementById('starTrailWrap').addEventListener('click',function(e){
+  if(!window._audio||!window._audio.duration)return;
+  const r=this.getBoundingClientRect(),x=e.clientX-r.left-18,bw=this.clientWidth-36;
+  if(x>=0&&x<=bw)window._audio.currentTime=(x/bw)*window._audio.duration;
+});
+
+// === ANIMATION ===
+let time=0;
+// Theme switching
+const themes=[{h:0.58,c:0x335577},{h:0.78,c:0x442244},{h:0.38,c:0x224433},{h:0.08,c:0x442211}];let ctt=0;
+window.switchTheme=function(i){ctt=i;cpM2.color.set(themes[i].c);[sl1,sl2,sl3,sl4].forEach((l,li)=>{const cl=l.geometry.attributes.color.array;const b=0.5+li*0.25;for(let j=0;j<cl.length/3;j++){const c=new THREE.Color().setHSL(themes[i].h+(Math.random()-0.5)*0.1,b*0.6,b*0.45+Math.random()*0.55);cl[j*3]=c.r;cl[j*3+1]=c.g;cl[j*3+2]=c.b}l.geometry.attributes.color.needsUpdate=true});ng.children.forEach(n=>{n.material.color.setHSL(themes[i].h+(Math.random()-0.5)*0.08,0.35,0.13)});document.querySelectorAll('.theme-dot').forEach((d,j)=>d.classList.toggle('active',j===i));toast('背景切换')};
+
+let timeVal=0,cmt=0,mt=0;
+function animate(){requestAnimationFrame(animate);timeVal+=0.01;cmt++;mt++;
+	sl1.rotation.y+=0.00004;sl2.rotation.y+=0.00008;sl3.rotation.y+=0.00015;sl4.rotation.y+=0.00006;
+    earth.userData.oa+=earth.userData.os*0.005;const a=earth.userData.oa;earth.position.x=Math.cos(a)*earth.userData.or;earth.position.z=Math.sin(a)*earth.userData.or-3;earth.rotation.y+=0.002;
+  dpData.forEach(d=>{d.oa+=d.os*0.005;d.m.position.x=Math.cos(d.oa)*d.or;d.m.position.z=Math.sin(d.oa)*d.or-2});
+  if(cmt>100+Math.random()*250){cmt=0;newComet()}comets.forEach(c=>{c.userData.life++;c.position.x+=c.userData.sp;c.userData.head.material.opacity=0.9-(c.userData.life/c.userData.ml)*0.8;if(c.userData.life>c.userData.ml){sS.remove(c);c.traverse(ch=>{if(ch.geometry)ch.geometry.dispose();if(ch.material)ch.material.dispose()});comets.splice(comets.indexOf(c),1)}});
+  if(mt>20+Math.random()*50){mt=0;newMeteor()}meteors.forEach(m=>{m.userData.life++;m.position.x+=m.userData.sp;m.position.y-=m.userData.sp*0.5;if(m.userData.life>m.userData.ml){sS.remove(m);m.geometry.dispose();m.material.dispose();meteors.splice(meteors.indexOf(m),1)}});
+  cp2.rotation.y+=0.0025;atmoP.rotation.y+=0.0008;atmoP.rotation.x+=0.0003;dbM.rotation.z+=0.0015;
+  moon.position.x=Math.cos(timeVal*0.25)*1.6;moon.position.z=Math.sin(timeVal*0.25)*0.5;
+	mw.rotation.y+=0.00003;
+  orbitCtrl.update();bgR.render(sS,sC);
+  const pd=document.getElementById('planetZone'),pw=pd.clientWidth,ph=pd.clientHeight;
+  if(pw>0&&ph>0){pR.setSize(pw,ph);cC.aspect=pw/ph;cC.updateProjectionMatrix()}
+  pR.render(cS,cC);
+  if(window._audio&&window._audio.duration)updateRingProgress(window._audio.currentTime/window._audio.duration);else updateRingProgress(0);
+  drawTrail(window._audio&&window._audio.duration?window._audio.currentTime/window._audio.duration:0);
+}animate();
+window.addEventListener('resize',()=>{bgR.setSize(innerWidth,innerHeight);sC.aspect=innerWidth/innerHeight;sC.updateProjectionMatrix()});
+
+// === MUSIC PLAYER ===
+let playlist=[],cIdx=-1,isPlaying=false,mode='shuffle';
+let shuffleOrder=[],shufflePos=-1;
+window._audio=document.getElementById('audioPlayer');const audio=window._audio;audio.volume=0.7;
+audio.onended=()=>nextSong();
+audio.ontimeupdate=()=>{if(!audio.duration)return;drawTrail(audio.currentTime/audio.duration);document.getElementById('trailCur').textContent=fTime(audio.currentTime*1000);document.getElementById('trailDur').textContent=fTime(audio.duration*1000);syncLyrics(audio.currentTime)};
+audio.onerror=()=>toast('播放失败');
+audio.onplay=()=>{isPlaying=true;updatePb()};
+audio.onpause=()=>{isPlaying=false;updatePb()};
+
+async function api(ep,pr={}){const q=Object.entries(pr).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');return(await fetch('/api/music/'+ep+(q?'?'+q:''))).json()}
+window.doSearch=async function(){
+  const kw=document.getElementById('searchInput').value.trim();if(!kw)return;
+  const d=await api('cloudsearch',{keywords:kw,limit:20});const songs=d.result?.songs||[];
+  const box=document.getElementById('searchResults');
+  if(!songs.length){box.innerHTML='<div style="padding:16px;color:#556">未找到</div>';box.style.display='block';return}
+  box.innerHTML=songs.map((s,i)=>'<div class="song-item" onclick="addSong('+s.id+',\''+(s.name||'').replace(/'/g,'\\\'')+'\',\''+(s.ar?.[0]?.name||'').replace(/'/g,'\\\'')+'\','+(s.dt||0)+')"><span class="idx">'+(i+1)+'</span><div class="info"><div class="name">'+s.name+'</div><div class="artist">'+(s.ar?.map(a=>a.name).join('/')||'')+'</div></div></div>').join('');
+  box.style.display='block';
+  setTimeout(()=>document.addEventListener('click',function h(e){if(!box.contains(e.target)&&e.target!==document.getElementById('searchInput')){box.style.display='none';document.removeEventListener('click',h)}}),100);
+};
+window.addSong=function(id,name,artist,dt){playlist.push({id,name,artist,dt});shufflePos=-1;shuffleOrder=[];renderPl();if(cIdx===-1){cIdx=0;playSong(0)}document.getElementById('searchResults').style.display='none';document.getElementById('searchInput').value='';toast('已添加: '+name)};
+window.removeSong=function(i,e){e.stopPropagation();if(i===cIdx){audio.pause();audio.src='';cIdx=-1;shufflePos=-1;shuffleOrder=[];document.getElementById('trackTitle').textContent='等待播放';document.getElementById('trackArtist').textContent='—';document.getElementById('albumCard').innerHTML='<span style="opacity:.25">🌌</span>'}else{if(i<cIdx)cIdx--;shufflePos=-1;shuffleOrder=[]}playlist.splice(i,1);renderPl();toast('已移除')};
+function renderPl(){const el=document.getElementById('playlist');document.getElementById('plCount').textContent=playlist.length;if(!playlist.length){el.innerHTML='<div style="color:#556;text-align:center;padding:30px 0;font-size:.78rem">搜索歌曲添加</div>';return}el.innerHTML=playlist.map((s,i)=>'<div class="song-item'+(i===cIdx?' active':'')+'" onclick="playSong('+i+')"><span class="idx">'+(i+1)+'</span><div class="info"><div class="name">'+s.name+'</div><div class="artist">'+s.artist+'</div></div><button class="del-btn" onclick="removeSong('+i+',event)">✕</button></div>').join('')}
+window.playSong=async function(i){if(i<0||i>=playlist.length)return;cIdx=i;if(mode==='shuffle'&&shuffleOrder.length>0){shufflePos=shuffleOrder.indexOf(i);if(shufflePos<0){shufflePos=-1;shuffleOrder=[]}}renderPl();const s=playlist[i];document.getElementById('trackTitle').textContent=s.name;document.getElementById('trackArtist').textContent=s.artist;document.getElementById('albumCard').innerHTML='<span style="opacity:.3">⏳</span>';audio.pause();audio.src='/api/stream/'+s.id;audio.load();try{await audio.play()}catch(e){toast('点页面再试')}api('song_detail',{ids:s.id}).then(d=>{const c=d.songs?.[0]?.al?.picUrl;if(c)document.getElementById('albumCard').innerHTML='<img src="'+c+'">';else document.getElementById('albumCard').innerHTML='<span style="opacity:.25">🌌</span>'}).catch(()=>{});fetchLyrics(s.id)};
+window.togglePlay=function(){if(!playlist.length){toast('先搜索歌曲');return}if(!audio.src){playSong(0);return}if(isPlaying)audio.pause();else audio.play().catch(()=>{})};
+function updatePb(){document.getElementById('playBtn').textContent=isPlaying?'⏸':'▶'}
+window.nextSong=function(){
+  if(radioMode){playRadio((radioIdx+1)%radioStations.length);return}
+  if(!playlist.length)return;
+  if(mode==='shuffle'){
+    // Fisher-Yates: generate shuffled order, play through without repeats
+    if(shufflePos<0||shufflePos>=shuffleOrder.length-1){
+      // Reshuffle: create random permutation of [0..n-1], ensure last song of old batch != first of new
+      const lastSong = shuffleOrder.length>0 ? shuffleOrder[shuffleOrder.length-1] : -1;
+      shuffleOrder = [...Array(playlist.length).keys()];
+      for(let i=shuffleOrder.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [shuffleOrder[i],shuffleOrder[j]]=[shuffleOrder[j],shuffleOrder[i]];
+      }
+      // If last played song from previous batch is first in new batch, swap it to position 1
+      if(shuffleOrder.length>1 && shuffleOrder[0]===lastSong){
+        [shuffleOrder[0],shuffleOrder[1]]=[shuffleOrder[1],shuffleOrder[0]];
+      }
+      shufflePos=0;
+    } else {
+      shufflePos++;
+    }
+    cIdx=shuffleOrder[shufflePos];
+  } else if(mode==='repeat'){
+    /* keep cIdx, replay same song */
+  } else {
+    // loop — sequential
+    cIdx=(cIdx+1)%playlist.length;
+  }
+  playSong(cIdx);
+};
+window.prevSong=function(){if(radioMode){playRadio((radioIdx-1+radioStations.length)%radioStations.length);return}if(!playlist.length)return;cIdx=(cIdx-1+playlist.length)%playlist.length;playSong(cIdx)};
+window.toggleMode=function(){const ms=['loop','shuffle','repeat'];const i=ms.indexOf(mode);mode=ms[(i+1)%3];document.getElementById('modeBtn').textContent={loop:'🔁',shuffle:'🔀',repeat:'🔂'}[mode];toast('模式: '+{loop:'顺序循环',shuffle:'随机播放',repeat:'单曲循环'}[mode])};
+window.setVol=function(){audio.volume=document.getElementById('volumeSlider').value/100};
+function fTime(ms){if(!ms)return'0:00';const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0')}
+
+// === COSMIC RADIO ===
+let radioMode=false,radioStations=[],radioIdx=-1;
+
+window.toggleRadio=function(){
+  radioMode=!radioMode;
+  const pl=document.getElementById('playlist'),rp=document.getElementById('radioPanel');
+  const rb=document.getElementById('radioBtn');
+  if(radioMode){
+    pl.style.display='none';rp.classList.add('active');
+    rb.style.borderColor='#ff6600';rb.style.color='#ff6600';
+    document.getElementById('trackTitle').textContent='宇宙电台';
+    document.getElementById('trackArtist').textContent='📻 选择频道';
+    loadRadioStations();
+  } else {
+    pl.style.display='';rp.classList.remove('active');
+    rb.style.borderColor='';rb.style.color='';
+    stopTranslation();
+    if(playlist.length>0){document.getElementById('trackTitle').textContent=playlist[cIdx]?.name||'等待播放';document.getElementById('trackArtist').textContent=playlist[cIdx]?.artist||'—'}
+  }
+};
+
+async function loadRadioStations(){
+  const list=document.getElementById('radioList');
+  list.innerHTML='<div style="color:#556;text-align:center;padding:30px 0;font-size:.78rem">🌌 扫描宇宙电波中...</div>';
+  try{
+    // Load stable curated stations first
+    const r=await fetch('/api/radio/stable');
+    const d=await r.json();
+    radioStations=d.stations||[];
+    document.getElementById('radioCount').textContent=radioStations.length;
+    renderRadioList();
+  }catch(e){list.innerHTML='<div style="color:#f55;text-align:center;padding:30px 0;font-size:.78rem">电台加载失败</div>'}
+}
+
+// Optional: load discovery stations on demand
+window.loadDiscoveryStations=async function(){
+  const list=document.getElementById('radioList');
+  list.innerHTML='<div style="color:#556;text-align:center;padding:30px 0;font-size:.78rem">🌌 探索更多电台...</div>';
+  try{
+    const r=await fetch('/api/radio/stations');
+    const d=await r.json();
+    radioStations=d.stations||[];
+    document.getElementById('radioCount').textContent=radioStations.length;
+    renderRadioList();
+    document.getElementById('radioPanel').querySelector('.panel-header span:last-child').textContent='探索模式';
+  }catch(e){toast('探索加载失败')}
+}
+
+function renderRadioList(){
+  const list=document.getElementById('radioList');
+  // Group by category
+  const cats={};
+  for(const s of radioStations){
+    if(!cats[s.category])cats[s.category]=[];
+    cats[s.category].push(s);
+  }
+  let h='';
+  for(const [cat,stations] of Object.entries(cats)){
+    h+='<div class="radio-cat">'+cat+' ('+stations.length+')</div>';
+    for(let i=0;i<stations.length;i++){
+      const s=stations[i];
+      const idx=radioStations.indexOf(s);
+      const act=idx===radioIdx?' active':'';
+      const bits=s.bitrate?s.bitrate+'kbps':'';
+      const codec=s.codec||'';
+      h+='<div class="radio-item'+act+'" onclick="playRadio('+idx+')"><div class="r-dot"></div><div class="r-name">'+s.name.replace(/</g,'<').replace(/>/g,'>')+'</div><div class="r-info">'+(bits+' '+codec).trim()+'</div></div>';
+    }
+  }
+  list.innerHTML=h;
+}
+
+window.playRadio=function(i){
+  if(i<0||i>=radioStations.length)return;
+  radioIdx=i;
+  const s=radioStations[i];
+  document.getElementById('trackTitle').textContent=s.name;
+  document.getElementById('trackArtist').textContent=s.category+' · '+(s.country||'未知')+' · '+(s.codec||'')+' '+(s.bitrate?s.bitrate+'kbps':'');
+  audio.pause();
+  audio.src=s.proxyUrl||('/api/radio/proxy?url='+encodeURIComponent(s.url));
+  audio.load();
+  audio.play().catch(()=>toast('该电台无法连接'));
+  renderRadioList();
+  stopTranslation();
+};
+
+// === REAL-TIME TRANSLATION (Local Whisper + MyMemory) ===
+let transSource = null, transTimer = null;
+
+window.startTranslation = function(url, stationName) {
+  stopTranslation();
+  const sub = document.getElementById('subtitlePanel');
+  const ind = document.getElementById('subIndicator');
+  sub.innerHTML = '';
+  ind.classList.add('on');
+  const evtSource = new EventSource('/api/translate/stream?url=' + encodeURIComponent(url) + '&station=' + encodeURIComponent(stationName));
+  transSource = evtSource;
+
+  evtSource.onmessage = function(e) {
+    try {
+      const d = JSON.parse(e.data);
+      if (d.type === 'status') {
+        toast(d.text);
+      } else if (d.type === 'error') {
+        toast(d.text);
+      } else if (d.type === 'segment' || d.type === 'raw') {
+        if (d.text || d.translation) {
+          addSubtitle(d.text, d.translation);
+        }
+      }
+    } catch {}
+  };
+
+  evtSource.onerror = function() {
+    // Reconnect after 5s
+    transTimer = setTimeout(() => {
+      if (radioMode && radioStations[radioIdx]) {
+        startTranslation(radioStations[radioIdx].url, radioStations[radioIdx].name);
+      }
+    }, 5000);
+  };
+};
+
+window.stopTranslation = function() {
+  if (transSource) { transSource.close(); transSource = null; }
+  if (transTimer) { clearTimeout(transTimer); transTimer = null; }
+  document.getElementById('subIndicator').classList.remove('on');
+  document.getElementById('subtitlePanel').innerHTML = '';
+};
+
+function addSubtitle(orig, trans) {
+  const panel = document.getElementById('subtitlePanel');
+  const div = document.createElement('div');
+  div.className = 'sub-line';
+  let h = '';
+  if (orig) h += '<div class="sub-orig">' + orig.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+  if (trans) h += '<div class="sub-trans">' + trans.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+  div.innerHTML = h;
+  panel.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('show'));
+  setTimeout(() => {
+    if (div.parentNode) { div.style.opacity = '0'; div.style.maxHeight = '0'; div.style.transition = 'all .8s'; }
+    setTimeout(() => { if (div.parentNode) div.remove(); }, 800);
+  }, 15000);
+  panel.scrollTop = panel.scrollHeight;
+  while (panel.children.length > 12) {
+    const first = panel.firstChild;
+    first.style.opacity = '0'; first.style.maxHeight = '0';
+    setTimeout(() => { if (first.parentNode) first.remove(); }, 500);
+  }
+}
+
+// === LOGIN ===
+let neUser=null,neQRtimer=null;
+async function checkLogin(){try{const r=await fetch('/api/user');const u=await r.json();if(u&&u.nickname){neUser=u;renderUser(u)}}catch(e){}try{const r=await fetch('/api/netease/user');const u=await r.json();if(u&&u.nickname){neUser=u;renderUser(u)}}catch(e){}}window._checkLogin=checkLogin;
+function renderUser(u){const btn=document.getElementById('userBtn');btn.innerHTML=(u.avatar?'<img src="'+u.avatar+'" style="width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:5px" onerror="this.style.display=\'none\'">':'')+'<span>'+u.nickname+'</span>';btn.className='logged';btn.onclick=showUMenu}
+window.showUMenu=function(){var m=document.getElementById('userMenu');if(m.classList.contains('show')){m.classList.remove('show');return}m.classList.add('show');setTimeout(function(){document.addEventListener('click',function h(e){if(!m.contains(e.target)&&e.target!==document.getElementById('userBtn')){m.classList.remove('show');document.removeEventListener('click',h)}})},100)};
+window.logoutNE=async function(){await fetch('/api/netease/logout',{method:'POST'});neUser=null;document.getElementById('userBtn').innerHTML='🚀 登录';document.getElementById('userBtn').className='';document.getElementById('userBtn').onclick=_toggleLogin;document.getElementById('userMenu').classList.remove('show');playlist=[];cIdx=-1;renderPl();audio.pause();audio.src='';document.getElementById('trackTitle').textContent='等待播放';document.getElementById('trackArtist').textContent='—';document.getElementById('albumCard').innerHTML='<span style=\"opacity:.25\">🌌</span>';toast('已退出网易云')};
+window.toggleLogin=function(){document.getElementById('loginOverlay').classList.toggle('show');resetLogin()};
+function resetLogin(){document.getElementById('loginMain').style.display='';document.getElementById('neLoginStep').style.display='none';if(neQRtimer)clearInterval(neQRtimer)};
+window.qqLogin=async function(){try{const r=await fetch('/api/login/qq');location.href=(await r.json()).url}catch(e){toast('QQ登录暂不可用')}};
+window.skipLogin=function(){document.getElementById('loginOverlay').classList.remove('show');toast('已跳过')};
+window.showNELogin=function(){toast('正在加载二维码...');document.getElementById('loginMain').style.display='none';document.getElementById('neLoginStep').style.display='block';setTimeout(()=>startNELogin(),200)};
+window.backToLogin=function(){resetLogin()};
+async function startNELogin(){if(neQRtimer)clearInterval(neQRtimer);try{const r=await fetch('/api/login/netease/qr/key');const d=await r.json();const key=d.data?.unikey;if(!key){toast('获取二维码key失败');return}const wrap=document.getElementById('neQRwrap');const url='https://music.163.com/login?codekey='+key;toast('key获取成功，生成QR...');
+try{
+  const qrRes=await fetch('/api/qrcode?url='+encodeURIComponent(url));
+  const qrData=await qrRes.json();
+  if(!qrData.dataUrl){wrap.innerHTML='<a href=\"'+url+'\" target=\"_blank\" style=\"color:#00d4ff;font-size:.7rem\">点击打开网易云扫码页</a>';toast('QR生成失败，点链接扫码');}
+  else{const img=document.createElement('img');img.src=qrData.dataUrl;img.style.width='170px';img.style.height='170px';wrap.innerHTML='';wrap.appendChild(img);toast('二维码已生成')}
+}catch(e){wrap.innerHTML='<a href=\"'+url+'\" target=\"_blank\" style=\"color:#00d4ff;font-size:.7rem\">点击打开网易云扫码页</a>';toast('QR失败:'+e.message)}document.getElementById('neQRstatus').textContent='请用网易云音乐App扫码';let cnt=0;neQRtimer=setInterval(async()=>{cnt++;const cr=await fetch('/api/login/netease/qr/check?key='+key);const cd=await cr.json();if(cd.code===800)document.getElementById('neQRstatus').textContent='已过期，请刷新';else if(cd.code===801)document.getElementById('neQRstatus').textContent='请在手机上确认';else if(cd.code===802)document.getElementById('neQRstatus').textContent='授权中...';else if(cd.code===803){clearInterval(neQRtimer);document.getElementById('neQRstatus').textContent='登录成功！';setTimeout(()=>{document.getElementById('loginOverlay').classList.remove('show');checkLogin()},600)}if(cnt>90){clearInterval(neQRtimer);document.getElementById('neQRstatus').textContent='超时，请刷新'}},2000)}catch(e){toast('二维码加载失败')}}
+window.refreshNELogin=()=>startNELogin();
+
+// === PERSONAL FEATURES ===
+window.loadRecommend=async function(){try{const r=await fetch('/api/netease/recommend');const d=await r.json();if(d.error){toast(d.error);return}const songs=d.data?.dailySongs||[];if(!songs.length){toast('请先登录网易云');return}playlist=[];cIdx=-1;songs.forEach(s=>playlist.push({id:s.id,name:s.name,artist:s.ar?.map(a=>a.name).join('/')||'?',dt:s.dt||0}));if(playlist.length){cIdx=0;playSong(0)}renderPl();toast('每日推荐:'+playlist.length+'首')}catch(e){toast('获取失败')}};
+window.loadPlaylists=async function(){try{const r=await fetch('/api/netease/playlists');const d=await r.json();if(d.error){toast(d.error);return}const pls=d.playlist||[];if(!pls.length){toast('请先登录网易云');return}const box=document.getElementById('searchResults');box.innerHTML=pls.map(p=>'<div class="song-item" onclick="loadPLSongs('+p.id+',\''+(p.name||'歌单').replace(/'/g,'\\\'')+'\')"><span class="idx">📋</span><div class="info"><div class="name">'+p.name+'</div><div class="artist">'+(p.trackCount||0)+'首 · '+(p.creator?.nickname||'')+'</div></div></div>').join('');box.style.display='block';setTimeout(()=>document.addEventListener('click',function h(e){if(!box.contains(e.target)){box.style.display='none';document.removeEventListener('click',h)}}),100)}catch(e){toast('获取失败')}};
+window.loadPLSongs=async function(id,name){try{const r=await fetch('/api/netease/playlist/detail?id='+id);const d=await r.json();const tracks=d.playlist?.tracks||[];if(!tracks.length){toast('歌单为空');return}playlist=[];cIdx=-1;tracks.forEach(t=>playlist.push({id:t.id,name:t.name,artist:t.ar?.map(a=>a.name).join('/')||'?',dt:t.dt||0}));if(playlist.length){cIdx=0;playSong(0)}renderPl();document.getElementById('searchResults').style.display='none';toast('已加载: '+name+' ('+playlist.length+'首)')}catch(e){toast('加载失败')}};
+window.loadLiked=async function(){try{const r=await fetch('/api/netease/likelist/songs?limit=500');const d=await r.json();if(d.error){toast(d.error);return}const songs=d.songs||[];if(!songs.length){toast('没有喜欢的歌曲');return}playlist=[];cIdx=-1;songs.forEach(s=>playlist.push({id:s.id,name:s.name,artist:s.ar?.map(a=>a.name).join('/')||'?',dt:s.dt||0}));if(playlist.length){cIdx=0;playSong(0)}renderPl();toast('❤️ 我喜欢的:'+playlist.length+'/'+(d.total||'?')+'首')}catch(e){toast('获取失败')}};
+
+// === IMMERSIVE ===
+window.toggleImmersive=function(){document.body.classList.toggle('immersive');const on=document.body.classList.contains('immersive');document.getElementById('immerseBtn').textContent=on?'🖥':'🌌';orbitCtrl.enabled=on;orbitCtrl.target.set(0,0,0);if(!on){orbitCtrl.reset();cC.position.set(0,0.15,4.5);cC.lookAt(0,0,0)}setTimeout(()=>{const pd=document.getElementById('planetZone');pR.setSize(pd.clientWidth,pd.clientHeight);cC.aspect=pd.clientWidth/pd.clientHeight;cC.updateProjectionMatrix()},600)};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')window.toggleImmersive()});
+
+// === LYRICS ===
+let lyricsData=[],lyricsVisible=true;
+function parseLRC(lrc){const lines=[];const re=/\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/g;let m;while((m=re.exec(lrc))!==null){const t=parseInt(m[1])*60+parseInt(m[2])+parseInt(m[3].padEnd(3,'0'))/1000;const txt=m[4].trim();if(txt)lines.push({time:t,text:txt})}return lines.sort((a,b)=>a.time-b.time)}
+async function fetchLyrics(sid){lyricsData=[];syncLyrics._li=-1;document.getElementById('lyricsStage').innerHTML='<div class="lyric-line">⏳</div>';try{const d=await api('lyric',{id:sid});const lrc=d.lrc?.lyric||'';if(!lrc){document.getElementById('lyricsStage').innerHTML='<div class="lyric-line" style="opacity:.25">🎵 纯音乐</div>';return}lyricsData=parseLRC(lrc);renderLyrics(0)}catch(e){document.getElementById('lyricsStage').innerHTML='<div class="lyric-line" style="opacity:.25">暂无歌词</div>'}}
+function renderLyrics(ct){let ai=-1;for(let i=0;i<lyricsData.length;i++){if(lyricsData[i].time<=ct)ai=i;else break}const st=document.getElementById('lyricsStage');if(!lyricsData.length){st.innerHTML='<div class="lyric-line">🎵</div>';return}const sh=7,start=Math.max(0,ai-Math.floor(sh/2));let h='';for(let i=0;i<sh;i++){const idx=start+i;if(idx>=lyricsData.length)break;h+='<div class="lyric-line'+(idx===ai?' active':'')+'">'+lyricsData[idx].text+'</div>'}st.innerHTML=h;requestAnimationFrame(()=>{const a=st.querySelector('.active');if(a)a.scrollIntoView({block:'center',behavior:'smooth'})})}
+function syncLyrics(ct){if(!lyricsData.length)return;let ai=-1;for(let i=0;i<lyricsData.length;i++){if(lyricsData[i].time<=ct)ai=i;else break}if(ai>=0&&ai!==syncLyrics._li){syncLyrics._li=ai;renderLyrics(ct)}}syncLyrics._li=-1;
+window.toggleLyrics=function(){lyricsVisible=!lyricsVisible;document.getElementById('lyricsOverlay').style.display=lyricsVisible?'':'none';document.getElementById('lyricsToggle').style.opacity=lyricsVisible?'1':'.4'};
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.classList.remove('show'),2500)}
+
+
+
+checkLogin();updatePb();drawTrail(0);
+</script>
+</body>
+</html>

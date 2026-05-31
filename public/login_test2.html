@@ -1,0 +1,41 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR Test 2</title>
+<style>body{background:#000;color:#fff;padding:20px;font-family:sans-serif}
+button{padding:12px 24px;margin:5px;cursor:pointer;font-size:16px}
+#qrwrap{width:200px;height:200px;margin:10px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center}
+#msg{color:#0f0;margin:10px;font-size:14px}</style></head><body>
+<h2>QR Code Test</h2>
+<button id="btn">Get QR Code</button>
+<div id="qrwrap"></div>
+<div id="msg"></div>
+<script>
+document.getElementById('btn').onclick = function() {
+  var m = document.getElementById('msg');
+  m.textContent = 'Step 1: fetching key...';
+  
+  fetch('/api/login/netease/qr/key')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      m.textContent = 'Step 2: key=' + JSON.stringify(d).slice(0,100);
+      var key = d.data && d.data.unikey;
+      if(!key){ m.textContent = 'ERROR: no key'; return; }
+      var url = 'https://music.163.com/login?codekey=' + key;
+      m.textContent = 'Step 3: generating QR...';
+      return fetch('/api/qrcode?url=' + encodeURIComponent(url));
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      m.textContent = 'Step 4: QR data length=' + (d.dataUrl ? d.dataUrl.length : 0);
+      var img = document.createElement('img');
+      img.src = d.dataUrl;
+      img.style.width = '180px';
+      img.style.height = '180px';
+      var wrap = document.getElementById('qrwrap');
+      wrap.innerHTML = '';
+      wrap.appendChild(img);
+      m.textContent = 'DONE - QR should be visible';
+    })
+    .catch(function(e){
+      m.textContent = 'ERROR: ' + e.message;
+    });
+};
+</script></body></html>

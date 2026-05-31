@@ -1,0 +1,34 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>QR Test</title>
+<style>body{background:#000;color:#fff;font-family:sans-serif;padding:20px}
+#box{border:1px solid #333;padding:20px;max-width:400px;margin:0 auto;text-align:center}
+button{padding:10px 20px;margin:5px;cursor:pointer}
+img{margin:10px}</style></head><body>
+<div id="box"><h2>QR Test</h2>
+<div id="step1"><button onclick="start()">生成二维码</button></div>
+<div id="step2" style="display:none"><div id="qrwrap">loading...</div><div id="status"></div></div>
+</div>
+<script>
+async function start(){
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='';
+  try{
+    const r=await fetch('/api/login/netease/qr/key');
+    const d=await r.json();
+    const key=d.data?.unikey;
+    document.getElementById('status').textContent='Key: '+key;
+    const url='https://music.163.com/login?codekey='+key;
+    const qrRes=await fetch('/api/qrcode?url='+encodeURIComponent(url));
+    const qrData=await qrRes.json();
+    const img=document.createElement('img');img.src=qrData.dataUrl;img.width=180;img.height=180;
+    document.getElementById('qrwrap').innerHTML='';document.getElementById('qrwrap').appendChild(img);
+    document.getElementById('status').textContent='请扫码';
+    // Poll
+    setInterval(async()=>{
+      const cr=await fetch('/api/login/netease/qr/check?key='+key);
+      const cd=await cr.json();
+      document.getElementById('status').textContent='Code:'+cd.code;
+      if(cd.code===803)document.getElementById('status').textContent='LOGIN OK!';
+    },2000);
+  }catch(e){document.getElementById('status').textContent='Error:'+e.message}
+}
+</script></body></html>
