@@ -4,9 +4,9 @@
 
 ## 立即体验
 
-**[regression-coral-leeds-entirely.trycloudflare.com](https://regression-coral-leeds-entirely.trycloudflare.com)**
+**[quilt-covered-films-colour.trycloudflare.com](https://quilt-covered-films-colour.trycloudflare.com)**
 
-*(地址由 Cloudflare Tunnel 提供，24h 在线)*
+*(Cloudflare Tunnel 临时地址，断连会变。永久域名待配置)*
 
 ## 功能
 
