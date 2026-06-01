@@ -24,12 +24,6 @@ if (GROQ_KEY) {
   groq = new Groq({ apiKey: GROQ_KEY });
 }
 
-// ===== QQ OAuth 配置 =====
-// 去 https://connect.qq.com 注册应用获取 AppID 和 AppKey
-const QQ_APP_ID = process.env.QQ_APP_ID || "YOUR_QQ_APP_ID";
-const QQ_APP_KEY = process.env.QQ_APP_KEY || "YOUR_QQ_APP_KEY";
-const QQ_REDIRECT = process.env.QQ_REDIRECT || `http://localhost:${PORT}/oauth/qq/callback`;
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 const FileStore = require("session-file-store")(session);
@@ -136,62 +130,6 @@ app.get("/api/login/netease/qr/check", async (req, res) => {
     }
     res.json(result.body);
   } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.get("/api/login/qq", (req, res) => {
-  const state = Math.random().toString(36).slice(2, 10);
-  req.session.oauthState = state;
-  const url = `https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=${QQ_APP_ID}&redirect_uri=${encodeURIComponent(QQ_REDIRECT)}&state=${state}&scope=get_user_info`;
-  res.json({ url });
-});
-
-app.get("/oauth/qq/callback", async (req, res) => {
-  const { code, state } = req.query;
-  if (state !== req.session.oauthState) {
-    return res.status(403).send("State mismatch — possible CSRF attack");
-  }
-
-  try {
-    // Step 1: code → access_token
-    const tokenRes = await axios.get("https://graph.qq.com/oauth2.0/token", {
-      params: {
-        grant_type: "authorization_code",
-        client_id: QQ_APP_ID,
-        client_secret: QQ_APP_KEY,
-        code,
-        redirect_uri: QQ_REDIRECT,
-        fmt: "json",
-      },
-    });
-    const accessToken = tokenRes.data.access_token;
-
-    // Step 2: access_token → openid
-    const openidRes = await axios.get("https://graph.qq.com/oauth2.0/me", {
-      params: { access_token: accessToken, fmt: "json" },
-    });
-    const openid = openidRes.data.openid;
-
-    // Step 3: openid + access_token → user info
-    const userRes = await axios.get("https://graph.qq.com/user/get_user_info", {
-      params: {
-        access_token: accessToken,
-        oauth_consumer_key: QQ_APP_ID,
-        openid,
-      },
-    });
-    const user = userRes.data;
-
-    req.session.user = {
-      openid,
-      nickname: user.nickname,
-      avatar: user.figureurl_qq_2 || user.figureurl_qq_1,
-      platform: "qq",
-    };
-
-    res.redirect("/");
-  } catch (e) {
-    console.error("QQ OAuth error:", e.message);
-    res.status(500).send("QQ 登录失败: " + e.message);
-  }
 });
 
 // ===== 二维码生成（服务端渲染，不依赖外部API）=====

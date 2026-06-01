@@ -74,7 +74,6 @@ canvas#bg{position:fixed;top:0;left:0;z-index:0}
 #loginBox{background:rgba(5,10,30,0.95);backdrop-filter:blur(20px);border:1px solid rgba(0,212,255,0.3);border-radius:18px;padding:32px;text-align:center;max-width:360px;width:90%}
 #loginBox h2{font-family:'Orbitron';font-size:1.2rem;margin-bottom:18px;color:#00d4ff}
 .login-btn{width:100%;padding:12px;border:none;border-radius:24px;font-size:.92rem;cursor:pointer;font-weight:700;margin-bottom:8px;transition:all .3s}
-.btn-qq{background:linear-gradient(135deg,#12b7f5,#0d8bcc);color:#fff}
 .btn-ne{background:transparent;color:#f55;border:1px solid rgba(255,50,50,0.3)}
 .btn-skip{display:block;margin:12px auto 0;background:none;border:none;color:#556;cursor:pointer;font-size:.75rem}
 #neLoginStep{display:none;text-align:center}
@@ -182,7 +181,6 @@ body.immersive #lyricsOverlay{opacity:1!important}
 <div id="loginOverlay"><div id="loginBox">
   <h2>🎵 登录歌者空间</h2>
   <div id="loginMain">
-    <button class="login-btn btn-qq" onclick="_qqLogin()">🐧 QQ 账号登录</button>
     <button class="login-btn btn-ne" onclick="_showNELogin()">🎵 网易云扫码登录</button>
     <button class="btn-skip" onclick="_skipLogin()">跳过，直接使用</button>
   </div>
@@ -202,7 +200,6 @@ function toast(msg){document.getElementById('toast').textContent=msg;document.ge
 // Login UI
 window._toggleLogin=function(){document.getElementById('loginOverlay').classList.toggle('show');document.getElementById('loginMain').style.display='';document.getElementById('neLoginStep').style.display='none'}
 window._skipLogin=function(){document.getElementById('loginOverlay').classList.remove('show');toast('已跳过')}
-window._qqLogin=async function(){try{location.href=(await(await fetch('/api/login/qq')).json()).url}catch(e){toast('QQ登录暂不可用')}}
 window._showNELogin=function(){document.getElementById('loginMain').style.display='none';document.getElementById('neLoginStep').style.display='block';window._startNELogin()}
 window._backToLogin=function(){document.getElementById('loginMain').style.display='';document.getElementById('neLoginStep').style.display='none'}
 var _neQRtimer=null;
@@ -786,7 +783,6 @@ window.showUMenu=function(){var m=document.getElementById('userMenu');if(m.class
 window.logoutNE=async function(){await fetch('/api/netease/logout',{method:'POST'});neUser=null;document.getElementById('userBtn').innerHTML='🚀 登录';document.getElementById('userBtn').className='';document.getElementById('userBtn').onclick=_toggleLogin;document.getElementById('userMenu').classList.remove('show');playlist=[];cIdx=-1;renderPl();audio.pause();audio.src='';document.getElementById('trackTitle').textContent='等待播放';document.getElementById('trackArtist').textContent='—';document.getElementById('albumCard').innerHTML='<span style=\"opacity:.25\">🌌</span>';toast('已退出网易云')};
 window.toggleLogin=function(){document.getElementById('loginOverlay').classList.toggle('show');resetLogin()};
 function resetLogin(){document.getElementById('loginMain').style.display='';document.getElementById('neLoginStep').style.display='none';if(neQRtimer)clearInterval(neQRtimer)};
-window.qqLogin=async function(){try{const r=await fetch('/api/login/qq');location.href=(await r.json()).url}catch(e){toast('QQ登录暂不可用')}};
 window.skipLogin=function(){document.getElementById('loginOverlay').classList.remove('show');toast('已跳过')};
 window.showNELogin=function(){toast('正在加载二维码...');document.getElementById('loginMain').style.display='none';document.getElementById('neLoginStep').style.display='block';setTimeout(()=>startNELogin(),200)};
 window.backToLogin=function(){resetLogin()};
