@@ -4,9 +4,9 @@
 
 ## 立即体验
 
-**[quilt-covered-films-colour.trycloudflare.com](https://quilt-covered-films-colour.trycloudflare.com)**
+**[singer-space.lat](http://singer-space.lat)**
 
-*(Cloudflare Tunnel 临时地址，断连会变。永久域名待配置)*
+*(Cloudflare Tunnel 永久域名，HTTPS 证书待生效)*
 
 ## 功能
 
