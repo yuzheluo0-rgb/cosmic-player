@@ -34,18 +34,12 @@ Express + Three.js + 网易云 API + 蜻蜓FM + Gutenberg + Cloudflare Tunnel
 
 ## 截图
 
-| 星空首页 | 音乐播放器 |
-|----------|-----------|
-| ![首页](images/homepage.png) | ![播放器](images/player.png) |
-
-| 宇宙电台 | 时空虫洞 |
-|----------|---------|
-| ![电台](images/radio.png) | ![虫洞](images/wormhole.png) |
-
-| 书库 | 恐怖墓地 |
-|------|---------|
-| ![书库](images/books.png) | ![墓地](images/horror.png) |
-
-| AI 聊天 | 每日一语 |
-|----------|---------|
-| ![AI](images/ai.png) | ![时钟](images/clock.png) |
+![](images/homepage.png)
+![](images/player.png)
+![](images/radio.png)
+![](images/wormhole.png)
+![](images/books.png)
+![](images/horror.png)
+![](images/ai.png)
+![](images/clock.png)
+![](images/login.png)
