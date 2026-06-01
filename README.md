@@ -4,9 +4,9 @@
 
 ## 立即体验
 
-**[singer-space.lat](http://singer-space.lat)**
+**[singer-space.lat](https://singer-space.lat)**
 
-*(Cloudflare Tunnel 永久域名，HTTPS 证书待生效)*
+*(Cloudflare Tunnel 永久域名，HTTPS 已生效)*
 
 ## 功能
 
