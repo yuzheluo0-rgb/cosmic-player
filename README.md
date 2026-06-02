@@ -2,11 +2,20 @@
 
 > 宇宙科幻音乐播放器 — 在星空间听歌、阅读、穿越时空
 
-## 立即体验
+## 桌面版下载
 
-**[singer-space.lat](https://singer-space.lat)**
+| 版本 | 下载 | 说明 |
+|------|------|------|
+| **Windows 桌面版** | [SingerSpace-v1.0.0.zip](https://github.com/yuzheluo0-rgb/cosmic-player/releases/latest) | 解压即用，双击 `SingerSpace.exe` |
 
-*(Cloudflare Tunnel 永久域名，HTTPS 已生效)*
+### 桌面版安装
+
+1. 下载上方最新版本的 zip 压缩包
+2. 解压到任意目录
+3. 双击 `SingerSpace.exe`，等待窗口自动打开
+4. 扫码登录网易云即可使用全部功能
+
+> 桌面版集成了完整的前后端，无需安装 Node.js 或浏览器，打开即用。
 
 ## 功能
 

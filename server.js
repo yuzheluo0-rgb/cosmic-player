@@ -1116,7 +1116,7 @@ app.get("/api/wormhole/:year", async (req, res) => {
 
 
 // ===== AI 助手 (通义千问) =====
-const DASHSCOPE_KEY = process.env.DASHSCOPE_KEY || "sk-cc7a5482960f4aeda529195a31ec73ef";
+const DASHSCOPE_KEY = process.env.DASHSCOPE_KEY || "";
 app.post("/api/ai/chat", async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: "message required" });

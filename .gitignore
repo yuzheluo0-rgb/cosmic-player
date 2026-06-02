@@ -4,3 +4,7 @@ public-url.txt
 data/
 *.log
 cloudflared.exe
+tunnel-permanent.js
+tunnel-daemon.js
+tunnel.js
+whisper/
