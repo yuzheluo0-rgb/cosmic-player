@@ -2,6 +2,12 @@
 
 > 宇宙科幻音乐播放器 — 在星空间听歌、阅读、穿越时空
 
+## 下载
+
+[下载桌面版](https://github.com/yuzheluo0-rgb/cosmic-player/releases/latest)
+
+解压即用，双击 `SingerSpace.exe`。无需安装 Node.js 或浏览器。
+
 ## 功能
 
 | 模块 | 说明 |
