@@ -1,7 +1,8 @@
 {
   "name": "cosmic-player",
   "version": "1.0.0",
-  "author": "yuzheluo0-rgb",`n  "description": "歌者空�?�?科幻宇宙主题听歌平台",
+  "author": "yuzheluo0-rgb",
+  "description": "歌者空间 — 科幻宇宙主题听歌平台",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
